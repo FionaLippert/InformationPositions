@@ -26,17 +26,17 @@ if __name__ == '__main__':
         real = sys.argv[1]
     else:
         real = 0
-    repeats       = int(1e4)
-    deltas        = 100
-    step          = int(1e4)
-    nSamples      = int(1e3)
+    repeats       = 2 #int(1e4)
+    deltas        = 5 #100
+    step          = 10 #int(1e4)
+    nSamples      = 10 #int(1e3)
     burninSamples = 0
     pulseSizes    = [.1, inf] #, -np.inf]# , .8, .7]
 
-    nTrials       = 20
+    nTrials       = 1 #20
     magSide       = ''
     updateType    = 'single'
-    CHECK         = [.8, .5, .2] # if real else [.9]  # match magnetiztion at 80 percent of max
+    CHECK         = 0.8 #[.8, .5, .2] # if real else [.9]  # match magnetiztion at 80 percent of max
     n = 10
     graphs = []
 #    real = 1
@@ -52,8 +52,9 @@ if __name__ == '__main__':
         nx.set_node_attributes(graph, attr)
         graphs.append(graph)
     else:
-       graphs += [nx.path_graph(5)]
+       #graphs += [nx.path_graph(5)]
        # graphs += [nx.krackhardt_kite_graph()]
+       graphs += [nx.grid_2d_graph(10, 10, periodic=True)]
 
 
     # graphs = [nx.barabasi_albert_graph(10,5)]
@@ -96,10 +97,11 @@ if __name__ == '__main__':
             for i, j in tmp.items():
                 globals()[i] = j
         else:
-            magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK)
+            magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
 
             # magRange = array([.9, .2])
             temps = linspace(0, 5, 1000)
+            #temps = linspace(0, 5, 5)
             mag, sus = model.matchMagnetization(temps = temps,\
              n = int(1e4), burninSamples = 0)
 
@@ -123,7 +125,7 @@ if __name__ == '__main__':
             ax.scatter(temperatures, func(temperatures, *a), c ='red')
             ax.scatter(temps, mag, alpha = .2)
             setp(ax, **dict(xlabel = 'Temperature', ylabel = '<M>'))
-            savefig(f'{targetDirectory}/temp vs mag.png')
+            savefig(f'{targetDirectory}/temp_vs_mag.png')
             # show()
             tmp = dict(temps = temps, \
             temperatures = temperatures, magRange = magRange, mag = mag)

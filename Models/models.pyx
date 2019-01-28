@@ -150,7 +150,7 @@ cdef class Model: # see pxd
                     weight = graph[node][source]['weight']
                     # check if t he node is already in stack
                     if sourceID in set(adj[sincID]) :
-                        add = True
+                        add = False
                     # not found so we should add
                     else:
                         add = True

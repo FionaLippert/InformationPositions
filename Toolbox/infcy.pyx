@@ -128,7 +128,7 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
         unordered_map[int, double] snapshots
         int i, sample
         int N          = nSamples * step
-        long[:, ::1] r = model.sampleNodes(N)
+        long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs
         double Z       = <double> nSamples
         int idx
         double past    = timer()
@@ -146,13 +146,13 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
     tid = threadid()
     pbar = tqdm(total = nSamples)
     for sample in prange(nSamples, nogil = True, \
-                         schedule = 'static', num_threads = nThreads):
+                         schedule = 'static', num_threads = nThreads): # nSample independent models in parallel
         # perform n steps
         for i in range(step):
             (<Model> models_[sample].ptr)._updateState(r[(i + 1) * (sample + 1)])
         with gil:
             idx = encodeState((<Model> models_[sample].ptr)._states)
-            snapshots[idx] += 1/Z
+            snapshots[idx] += 1/Z # each index corresponds to one system state, the array contains the probability of each state
             pbar.update(1)
 
     # pbar = tqdm(total = nSamples)
@@ -201,13 +201,13 @@ cpdef dict monteCarlo(\
         # loop stuff
         # extract startstates
         # list comprehension is slower than true loops cython
-        long[:, ::1] s = np.array([decodeState(i, model._nNodes) for i in tqdm(snapshots)])
-        int states     = len(snapshots)
+        long[:, ::1] s = np.array([decodeState(i, model._nNodes) for i in tqdm(snapshots)]) # array of system states
+        int states     = len(snapshots) # number of different states observed
 
         # CANT do this inline which sucks either assign it below with gill or move this to proper c/c++
         # loop parameters
         int repeat, delta, node, statei, half = deltas // 2, state
-        vector[int] kdxs        = list(snapshots.keys()) # extra mapping idx
+        vector[int] kdxs        = list(snapshots.keys()) # extra mapping idx (list of decimal representations of states)
         dict conditional = {}
         # unordered_map[int, double *] conditional
         long[::1] startState
@@ -307,6 +307,110 @@ cpdef dict monteCarlo(\
     pbar.close()
     print(f"Delta = {timer() - past: .2f} sec")
     return conditional
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cdef double mean(long[::1] arr, long len) nogil:
+    cdef:
+        double mu = 0
+        long i
+    for i in range(len):
+        mu = mu + arr[i]
+    mu = mu / len
+    return mu
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef np.ndarray magnetizationParallel(Model model,\
+                          np.ndarray temps  = np.logspace(-3, 2, 20),\
+                      int n             = int(1e3),\
+                      int burninSamples = 100):
+    """
+    Computes the magnetization as a function of temperatures
+    Input:
+          :temps: a range of temperatures
+          :n:     number of samples to simulate for
+          :burninSamples: number of samples to throw away before sampling
+    Returns:
+          :temps: the temperature range as input
+          :mag:  the magnetization for t in temps
+          :sus:  the magnetic susceptibility
+    """
+
+    cdef:
+        list modelsPy  = []
+        vector[PyObjectHolder] models_
+        Model tmp
+        long nNodes = model._nNodes
+        int t, step, start, tid, nThreads = mp.cpu_count()
+        int nTemps = temps.shape[0]
+        int totalSteps = n + burninSamples
+        long idx
+        np.ndarray betas = temps
+        double[::1] cview_betas = betas
+        np.ndarray mags = np.zeros((nTemps, n))
+        double[:,::1] cview_mags = mags
+        np.ndarray results = np.zeros((2, nTemps))
+        double[:,::1] cview_results = results
+        long[:, ::1] r = model.sampleNodes( totalSteps * nTemps)
+        double sum, sum_square, m, b, nSteps = n
+        double[::1] test
+
+
+
+    # threadsafe model access
+    for t in range(nTemps):
+        tmp = copy.deepcopy(model)
+        tmp.reset()
+        tmp.seed += t # enforce different seeds
+        tmp.t = temps[t]
+        modelsPy.append(tmp)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+        betas[t] = 1 / t if t != 0 else np.inf
+
+
+    tid = threadid()
+    #pbar = tqdm(total = nTemps)
+    for t in prange(nTemps, nogil = True, \
+                         schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
+        # simulate until equilibrium reached
+        #(<Model> models_[t].ptr).burnin(burninSamples)
+        # collect magnetizations
+        start = t * totalSteps
+        for step in range(burninSamples):
+            idx = start + step
+            (<Model>models_[t].ptr)._updateState(r[idx])
+
+        sum = 0
+        sum_square = 0
+        for step in range(n):
+            idx = start + burninSamples + step
+            #cview_mags[t][step] = mean((<Model>models_[t].ptr)._updateState(r[idx]), nNodes)
+            m = mean((<Model>models_[t].ptr)._updateState(r[idx]), nNodes)
+            sum = sum + m
+            sum_square = sum_square + (m*m)
+
+        # TODO is this actually faster than with gil?
+        cview_results[0][t] = sum / n
+        cview_results[1][t] = ((sum_square / nSteps) - (sum / nSteps)*(sum / nSteps)) * cview_betas[t]#* (<Model> models_[t].ptr).beta
+
+        #with gil:
+        #    results[0, t] = abs(mags[t,:].mean())
+        #    results[1, t] = ((mags[t,:]**2).mean() - mags[t,:].mean()**2) * (<Model> models_[t].ptr).beta
+
+            #pbar.update(1)
+
+    return results
 
 @cython.boundscheck(False) # compiler directive
 @cython.wraparound(False) # compiler directive

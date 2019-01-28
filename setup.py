@@ -19,8 +19,10 @@ __python__requires__    = ">=3.6"
 
 
 # clang seems faster on my machine
-os.environ['CXXFLAGS'] = "clang++ -Xclang -fopenmp -Wall -fno-wrapv -fast-math -Ofast -std=c++17 -march=native"
-os.environ['CC']       = "clang++ -Xclang -fopenmp -Wall -fno-wrapv -ffast-math -Ofast -std=c++17 -march=native"
+#os.environ['CXXFLAGS'] = "clang++ -Xclang -fopenmp=libiomp5 -Wall -fno-wrapv -fast-math -Ofast -std=c++17 -march=native"
+#os.environ['CC']       = "clang++ -Xclang -fopenmp -Wall -fno-wrapv -ffast-math -Ofast -std=c++17 -march=native"
+os.environ['CXXFLAGS'] = "g++ -fopenmp -Wall -fno-wrapv -fast-math -Ofast -std=c++17 -march=native"
+os.environ['CC']       = "gcc -fopenmp -Wall -fno-wrapv -ffast-math -Ofast -std=c++17 -march=native"
 
 exts = []
 
@@ -28,7 +30,7 @@ baseDir =  os.getcwd() + os.path.sep
 nums = numpy.get_include()
 if not os.path.exists('Data'):
     os.mkdir('Data')
-    
+
 for (root, dirs, files) in os.walk(baseDir):
     for file in files:
         fileName = f'{root}/{file}'

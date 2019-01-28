@@ -15,11 +15,14 @@ from scipy.stats import linregress
 import networkx as nx, multiprocessing as mp, \
                 scipy,  functools, copy, time
 from tqdm import tqdm
+import copy
 
 # ___CythonImports___
 cimport cython
 from cython cimport numeric
-from cython.parallel cimport prange, parallel
+from cython.parallel cimport parallel, prange, threadid
+from cpython.ref cimport PyObject
+from cpython cimport PyObject, Py_XINCREF, Py_XDECREF
 
 cimport numpy as np # overwrite some c  backend from above
 
@@ -34,6 +37,25 @@ from libc.stdio cimport printf
 # use external exp
 cdef extern from "vfastexp.h":
     double exp_approx "EXP" (double) nogil
+cdef extern from *:
+    cdef cppclass PyObjectHolder:
+        PyObject *ptr
+        PyObjectHolder(PyObject *o) nogil
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cdef long mean(long[::1] arr, long len) nogil:
+    cdef:
+        long mu = 0
+        long i
+    for i in range(len):
+        mu = mu + arr[i]
+    #mu = mu / len
+    return mu
 
 cdef class Ising(Model):
     # def __cinit__(self, *args, **kwargs):
@@ -155,6 +177,7 @@ cdef class Ising(Model):
     @cython.initializedcheck(False)
     @cython.overflowcheck(False)
     cdef long[::1] _updateState(self, long[::1] nodesToUpdate) nogil:
+    #cdef double _updateState(self, long[::1] nodesToUpdate) nogil:
     # cdef long[::1] _updateState(self, long[::1] nodesToUpdate):
         """
         Determines the flip probability
@@ -197,6 +220,16 @@ cdef class Ising(Model):
                 self._states[node] = -self._states[node]
         return self._states
 
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    @cython.overflowcheck(False)
+    cdef long updateStateGetMean(self, long[::1] nodesToUpdate) nogil:
+        cdef long[::1] states = self._updateState(nodesToUpdate)
+        cdef long mu = mean(states, self._nNodes)
+        return mu
 
 
     cpdef np.ndarray[double] computeProb(self):
@@ -228,7 +261,8 @@ cdef class Ising(Model):
         cdef double tcopy   = self.t # store current temp
         cdef results = np.zeros((2, temps.shape[0]))
         print("Computing mag per t")
-        for idx, t in enumerate(tqdm(temps)):
+        #for idx, t in enumerate(tqdm(temps)):
+        for idx, t in enumerate((temps)):
             self.reset()
             self.t          = t
             # jdx             = self.magSideOptions[self.magSide]
@@ -244,6 +278,9 @@ cdef class Ising(Model):
         # print(results[0])
         self.t = tcopy # reset temp
         return results
+
+
+
     def __deepcopy__(self, memo):
         tmp = Ising(
                     graph       = copy.deepcopy(self.graph), \
@@ -289,6 +326,7 @@ cdef class Ising(Model):
     @property
     def t(self):
         return self._t
+
 
     @t.setter
     def t(self, value):

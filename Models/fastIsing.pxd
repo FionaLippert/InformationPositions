@@ -9,6 +9,8 @@ cdef struct Connection:
     vector[int] neighbors
     vector[double] weights
 
+cdef long mean(long[::1] arr, long len) nogil
+
 cdef class Ising(Model):
     cdef:
         # public
@@ -16,6 +18,7 @@ cdef class Ising(Model):
         # np.ndarray _H # external magnetic field
         double[::1]  _H # external magnetic field
         double beta
+
 
     # computes the energy
     cdef double energy(self, \
@@ -25,12 +28,13 @@ cdef class Ising(Model):
     #                    int  node, \
     #                    long[::1] states)
 
-
     # overload the parent functions
     cpdef long[::1] updateState(self, long[::1] nodesToUpdate)
     # cdef long[::1] _updateState(self, long[::1] nodesToUpdate)
     cdef long[::1] _updateState(self, long[::1] nodesToUpdate) nogil
-    # # python wrapper
+
+    cdef long updateStateGetMean(self, long[::1] nodesToUpdate) nogil
+
 
     # computes state probability; kinda not used atm
     cpdef np.ndarray[double] computeProb(self)
@@ -45,3 +49,7 @@ cdef class Ising(Model):
                            np.ndarray temps =*,\
                            int n =*,\
                            int burninSamples =*)
+    #cpdef np.ndarray matchMagnetizationParallel(self,\
+    #                       np.ndarray temps =*,\
+    #                       int n =*,\
+    #                       int burninSamples =*)

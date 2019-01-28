@@ -9,3 +9,4 @@ cython
 h5py
 scikit-learn
 scikit-posthocs
+dataclasses
