@@ -49,6 +49,7 @@ cdef class Ising(Model):
                            np.ndarray temps =*,\
                            int n =*,\
                            int burninSamples =*)
+
     #cpdef np.ndarray matchMagnetizationParallel(self,\
     #                       np.ndarray temps =*,\
     #                       int n =*,\

@@ -347,24 +347,26 @@ cpdef np.ndarray magnetizationParallel(Model model,\
           :sus:  the magnetic susceptibility
     """
 
+    # if workload is small, use serial implementation
+    if n < 1e3:
+        return model.matchMagnetization(temps, n, burninSamples)
+
+    # otherwise parallel is faster
     cdef:
         list modelsPy  = []
         vector[PyObjectHolder] models_
         Model tmp
-        long nNodes = model._nNodes
-        int t, step, start, tid, nThreads = mp.cpu_count()
+        long idx, nNodes = model._nNodes
+        int t, step, start, tid
+        int nThreads = mp.cpu_count()
         int nTemps = temps.shape[0]
         int totalSteps = n + burninSamples
-        long idx
-        np.ndarray betas = temps
+        double sum, sum_square, m
+        np.ndarray betas = temps.copy()
         double[::1] cview_betas = betas
-        np.ndarray mags = np.zeros((nTemps, n))
-        double[:,::1] cview_mags = mags
         np.ndarray results = np.zeros((2, nTemps))
         double[:,::1] cview_results = results
         long[:, ::1] r = model.sampleNodes( totalSteps * nTemps)
-        double sum, sum_square, m, b, nSteps = n
-        double[::1] test
 
 
 
@@ -383,9 +385,8 @@ cpdef np.ndarray magnetizationParallel(Model model,\
     #pbar = tqdm(total = nTemps)
     for t in prange(nTemps, nogil = True, \
                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
+
         # simulate until equilibrium reached
-        #(<Model> models_[t].ptr).burnin(burninSamples)
-        # collect magnetizations
         start = t * totalSteps
         for step in range(burninSamples):
             idx = start + step
@@ -393,24 +394,22 @@ cpdef np.ndarray magnetizationParallel(Model model,\
 
         sum = 0
         sum_square = 0
+        # collect magnetizations
         for step in range(n):
             idx = start + burninSamples + step
-            #cview_mags[t][step] = mean((<Model>models_[t].ptr)._updateState(r[idx]), nNodes)
             m = mean((<Model>models_[t].ptr)._updateState(r[idx]), nNodes)
             sum = sum + m
             sum_square = sum_square + (m*m)
 
-        # TODO is this actually faster than with gil?
-        cview_results[0][t] = sum / n
-        cview_results[1][t] = ((sum_square / nSteps) - (sum / nSteps)*(sum / nSteps)) * cview_betas[t]#* (<Model> models_[t].ptr).beta
+        m = sum / n
+        cview_results[0][t] = m if m > 0 else -m
+        cview_results[1][t] = ((sum_square / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta
 
         #with gil:
-        #    results[0, t] = abs(mags[t,:].mean())
-        #    results[1, t] = ((mags[t,:]**2).mean() - mags[t,:].mean()**2) * (<Model> models_[t].ptr).beta
-
             #pbar.update(1)
 
     return results
+    
 
 @cython.boundscheck(False) # compiler directive
 @cython.wraparound(False) # compiler directive

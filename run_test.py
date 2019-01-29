@@ -26,10 +26,10 @@ close('all')
 
 if __name__ == '__main__':
 
-    nSamples      = int(1e5) #int(1e6)
-    burninSamples = 10 # int(1e6)
+    nSamples      = int(1e4) #int(1e6)
+    burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
-    updateType    = 'single'
+    updateType    = ''
     CHECK         = .5  #[.8, .5, .2]   # value of 0.8 means match magnetiztion at 80 percent of max
 
 
@@ -64,7 +64,8 @@ if __name__ == '__main__':
             globals()[i] = j
     else:
         magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
-        temps = linspace(0, 5, 100)
+        temps = linspace(0.1, 5, 50)
+        print(temps)
 
         start = time.process_time()
         mag, sus = infcy.magnetizationParallel(model,\
@@ -73,16 +74,21 @@ if __name__ == '__main__':
         end = time.process_time()
         print("parallel: {}".format(end-start))
 
+        print(temps)
+
+        """
         start = time.process_time()
         mag, sus = model.matchMagnetization(\
                         temps = temps,\
                         n = nSamples, burninSamples = burninSamples)
         end = time.process_time()
         print("serial: {}".format(end-start))
+        """
 
 
         func = lambda x, a, b, c, d :  a / (1 + exp(b * (x - c))) + d # tanh(-a * x)* b + c
         # func = lambda x, a, b, c : a + b*exp(-c * x)
+        print(temps, mag.squeeze())
         a, b = scipy.optimize.curve_fit(func, temps, mag.squeeze(), maxfev = 10000)
 
         # run the simulation per temperature

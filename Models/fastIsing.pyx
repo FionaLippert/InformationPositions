@@ -243,6 +243,8 @@ cdef class Ising(Model):
             probs[node] = exp(-self.beta * en)
         return probs / np.nansum(probs)
 
+
+
     cpdef  np.ndarray matchMagnetization(self,\
                               np.ndarray temps  = np.logspace(-3, 2, 20),\
                           int n             = int(1e3),\
