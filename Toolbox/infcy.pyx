@@ -22,7 +22,7 @@ from tqdm import tqdm   #progress bar
 
 # cython
 from libcpp.vector cimport vector
-from libc.stdlib cimport srand
+from libc.stdlib cimport srand, malloc, free
 from libcpp.unordered_map cimport unordered_map
 from libc.stdio cimport printf
 import ctypes
@@ -30,6 +30,7 @@ from cython.view cimport array as cvarray
 from timeit import default_timer as timer
 from cython.operator cimport dereference as deref, preincrement as prec
 from cpython cimport PyObject, Py_XINCREF, Py_XDECREF
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 cdef extern from *:
     """
     #include <Python.h>
@@ -308,6 +309,57 @@ cpdef dict monteCarlo(\
     print(f"Delta = {timer() - past: .2f} sec")
     return conditional
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:
+    cdef:
+        long[:, ::1] r = model.sampleNodes(nSamples)
+        int step
+
+    for step in range(nSamples):
+        model._updateState(r[step])
+
+    return model._states
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef long[::1] collectSnapshots(Model model, int repeats, int burninSamples, int nSamples, int distSamples):
+    cdef:
+        #list modelsPy  = []
+        vector[PyObjectHolder] models_
+        Model tmp
+        int start, sample, idx, step, nThreads = mp.cpu_count()
+        long rep, s
+        long[::1] snapshots = np.zeros(repeats * nSamples, int)
+
+
+    for rep in range(repeats):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep # enforce different seeds
+        #modelsPy.append(tmp)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    pbar = tqdm(total = repeats) # init  progbar
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+        simulate(<Model>models_[rep].ptr, burninSamples)
+
+        start = rep * nSamples
+
+        for sample in range(nSamples):
+            simulate(<Model>models_[rep].ptr, distSamples)
+            snapshots[start + sample] = encodeState(model._states)
+        with gil:
+            pbar.update(1)
+
+    return snapshots
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -348,12 +400,12 @@ cpdef np.ndarray magnetizationParallel(Model model,\
     """
 
     # if workload is small, use serial implementation
-    if n < 1e3:
+    if n <= 1e4:
         return model.matchMagnetization(temps, n, burninSamples)
 
     # otherwise parallel is faster
     cdef:
-        list modelsPy  = []
+        #list modelsPy  = []
         vector[PyObjectHolder] models_
         Model tmp
         long idx, nNodes = model._nNodes
@@ -376,12 +428,12 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         tmp.reset()
         tmp.seed += t # enforce different seeds
         tmp.t = temps[t]
-        modelsPy.append(tmp)
+        #modelsPy.append(tmp)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
         betas[t] = 1 / t if t != 0 else np.inf
 
 
-    tid = threadid()
+    #tid = threadid()
     #pbar = tqdm(total = nTemps)
     for t in prange(nTemps, nogil = True, \
                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
@@ -409,7 +461,6 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             #pbar.update(1)
 
     return results
-    
 
 @cython.boundscheck(False) # compiler directive
 @cython.wraparound(False) # compiler directive

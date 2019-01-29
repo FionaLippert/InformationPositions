@@ -33,8 +33,6 @@ cdef class Ising(Model):
     # cdef long[::1] _updateState(self, long[::1] nodesToUpdate)
     cdef long[::1] _updateState(self, long[::1] nodesToUpdate) nogil
 
-    cdef long updateStateGetMean(self, long[::1] nodesToUpdate) nogil
-
 
     # computes state probability; kinda not used atm
     cpdef np.ndarray[double] computeProb(self)

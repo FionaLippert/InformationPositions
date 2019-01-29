@@ -26,14 +26,16 @@ close('all')
 
 if __name__ == '__main__':
 
-    nSamples      = int(1e4) #int(1e6)
-    burninSamples = int(1e4) # int(1e6)
+    # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
+
+    nSamples      = int(2e4) #int(1e6)
+    burninSamples = 0#int(1e3) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
     CHECK         = .5  #[.8, .5, .2]   # value of 0.8 means match magnetiztion at 80 percent of max
 
 
-    graph = nx.grid_2d_graph(32, 32, periodic=True)
+    graph = nx.grid_2d_graph(16, 16, periodic=True)
 
     now = time.time()
     targetDirectory = f'{os.getcwd()}/Data/{now}'
@@ -67,6 +69,7 @@ if __name__ == '__main__':
         temps = linspace(0.1, 5, 50)
         print(temps)
 
+        """
         start = time.process_time()
         mag, sus = infcy.magnetizationParallel(model,\
                         temps = temps,\
@@ -75,7 +78,7 @@ if __name__ == '__main__':
         print("parallel: {}".format(end-start))
 
         print(temps)
-
+        """
         """
         start = time.process_time()
         mag, sus = model.matchMagnetization(\
@@ -84,8 +87,7 @@ if __name__ == '__main__':
         end = time.process_time()
         print("serial: {}".format(end-start))
         """
-
-
+        """
         func = lambda x, a, b, c, d :  a / (1 + exp(b * (x - c))) + d # tanh(-a * x)* b + c
         # func = lambda x, a, b, c : a + b*exp(-c * x)
         print(temps, mag.squeeze())
@@ -111,3 +113,6 @@ if __name__ == '__main__':
         tmp = dict(temps = temps, \
         temperatures = temperatures, magRange = magRange, mag = mag)
         IO.savePickle(f'{targetDirectory}/mags.pickle', tmp)
+        """
+
+        infcy.collectSnapshots(model, repeats=100, burninSamples=int(1e3), nSamples=int(10), distSamples=int(1e3))

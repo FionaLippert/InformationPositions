@@ -220,17 +220,6 @@ cdef class Ising(Model):
                 self._states[node] = -self._states[node]
         return self._states
 
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
-    @cython.initializedcheck(False)
-    @cython.overflowcheck(False)
-    cdef long updateStateGetMean(self, long[::1] nodesToUpdate) nogil:
-        cdef long[::1] states = self._updateState(nodesToUpdate)
-        cdef long mu = mean(states, self._nNodes)
-        return mu
-
 
     cpdef np.ndarray[double] computeProb(self):
         """
