@@ -361,6 +361,10 @@ cpdef long[::1] collectSnapshots(Model model, int repeats, int burninSamples, in
 
     return snapshots
 
+cpdef pairwiseMI(Model model, long[::1] snapshots, int node1, int node2):
+    cdef:
+        long[:, ::1] s = np.array([decodeState(i, model._nNodes) for i in tqdm(snapshots)]) #access node state in snapshot x: s[x][node]
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -414,11 +418,12 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         int nTemps = temps.shape[0]
         int totalSteps = n + burninSamples
         double sum, sum_square, m
+        vector[double] mag_sum
         np.ndarray betas = temps.copy()
         double[::1] cview_betas = betas
         np.ndarray results = np.zeros((2, nTemps))
         double[:,::1] cview_results = results
-        long[:, ::1] r = model.sampleNodes( totalSteps * nTemps)
+        #long[:, ::1] r = model.sampleNodes( n * nTemps) # TODO sample in smaller blocks to avoid memory error!
 
 
 
@@ -434,33 +439,62 @@ cpdef np.ndarray magnetizationParallel(Model model,\
 
 
     #tid = threadid()
-    #pbar = tqdm(total = nTemps)
+    pbar = tqdm(total = nTemps)
     for t in prange(nTemps, nogil = True, \
                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
 
         # simulate until equilibrium reached
-        start = t * totalSteps
-        for step in range(burninSamples):
-            idx = start + step
-            (<Model>models_[t].ptr)._updateState(r[idx])
+        #start = t * totalSteps
+        #for step in range(burninSamples):
+        #    idx = start + step
+        #    (<Model>models_[t].ptr)._updateState(r[idx])
+        simulate((<Model>models_[t].ptr), burninSamples)
 
         sum = 0
         sum_square = 0
         # collect magnetizations
-        for step in range(n):
-            idx = start + burninSamples + step
-            m = mean((<Model>models_[t].ptr)._updateState(r[idx]), nNodes)
-            sum = sum + m
-            sum_square = sum_square + (m*m)
+        #for step in range(n):
+        #    idx = start + burninSamples + step
+        #    m = mean((<Model>models_[t].ptr)._updateState(r[idx]), nNodes)
+        #    sum = sum + m
+        #    sum_square = sum_square + (m*m)
 
-        m = sum / n
+        mag_sum = simulateGetMeanMag((<Model>models_[t].ptr), n)
+
+        m = mag_sum[0] / n
         cview_results[0][t] = m if m > 0 else -m
-        cview_results[1][t] = ((sum_square / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta
+        cview_results[1][t] = ((mag_sum[1] / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta
 
-        #with gil:
-            #pbar.update(1)
+        with gil:
+            pbar.update(1)
 
     return results
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:
+    cdef:
+        long[:, ::1] r = model.sampleNodes(nSamples)
+        int step
+        double sum, sum_square
+        vector[double] out = vector[double](2, 0)
+
+    sum = 0
+    sum_square = 0
+    # collect magnetizations
+    for step in range(nSamples):
+        m = mean(model._updateState(r[step]), model._nNodes)
+        sum = sum + m
+        sum_square = sum_square + (m*m)
+
+    out[0] = sum
+    out[1] = sum_square
+
+    return out
 
 @cython.boundscheck(False) # compiler directive
 @cython.wraparound(False) # compiler directive
