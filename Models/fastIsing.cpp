@@ -1492,6 +1492,7 @@ struct __pyx_vtabstruct_6Models_6models_Model {
   double (*rand)(struct __pyx_obj_6Models_6models_Model *);
   PyArrayObject *(*simulate)(struct __pyx_obj_6Models_6models_Model *, PY_LONG_LONG, int __pyx_skip_dispatch);
   void (*reset)(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch);
+  PyArrayObject *(*neighborsAtDist)(struct __pyx_obj_6Models_6models_Model *, int, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6Models_6models_Model *__pyx_vtabptr_6Models_6models_Model;
 

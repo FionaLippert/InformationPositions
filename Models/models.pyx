@@ -253,6 +253,19 @@ cdef class Model: # see pxd
                 self.agentStates, size = self._nNodes)
 
 
+    cpdef np.ndarray neighborsAtDist(self, int node_idx, int dist):
+        assert node_idx < self._nNodes and node_idx >= 0
+
+        undir = not nx.is_directed(self.graph)
+        node = self.rmapping[node_idx]
+        total = nx.ego_graph(self.graph, node, radius=dist, undirected=undir)
+        inner = nx.ego_graph(self.graph, node, radius=dist-1, undirected=undir)
+        neighbors = np.array([self.mapping[n] for n in (set(total.nodes()) - set(inner.nodes()))], dtype=np.intc)
+        #print("neighbors: {}".format(neighbors))
+
+        return neighbors
+
+
     def removeAllNudges(self):
         """
         Sets all nudges to zero

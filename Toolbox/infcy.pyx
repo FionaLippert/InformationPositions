@@ -23,6 +23,7 @@ from tqdm import tqdm   #progress bar
 # cython
 from libcpp.vector cimport vector
 from libc.stdlib cimport srand, malloc, free
+from libc.math cimport exp, log2
 from libcpp.unordered_map cimport unordered_map
 from libc.stdio cimport printf
 import ctypes
@@ -331,39 +332,189 @@ cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef long[::1] collectSnapshots(Model model, int repeats, int burninSamples, int nSamples, int distSamples):
+cpdef long[:,::1] collectSnapshots(Model model, int repeats, int burninSamples, int nSamples, int distSamples):
     cdef:
         #list modelsPy  = []
         vector[PyObjectHolder] models_
         Model tmp
         int start, sample, idx, step, nThreads = mp.cpu_count()
-        long rep, s
-        long[::1] snapshots = np.zeros(repeats * nSamples, int)
+        long rep, s, tid
+        long[:,::1] snapshots = np.zeros((repeats * nSamples, model._nNodes), int) #np.intc)
 
 
-    for rep in range(repeats):
+    #for rep in range(repeats):
+    for rep in range(nThreads):
         tmp = copy.deepcopy(model)
-        tmp.seed += rep # enforce different seeds
+        #tmp.seed += rep # enforce different seeds
         #modelsPy.append(tmp)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
     pbar = tqdm(total = repeats) # init  progbar
-    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
-        simulate(<Model>models_[rep].ptr, burninSamples)
-
+    for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+        tid = threadid()
+        with gil:
+            (<Model>models_[tid].ptr).reset()
+            (<Model>models_[tid].ptr).seed += rep
+        simulate(<Model>models_[tid].ptr, burninSamples)
+        tid = threadid()
+        #with gil: print("thread {}".format(tid))
         start = rep * nSamples
 
         for sample in range(nSamples):
-            simulate(<Model>models_[rep].ptr, distSamples)
-            snapshots[start + sample] = encodeState(model._states)
+            simulate(<Model>models_[tid].ptr, distSamples)
+            snapshots[start + sample] = (<Model>models_[tid].ptr)._states
+            #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
+            #with gil:
+                #code = encodeState((<Model>models_[rep].ptr)._states)
+                #print("raw states: {}".format((<Model>models_[rep].ptr)._states.base))
+                #print("decoded   : {}".format(decodeState(code, model._nNodes)))
+                #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
         with gil:
             pbar.update(1)
 
     return snapshots
 
-cpdef pairwiseMI(Model model, long[::1] snapshots, int node1, int node2):
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef double[::1] binaryEntropies(long[:,::1] snapshots):
     cdef:
-        long[:, ::1] s = np.array([decodeState(i, model._nNodes) for i in tqdm(snapshots)]) #access node state in snapshot x: s[x][node]
+        #np.ndarray H = np.zeros(nNodes)
+        #long[:, ::1] s = np.array([decodeState(i, nNodes) for i in tqdm(snapshots)])
+        #np.ndarray H = np.sum(s.base, axis=0)
+        np.ndarray tmp, H = np.sum(snapshots.base, axis=0, dtype=float)
+        double[::1] cview_H
+        int idx
+        double len = <double> snapshots.shape[0]
+
+    #print(s.base)
+
+    H = (len - np.abs(H))/2. + np.abs(H)
+    H = H/len
+
+    tmp = 1-H
+    H = - H * np.log2(H) - tmp * np.log2(np.where(tmp==0, 1, tmp)) # compute entropy for each node (use 0*log(0) = 0)
+
+    cview_H = H
+
+    #print("bin entropies: {}".format(H))
+
+    return cview_H
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:
+    cdef:
+        int idx, nSamples = snapshots.shape[0]
+        vector[long] states
+        vector[int] jointDistr = vector[int](nSamples, 0)
+        #unordered_map[int, int] jointStates
+        double mi, jointEntropy
+
+    #with gil:
+    #    jointDistr = np.zeros(len, dtype=np.intc)
+
+    for idx in range(nSamples):
+        #states = decodeState(snapshots[idx], nNodes)
+        jointDistr[idx] = snapshots[idx][node1] + snapshots[idx][node2]*2 # -3,-1,1,3 represent the 4 possible combinations of spins
+
+    #jointStates[-3] = 0
+    #jointStates[-1] = 1
+    #jointStates[1] = 2
+    #jointStates[3] = 3
+
+    with gil:
+        #print(binEntropies[node1], binEntropies[node2], entropy(jointDistr))
+        jointEntropy = entropy(jointDistr)
+
+    mi = binEntropies[node1] + binEntropies[node2] - jointEntropy
+    return mi
+
+
+
+cpdef double entropy(vector[int] samples):
+    cdef:
+        long[::1] counts = np.unique(samples, return_counts=True)[1]
+        double entropy, n = <double> samples.size()
+
+    entropy = -np.sum([c/n * np.log2(c/n) for c in counts])
+    return entropy
+
+
+
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, int dist) nogil:
+
+    cdef:
+        int[::1] neighbors
+        int idx, n
+        vector[double] MI
+        double[::1] out
+
+    with gil: # TODO possible without GIL?
+        neighbors = model.neighborsAtDist(node, dist)
+        n = neighbors.shape[0]
+        out = np.full(2, np.nan)
+        #print("num neighbors: {}".format(n))
+
+    if n > 0:
+        MI = vector[double](n, 0)
+
+        for idx in range(n):
+            MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
+
+        with gil:
+            out[0] = np.mean(MI)
+            out[1] = np.std(MI)
+
+    return out
+    #return np.mean(MI_array), np.std(MI_array)
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef np.ndarray runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax):
+    #states = model._states
+    #code = encodeState(states)
+    #print(code)
+    #dec_states = decodeState(code, model._nNodes)
+    #print("original  : {}".format(states.base))
+    #print("decoded   : {}".format(dec_states))
+    #print("difference: {}".format(model._states.base - decodeState(code, model._nNodes)))
+
+    cdef:
+        int[::1] cv_nodes = nodes
+        long[:,::1] snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+        double[::1] entropies #= binaryEntropies(snapshots, model._nNodes)
+        int n, d, nNodes = nodes.shape[0]
+        double[:,:,::1] MI = np.zeros((nNodes, distMax, 2))
+        int nThreads = mp.cpu_count()
+
+    start = time.process_time()
+    entropies = binaryEntropies(snapshots)
+    #print(np.where(entropies.base==0))
+    stop = time.process_time()
+    print("time: {}".format(stop-start))
+
+    for n in prange(nNodes, nogil = True, \
+                         schedule = 'dynamic', num_threads = nThreads):
+
+        for d in range(distMax):
+            MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], d+1)
+
+    return MI.base
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -394,6 +545,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
     """
     Computes the magnetization as a function of temperatures
     Input:
+          :model: the model to use for simulations
           :temps: a range of temperatures
           :n:     number of samples to simulate for
           :burninSamples: number of samples to throw away before sampling
@@ -419,7 +571,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         int totalSteps = n + burninSamples
         double sum, sum_square, m
         vector[double] mag_sum
-        np.ndarray betas = temps.copy()
+        np.ndarray betas = np.array([1 / t if t != 0 else np.inf for t in temps])
         double[::1] cview_betas = betas
         np.ndarray results = np.zeros((2, nTemps))
         double[:,::1] cview_results = results
@@ -428,27 +580,30 @@ cpdef np.ndarray magnetizationParallel(Model model,\
 
 
     # threadsafe model access
-    for t in range(nTemps):
+    for t in range(nThreads):
         tmp = copy.deepcopy(model)
-        tmp.reset()
-        tmp.seed += t # enforce different seeds
-        tmp.t = temps[t]
+        #tmp.reset()
+        #tmp.seed += t # enforce different seeds
+        #tmp.t = temps[t]
         #modelsPy.append(tmp)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
-        betas[t] = 1 / t if t != 0 else np.inf
 
 
     #tid = threadid()
     pbar = tqdm(total = nTemps)
     for t in prange(nTemps, nogil = True, \
                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
-
+        tid = threadid()
+        with gil:
+            (<Model>models_[tid].ptr).reset()
+            (<Model>models_[tid].ptr).seed += t
+            (<Model>models_[tid].ptr).t = temps[t]
         # simulate until equilibrium reached
         #start = t * totalSteps
         #for step in range(burninSamples):
         #    idx = start + step
         #    (<Model>models_[t].ptr)._updateState(r[idx])
-        simulate((<Model>models_[t].ptr), burninSamples)
+        simulate((<Model>models_[tid].ptr), burninSamples)
 
         sum = 0
         sum_square = 0
@@ -459,7 +614,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         #    sum = sum + m
         #    sum_square = sum_square + (m*m)
 
-        mag_sum = simulateGetMeanMag((<Model>models_[t].ptr), n)
+        mag_sum = simulateGetMeanMag((<Model>models_[tid].ptr), n)
 
         m = mag_sum[0] / n
         cview_results[0][t] = m if m > 0 else -m

@@ -28,14 +28,22 @@ if __name__ == '__main__':
 
     # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
 
+    T             = 2.5
     nSamples      = int(1e5) #int(1e6)
-    burninSamples = int(1e4) # int(1e6)
+    burninSamples = int(1e3) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
     CHECK         = []  #[.8, .5, .2]   # value of 0.8 means match magnetiztion at 80 percent of max
 
 
     graph = nx.grid_2d_graph(32, 32, periodic=True)
+    avg_deg = 2
+    N = 100
+    p = avg_deg/N
+    graph = nx.erdos_renyi_graph(N, p)
+    connected_nodes = max(nx.connected_components(graph), key=len)
+    graph = graph.subgraph(connected_nodes)
+    print("diameter = {}".format(nx.diameter(graph)))
 
     now = time.time()
     targetDirectory = f'{os.getcwd()}/Data/{now}'
@@ -52,7 +60,7 @@ if __name__ == '__main__':
     # graph = nx.barabasi_albert_graph(10, 3)
     modelSettings = dict(\
                          graph       = graph,\
-                         temperature = 0,\
+                         temperature = T,\
                          updateType  = updateType,\
                          magSide     = magSide
                          )
@@ -65,10 +73,10 @@ if __name__ == '__main__':
         for i, j in tmp.items():
             globals()[i] = j
     else:
-        magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
-        temps = linspace(0.1, 5, 200)
-        print(temps)
 
+        magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
+        temps = linspace(0.1, 5, 100)
+        #print(temps)
 
         start = time.process_time()
         mag, sus = infcy.magnetizationParallel(model,\
@@ -115,4 +123,5 @@ if __name__ == '__main__':
         IO.savePickle(f'{targetDirectory}/mags.pickle', tmp)
 
 
-        #infcy.collectSnapshots(model, repeats=100, burninSamples=int(1e3), nSamples=int(10), distSamples=int(1e3))
+        #MI = infcy.runMI(model, repeats=16, burninSamples=int(1e3), nSamples=int(500), distSamples=int(1e2), nodes=np.arange(10, dtype=np.intc), distMax=8)
+        #print(MI)
