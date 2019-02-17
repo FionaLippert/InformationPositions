@@ -59,10 +59,12 @@ cdef class Model:
 
     cdef double rand(self) nogil
     cpdef np.ndarray simulate(self, long long int  samples)
+    cdef long[::1] simulateNSteps(self, int nSteps) nogil
 
     # cpdef long[::1] updateState(self, long[::1] nodesToUpdate)
 
 
     cpdef void reset(self)
 
-    cpdef np.ndarray neighborsAtDist(self, int node, int dist)
+    cpdef unordered_map[int, vector[int]] neighboursAtDist(self, int node_idx, int maxDist)
+  #  cpdef dict neighboursAtDist(self, int node, int maxDist)

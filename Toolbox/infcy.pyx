@@ -6,6 +6,7 @@
 # from Models.models cimport Model
 from Models.models cimport Model
 
+import time
 import numpy as np
 cimport numpy as np
 cimport cython
@@ -15,7 +16,9 @@ import multiprocessing as mp
 import copy
 from cpython.ref cimport PyObject
 
-
+from scipy.stats import linregress
+from scipy.signal import correlate
+import scipy
 
 # progressbar
 from tqdm import tqdm   #progress bar
@@ -310,6 +313,7 @@ cpdef dict monteCarlo(\
     print(f"Delta = {timer() - past: .2f} sec")
     return conditional
 
+"""
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -325,6 +329,7 @@ cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:
         model._updateState(r[step])
 
     return model._states
+"""
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -355,13 +360,65 @@ cpdef long[:,::1] collectSnapshots(Model model, int repeats, int burninSamples, 
         with gil:
             (<Model>models_[tid].ptr).reset()
             (<Model>models_[tid].ptr).seed += rep
-        simulate(<Model>models_[tid].ptr, burninSamples)
+        (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
         tid = threadid()
         #with gil: print("thread {}".format(tid))
         start = rep * nSamples
 
         for sample in range(nSamples):
-            simulate(<Model>models_[tid].ptr, distSamples)
+            snapshots[start + sample] = (<Model>models_[tid].ptr).simulateNSteps(distSamples)
+            #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
+            #with gil:
+                #code = encodeState((<Model>models_[rep].ptr)._states)
+                #print("raw states: {}".format((<Model>models_[rep].ptr)._states.base))
+                #print("decoded   : {}".format(decodeState(code, model._nNodes)))
+                #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
+        with gil:
+            pbar.update(1)
+
+    return snapshots
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef long[:,::1] collectSnapshotsMagThreshold(Model model, int repeats, int burninSamples, int nSamples, int distSamples, int switch=1, double threshold=0.05):
+    cdef:
+        #list modelsPy  = []
+        vector[PyObjectHolder] models_
+        Model tmp
+        int start, sample = 0, idx, step, nThreads = mp.cpu_count()
+        long rep, s, tid, nNodes = model._nNodes
+        double mu
+        long[:,::1] snapshots = np.zeros((repeats * nSamples, nNodes), int) #np.intc)
+
+
+    #for rep in range(repeats):
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        #tmp.seed += rep # enforce different seeds
+        #modelsPy.append(tmp)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    pbar = tqdm(total = repeats) # init  progbar
+    for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+        tid = threadid()
+        with gil:
+            (<Model>models_[tid].ptr).reset()
+            (<Model>models_[tid].ptr).seed += rep
+        (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
+        tid = threadid()
+        #with gil: print("thread {}".format(tid))
+        start = rep * nSamples
+
+        for sample in range(nSamples):
+            mu = mean((<Model>models_[tid].ptr).simulateNSteps(distSamples), nNodes, abs=1)
+            while ((switch and mu >= threshold) and (not switch and mu < threshold)):
+                # continue simulating until system state reached where intended avg mag level is reached
+                mu = mean((<Model>models_[tid].ptr).simulateNSteps(1), nNodes, abs=1)
             snapshots[start + sample] = (<Model>models_[tid].ptr)._states
             #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
             #with gil:
@@ -453,39 +510,74 @@ cpdef double entropy(vector[int] samples):
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, int dist) nogil:
+cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, vector[int] neighbours) nogil:
 
     cdef:
-        int[::1] neighbors
-        int idx, n
-        vector[double] MI
+        #int[::1] neighbours
+        #vector[int] neighbours
+        int idx, n = neighbours.size() #.shape[0]
+        #vector[double] MI
         double[::1] out
 
     with gil: # TODO possible without GIL?
-        neighbors = model.neighborsAtDist(node, dist)
-        n = neighbors.shape[0]
-        out = np.full(2, np.nan)
+        #neighbors = model.neighborsAtDist(node, dist)
+        #neighbours = allNeighbours[dist]
+        #n = neighbors.shape[0]
+        #out = np.full(3, np.nan)
+        out = np.full(model._nNodes, np.nan)
         #print("num neighbors: {}".format(n))
 
     if n > 0:
-        MI = vector[double](n, 0)
+        #MI = vector[double](n, -1)
+        #MI = vector[double](model._nNodes, -1)
 
         for idx in range(n):
-            MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
+            #MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
+            out[idx] = mutualInformationIDL(snapshots, entropies, node, neighbours[idx])
 
-        with gil:
-            out[0] = np.mean(MI)
-            out[1] = np.std(MI)
+        #with gil:
+        #    out[0] = np.mean(MI)
+        #    out[1] = np.std(MI)
+        #    out[2] = np.sum(MI)
 
     return out
     #return np.mean(MI_array), np.std(MI_array)
+
 
 @cython.boundscheck(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef np.ndarray runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax):
+cpdef np.ndarray magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):
+
+    return _magTimeSeries(model, burninSamples, nSamples, abs).base
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cdef double[::1] _magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):
+
+    cdef:
+        double[::1] mags = np.zeros(nSamples)
+        int sample
+
+    #model.reset()
+    model.simulateNSteps(burninSamples)
+
+    for sample in range(nSamples):
+        mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs)
+
+    return mags
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef tuple runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax, double magThreshold=0, str targetDirectory=None):
     #states = model._states
     #code = encodeState(states)
     #print(code)
@@ -496,25 +588,37 @@ cpdef np.ndarray runMI(Model model, int repeats, int burninSamples, int nSamples
 
     cdef:
         int[::1] cv_nodes = nodes
-        long[:,::1] snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+        long[:,::1] snapshots #= collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
         double[::1] entropies #= binaryEntropies(snapshots, model._nNodes)
         int n, d, nNodes = nodes.shape[0]
-        double[:,:,::1] MI = np.zeros((nNodes, distMax, 2))
+        double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
         int nThreads = mp.cpu_count()
+        unordered_map[int, vector[int]] allNeighbours
+        int[::1] neighbours
 
-    start = time.process_time()
+    if magThreshold == 0:
+        snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+    elif magThreshold > 0:
+        snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=0, threshold=magThreshold)
+    else:
+        snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=1, threshold=np.abs(magThreshold))
+
+    if targetDirectory is not None: np.save(f'{targetDirectory}/snapshots_T={model.t}_{time.time()}.npy', snapshots)
+
     entropies = binaryEntropies(snapshots)
-    #print(np.where(entropies.base==0))
-    stop = time.process_time()
-    print("time: {}".format(stop-start))
 
     for n in prange(nNodes, nogil = True, \
                          schedule = 'dynamic', num_threads = nThreads):
 
-        for d in range(distMax):
-            MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], d+1)
+        with gil: allNeighbours = model.neighboursAtDist(n, distMax)
 
-    return MI.base
+        for d in range(distMax):
+            #with gil: neighbours = allNeighbours[d+1]
+            MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], allNeighbours[d+1])
+
+    degrees = [model.graph.degree(model.rmapping[n]) for n in nodes]
+
+    return MI.base, degrees
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -522,14 +626,18 @@ cpdef np.ndarray runMI(Model model, int repeats, int burninSamples, int nSamples
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cdef double mean(long[::1] arr, long len) nogil:
+cdef double mean(long[::1] arr, long len, int abs=0) nogil:
     cdef:
         double mu = 0
         long i
     for i in range(len):
         mu = mu + arr[i]
     mu = mu / len
-    return mu
+
+    if abs and mu < 0:
+        return -mu
+    else:
+        return mu
 
 
 @cython.boundscheck(False)
@@ -556,7 +664,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
     """
 
     # if workload is small, use serial implementation
-    if n <= 1e4:
+    if n < 1e4:
         return model.matchMagnetization(temps, n, burninSamples)
 
     # otherwise parallel is faster
@@ -603,7 +711,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         #for step in range(burninSamples):
         #    idx = start + step
         #    (<Model>models_[t].ptr)._updateState(r[idx])
-        simulate((<Model>models_[tid].ptr), burninSamples)
+        (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
 
         sum = 0
         sum_square = 0
@@ -624,6 +732,92 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             pbar.update(1)
 
     return results
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef np.ndarray autocorrelation(np.ndarray timeSeries):
+    cdef:
+        int padding = 1
+        np.ndarray autocorr
+        double corrTime
+
+    # get next power of two for padding
+    while padding < timeSeries.size:
+        padding = padding << 1
+
+    # use discrete fourier transform for faster computation of autocorrelation
+    autocorr = np.fft.fft(timeSeries - np.mean(timeSeries), n=2*padding)
+    autocorr = np.fft.ifft(autocorr * np.conjugate(autocorr)).real
+    autocorr /= autocorr[0] # normalize
+    autocorr = autocorr[:timeSeries.size]
+
+    return autocorr
+
+
+@cython.boundscheck(False)
+#@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef tuple determineMixingTime(Model model,\
+                      int stepSizeBurnin = 100,\
+                      int nStepsRegress = int(1e3),\
+                      double threshold = 0.05,\
+                      int nStepsCorr = int(1e4)):
+
+    cdef:
+        vector[PyObjectHolder] models_
+        Model tmp
+        int s, tid, nNodes = model._nNodes
+        int nThreads = mp.cpu_count()
+        #vector[double] mag_sum
+
+        double[::1] mags = np.zeros(stepSizeBurnin)
+        np.ndarray allMags  # for regression
+        int lag, h, counter # tmp var and counter
+        double beta        # slope value
+        np.ndarray magSeries, autocorr, x = np.arange(nStepsRegress)# for regression
+        double slope, intercept, r_value, p_value, std_err, mixingTime, corrTime
+
+    counter = 0
+    allMags = np.array(mean(model.states, nNodes, abs=1))
+    #initial_conf = model.states
+
+    # simulate until mag has stabilized
+    # remember mixing time needed
+    while True: #counter < maxStepsBurnin:
+        #for sample in range(stepSizeBurnin):
+        #    mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs=1)
+
+        mags = _magTimeSeries(model, 0, stepSizeBurnin, abs=1)
+
+        allMags = np.hstack((allMags, mags.base))
+        if counter >= nStepsRegress :
+            # do linear regression
+            slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])
+            if 1 - p_value < threshold: # p-value of test for slope=0
+                #print(slope, intercept, p_value, std_err)
+                break
+        counter = counter + stepSizeBurnin
+    #else:
+    mixingTime = counter - nStepsRegress
+    #print('Number of bunin samples needed {0}\n\n'.format(mixingTime))
+    #print(f'absolute mean magnetization last sample {y[-1]}')
+
+    # measure correlation time (autocorrelation for varying lags)
+    #model.states = initial_conf
+    magSeries = magTimeSeries(model, 0, nStepsCorr)
+
+    autocorr = autocorrelation(magSeries)
+
+    return allMags, mixingTime, autocorr
+
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

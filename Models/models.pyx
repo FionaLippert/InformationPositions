@@ -96,6 +96,8 @@ cdef class Model: # see pxd
 
         from ast import literal_eval
         connecting = graph.neighbors if isinstance(graph, nx.Graph) else nx.predecessors
+        #print(graph.nodes())
+        #print([n for n in graph.neighbors('0')])
 
         # cdef dict _neighbors = {}
         # cdef dict _weights   = {}
@@ -104,6 +106,7 @@ cdef class Model: # see pxd
             add = False # tmp for not overwriting doubles
             # input validation
             lineData = []
+            #print(line)
             # if second is not dict then it must be source
             for prop in line.split(delim):
                 try:
@@ -112,6 +115,8 @@ cdef class Model: # see pxd
                 except:
                     lineData.append(prop) # for strings
             node, info = lineData
+            #print(node)
+            #print(graph.node[node])
             # check properties, assign defaults
             if 'state' not in graph.node[node]:
                 idx = np.random.choice(agentStates)
@@ -253,17 +258,29 @@ cdef class Model: # see pxd
                 self.agentStates, size = self._nNodes)
 
 
-    cpdef np.ndarray neighborsAtDist(self, int node_idx, int dist):
+    cpdef unordered_map[int, vector[int]] neighboursAtDist(self, int node_idx, int maxDist):
         assert node_idx < self._nNodes and node_idx >= 0
 
-        undir = not nx.is_directed(self.graph)
-        node = self.rmapping[node_idx]
-        total = nx.ego_graph(self.graph, node, radius=dist, undirected=undir)
-        inner = nx.ego_graph(self.graph, node, radius=dist-1, undirected=undir)
-        neighbors = np.array([self.mapping[n] for n in (set(total.nodes()) - set(inner.nodes()))], dtype=np.intc)
+        cdef:
+            #long[::1] neighbours
+            unordered_map[int, vector[int]] allNeighbours
+            int undir = not nx.is_directed(self.graph)
+            int node = self.rmapping[node_idx]
+            #nx.Graph total, inner
+            int d
+
+        total = nx.ego_graph(self.graph, node, radius=0, undirected=undir)
+
+        for d in range(1, maxDist+1):
+            inner = total
+            total = nx.ego_graph(self.graph, node, radius=d, undirected=undir)
+            for n in (set(total.nodes()) - set(inner.nodes())):
+                allNeighbours[d].push_back(self.mapping[n])
+            #allNeighbours[d] = np.array([self.mapping[n] for n in (set(total.nodes()) - set(inner.nodes()))], dtype=np.intc)
+            #allNeighbours[d].push_back(neighbours)
         #print("neighbors: {}".format(neighbors))
 
-        return neighbors
+        return allNeighbours
 
 
     def removeAllNudges(self):
@@ -286,6 +303,23 @@ cdef class Model: # see pxd
         for i in range(samples):
             results[i] = self.updateState(r[i])
         return results.base # convert back to normal arraay
+
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    @cython.overflowcheck(False)
+    cdef long[::1] simulateNSteps(self, int nSteps) nogil:
+        cdef:
+            long[:, ::1] r = self.sampleNodes(nSteps)
+            int step
+
+        for step in range(nSteps):
+            self._updateState(r[step])
+
+        return self._states
 
     # TODO: make class pickable
     # hence the wrappers

@@ -24,104 +24,158 @@ from scipy import sparse
 close('all')
 
 
+def plot_avgMI(MI, degrees, diameter, title, path):
+    fig, ax = subplots(figsize=(8,5))
+    #[ax.errorbar(range(1,diameter+1), MI[i,:,0], MI[i,:,1], label=degrees[i], ls='--', marker='o', capsize=5) for i in range(nodes.size)]
+    [ax.errorbar(range(1,diameter+1), np.nanmean(MI[i,:,:], axis=1), np.nanstd(MI[i,:,:], axis=1), label=degrees[i], ls='--', marker='o', capsize=5) for i in range(MI.shape[0])]
+    ax.set_xlabel('node distance')
+    ax.set_ylabel('<MI>')
+    #ax.set_title('erdos_renyi_graph, N={}, T={}'.format(N,T))
+    ax.set_title(title)
+    ax.legend()
+    savefig(path)
+
+def plot_avgMI_fit(MI, degrees, diameter, title, path):
+    func = lambda x, a, b, c:  a / (1 + exp(b * (x - c)))
+
+    fig, ax = subplots(figsize=(8,5))
+    [ax.errorbar(range(1,diameter+1), np.nanmean(MI[i,:,:], axis=1), np.nanstd(MI[i,:,:], axis=1), label=degrees[i], ls='--', marker='o', capsize=5) for i in range(MI.shape[0])]
+    for i in range(MI.shape[0].size):
+        mi = MI[i,:,0][np.where(np.isfinite(MI[i,:,0]))]
+        ax.plot(range(1,mi.size+1), mi, 'o', label=degrees[i])
+        a, b = scipy.optimize.curve_fit(func, range(3,mi.size+1), mi[2:], p0=[0.5, 3, 7])
+        xx = linspace(3, mi.size+1, 1000)
+        ax.plot(xx, func(xx, *a))
+    ax.set_xlabel('node distance')
+    ax.set_ylabel('<MI>')
+    #ax.set_title('erdos_renyi_graph, N={}, T={}'.format(N,T))
+    ax.set_title(title)
+    ax.legend()
+    savefig(path)
+
 if __name__ == '__main__':
 
     # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
 
-    T             = 2.5
-    nSamples      = int(1e5) #int(1e6)
-    burninSamples = int(1e3) # int(1e6)
+    temps         = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5]
+    trials        = 1
+    repeats       = 8
+    burninSamples = int(1e4) # int(1e6)
+    nSamples      = int(50) #int(1e6)
+    distSamples   = int(1e3)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
-    updateType    = ''
-    CHECK         = []  #[.8, .5, .2]   # value of 0.8 means match magnetiztion at 80 percent of max
+    updateType    = 'async'
 
 
-    graph = nx.grid_2d_graph(32, 32, periodic=True)
-    avg_deg = 2
-    N = 100
+    #graph = nx.grid_2d_graph(16, 16, periodic=True)
+    avg_deg = 1.5
+    N = 1000
     p = avg_deg/N
+
+    """
     graph = nx.erdos_renyi_graph(N, p)
     connected_nodes = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(connected_nodes)
-    print("diameter = {}".format(nx.diameter(graph)))
+    nx.write_gpickle(graph, f'ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
+    print("avg degree = {}".format(np.mean([d for k, d in graph.degree()])))
+    """
+    #graph = nx.read_gpickle("ER_avgDeg=2.5_N=1000.gpickle")
+    graph = nx.read_gpickle("ER_avgDeg4.gpickle")
+
+    graph = nx.read_graphml('weighted_person-person_projection_anonymous_combined.graphml')
+    connected_nodes = max(nx.connected_components(graph), key=len)
+    graph = graph.subgraph(connected_nodes)
+
+    N = len(graph)
+    print(N)
+
+    #graph = nx.grid_2d_graph(100, 100, periodic=True)
+
+    diameter = nx.diameter(graph)
+    #diameter = 34
+    print("diameter = {}".format(diameter))
 
     now = time.time()
     targetDirectory = f'{os.getcwd()}/Data/{now}'
     os.mkdir(targetDirectory)
 
-    settings = dict(
-        nSamples         = nSamples,\
-        burninSamples    = burninSamples,\
-        updateMethod     = updateType,\
-        nNodes           = graph.number_of_nodes()
-        )
-    IO.saveSettings(targetDirectory, settings)
+    print(targetDirectory)
 
     # graph = nx.barabasi_albert_graph(10, 3)
     modelSettings = dict(\
                          graph       = graph,\
-                         temperature = T,\
+                         temperature = temps[0],\
                          updateType  = updateType,\
                          magSide     = magSide
                          )
     model = fastIsing.Ising(**modelSettings)
     updateType = model.updateType
 
-    # match the temperature to sample from
-    if os.path.isfile(f'{targetDirectory}/mags.pickle'):
-        tmp = IO.loadPickle(f'{targetDirectory}/mags.pickle')
-        for i, j in tmp.items():
-            globals()[i] = j
-    else:
 
-        magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
-        temps = linspace(0.1, 5, 100)
-        #print(temps)
+    node_deg_ranks = range(10) #[1, 2, 500, 501, 2000, 2001, 3000, 3001] # highest degree, lowest and some intermediate ones
+    #node_deg_ranks = [1, 2, 500, 501, 2000, 2001] # highest degree, lowest and some intermediate ones
+    all_nodes = sorted(graph.degree, key=lambda x: x[1], reverse=True)
+    selected_nodes = [all_nodes[i][0] for i in node_deg_ranks]
+    nodes = np.array([model.mapping[n] for n in selected_nodes], dtype=np.intc)
 
-        start = time.process_time()
-        mag, sus = infcy.magnetizationParallel(model,\
-                        temps = temps,\
-                        n = nSamples, burninSamples = burninSamples)
-        end = time.process_time()
-        print("parallel: {}".format(end-start))
-
-        #print(temps)
-
-        """
-        start = time.process_time()
-        mag, sus = model.matchMagnetization(\
-                        temps = temps,\
-                        n = nSamples, burninSamples = burninSamples)
-        end = time.process_time()
-        print("serial: {}".format(end-start))
-        """
-
-        func = lambda x, a, b, c, d :  a / (1 + exp(b * (x - c))) + d # tanh(-a * x)* b + c
-        # func = lambda x, a, b, c : a + b*exp(-c * x)
-        print(temps, mag.squeeze())
-        a, b = scipy.optimize.curve_fit(func, temps, mag.squeeze(), maxfev = 10000)
-
-        # run the simulation per temperature
-        temperatures = array([])
-        f_root = lambda x,  c: func(x, *a) - c
-        magnetizations = max(mag) * magRange
-        for m in magnetizations:
-            r = scipy.optimize.root(f_root, 0, args = (m), method = 'linearmixing')
-            rot = r.x if r.x > 0 else 0
-            temperatures = hstack((temperatures, rot))
-
-        fig, ax = subplots()
-        xx = linspace(0, max(temps), 1000)
-        #ax.plot(xx, func(xx, *a))
-        ax.scatter(temperatures, func(temperatures, *a), c ='red')
-        ax.scatter(temps, mag, alpha = .2)
-        setp(ax, **dict(xlabel = 'Temperature', ylabel = '<M>'))
-        savefig(f'{targetDirectory}/temp_vs_mag.png')
-
-        tmp = dict(temps = temps, \
-        temperatures = temperatures, magRange = magRange, mag = mag)
-        IO.savePickle(f'{targetDirectory}/mags.pickle', tmp)
+    settings = dict(
+        T                = temps,\
+        nSamples         = nSamples,\
+        distSamples      = distSamples,\
+        burninSamples    = burninSamples,\
+        repeats          = repeats,\
+        trials           = trials,\
+        updateMethod     = updateType,\
+        nNodes           = graph.number_of_nodes(),\
+        selectedGraphNodes    = selected_nodes
+        )
+    IO.saveSettings(targetDirectory, settings)
 
 
-        #MI = infcy.runMI(model, repeats=16, burninSamples=int(1e3), nSamples=int(500), distSamples=int(1e2), nodes=np.arange(10, dtype=np.intc), distMax=8)
-        #print(MI)
+    #print([len(nx.ego_graph(graph, all_nodes[0][0], i)) - len(nx.ego_graph(graph, all_nodes[0][0], i-1)) for i in range(1,10)])
+    #print([len(nx.ego_graph(graph, all_nodes[100][0], i)) - len(nx.ego_graph(graph, all_nodes[100][0], i-1)) for i in range(1,10)])
+
+
+
+    for T in temps:
+        model.t = T
+        for trial in range(trials):
+            MI, degrees = infcy.runMI(model, repeats, burninSamples, nSamples, distSamples, nodes=nodes, distMax=diameter, targetDirectory=targetDirectory)
+            np.save(f'{targetDirectory}/MI_T{T}_{time.time()}.npy', MI)
+            plot_avgMI(MI, degrees, diameter, 'erdos_renyi_graph, N={}, T={}'.format(N,T), f'{targetDirectory}/avgMIperDist_T{T}_{time.time()}.png')
+
+
+    #MI_switch, degrees = infcy.runMI(model, repeats=16, burninSamples=int(1e4), nSamples=int(20), distSamples=int(1e3), nodes=nodes, distMax=diameter, magThreshold=-0.025)
+    #MI_normal, degrees = infcy.runMI(model, repeats=16, burninSamples=int(1e4), nSamples=int(20), distSamples=int(1e3), nodes=nodes, distMax=diameter, magThreshold=0.025)
+
+    #np.save(f'{targetDirectory}/MI_switch.npy', MI_switch)
+    #np.save(f'{targetDirectory}/MI_normal.npy', MI_normal)
+
+
+    #degrees = [11,11,7,7,4,4]
+    #MI = np.load("Data/1549365170.2915149/MI.npy")
+
+
+    #plot_avgMI(MI_switch, degrees, diameter, 'erdos_renyi_graph, |<M>| < 0.025, N={}, T={}'.format(N,T), f'{targetDirectory}/avgMIperDist_switch.png')
+    #plot_avgMI(MI_normal, degrees, diameter, 'erdos_renyi_graph, |<M>| >= 0.025, N={}, T={}'.format(N,T), f'{targetDirectory}/avgMIperDist_normal.png')
+
+
+
+    """
+    fig, ax = subplots(figsize=(8,5))
+    [ax.scatter(range(1,diameter+1), MI[0,:,i], alpha = .2) for i in range(MI.shape[2])]
+    ax.set_xlabel('node distance')
+    ax.set_ylabel('MI')
+    ax.set_title('erdos_renyi_graph, N={}, T={}'.format(N,T))
+    #ax.legend()
+    savefig(f'{targetDirectory}/scatterMIperDist.png')
+
+    fig, ax = subplots(figsize=(8,5))
+    [ax.plot(range(1,diameter+1), MI[i,:,2], label=degrees[i], ls='--', marker='o') for i in range(nodes.size)]
+    ax.set_xlabel('node distance')
+    ax.set_ylabel('sum(MI)')
+    ax.set_title('erdos_renyi_graph, N={}, T={}'.format(N,T))
+    ax.legend()
+    savefig(f'{targetDirectory}/summedMIperDist.png')
+    """
+    print(targetDirectory)

@@ -1346,11 +1346,16 @@ struct __pyx_t_6Models_6models_Connection {
 };
 struct __pyx_opt_args_7Toolbox_5infcy_getSnapShots;
 struct __pyx_opt_args_7Toolbox_5infcy_monteCarlo;
-struct __pyx_opt_args_7Toolbox_5infcy_simulate;
+struct __pyx_opt_args_7Toolbox_5infcy_collectSnapshotsMagThreshold;
+struct __pyx_opt_args_7Toolbox_5infcy_magTimeSeries;
+struct __pyx_opt_args_7Toolbox_5infcy__magTimeSeries;
+struct __pyx_opt_args_7Toolbox_5infcy_runMI;
+struct __pyx_opt_args_7Toolbox_5infcy_mean;
 struct __pyx_opt_args_7Toolbox_5infcy_magnetizationParallel;
+struct __pyx_opt_args_7Toolbox_5infcy_determineMixingTime;
 struct __pyx_opt_args_7Toolbox_5infcy_simulateGetMeanMag;
 
-/* "Toolbox/infcy.pyx":124
+/* "Toolbox/infcy.pyx":127
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\             # <<<<<<<<<<<<<<
@@ -1363,7 +1368,7 @@ struct __pyx_opt_args_7Toolbox_5infcy_getSnapShots {
   int burninSamples;
 };
 
-/* "Toolbox/infcy.pyx":182
+/* "Toolbox/infcy.pyx":185
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict monteCarlo(\             # <<<<<<<<<<<<<<
@@ -1377,19 +1382,69 @@ struct __pyx_opt_args_7Toolbox_5infcy_monteCarlo {
   int nThreads;
 };
 
-/* "Toolbox/infcy.pyx":319
+/* "Toolbox/infcy.pyx":388
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
+ * cpdef long[:,::1] collectSnapshotsMagThreshold(Model model, int repeats, int burninSamples, int nSamples, int distSamples, int switch=1, double threshold=0.05):             # <<<<<<<<<<<<<<
  *     cdef:
- *         long[:, ::1] r = model.sampleNodes(nSamples)
+ *         #list modelsPy  = []
  */
-struct __pyx_opt_args_7Toolbox_5infcy_simulate {
+struct __pyx_opt_args_7Toolbox_5infcy_collectSnapshotsMagThreshold {
   int __pyx_n;
-  int nSamples;
+  int __pyx_switch;
+  double threshold;
 };
 
-/* "Toolbox/infcy.pyx":541
+/* "Toolbox/infcy.pyx":552
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef np.ndarray magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):             # <<<<<<<<<<<<<<
+ * 
+ *     return _magTimeSeries(model, burninSamples, nSamples, abs).base
+ */
+struct __pyx_opt_args_7Toolbox_5infcy_magTimeSeries {
+  int __pyx_n;
+  int abs;
+};
+
+/* "Toolbox/infcy.pyx":561
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cdef double[::1] _magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
+ */
+struct __pyx_opt_args_7Toolbox_5infcy__magTimeSeries {
+  int __pyx_n;
+  int abs;
+};
+
+/* "Toolbox/infcy.pyx":580
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef tuple runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax, double magThreshold=0, str targetDirectory=None):             # <<<<<<<<<<<<<<
+ *     #states = model._states
+ *     #code = encodeState(states)
+ */
+struct __pyx_opt_args_7Toolbox_5infcy_runMI {
+  int __pyx_n;
+  double magThreshold;
+  PyObject *targetDirectory;
+};
+
+/* "Toolbox/infcy.pyx":629
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cdef double mean(long[::1] arr, long len, int abs=0) nogil:             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         double mu = 0
+ */
+struct __pyx_opt_args_7Toolbox_5infcy_mean {
+  int __pyx_n;
+  int abs;
+};
+
+/* "Toolbox/infcy.pyx":649
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef np.ndarray magnetizationParallel(Model model,\             # <<<<<<<<<<<<<<
@@ -1403,7 +1458,22 @@ struct __pyx_opt_args_7Toolbox_5infcy_magnetizationParallel {
   int burninSamples;
 };
 
-/* "Toolbox/infcy.pyx":634
+/* "Toolbox/infcy.pyx":767
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef tuple determineMixingTime(Model model,\             # <<<<<<<<<<<<<<
+ *                       int stepSizeBurnin = 100,\
+ *                       int nStepsRegress = int(1e3),\
+ */
+struct __pyx_opt_args_7Toolbox_5infcy_determineMixingTime {
+  int __pyx_n;
+  int stepSizeBurnin;
+  int nStepsRegress;
+  double threshold;
+  int nStepsCorr;
+};
+
+/* "Toolbox/infcy.pyx":828
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
@@ -1442,7 +1512,7 @@ struct __pyx_obj_6Models_6models_Model {
 };
 
 
-/* "Toolbox/infcy.pyx":840
+/* "Toolbox/infcy.pyx":1034
  * 
  * @cython.auto_pickle(True)
  * cdef class Worker:             # <<<<<<<<<<<<<<
@@ -1567,13 +1637,14 @@ struct __pyx_vtabstruct_6Models_6models_Model {
   __Pyx_memviewslice (*sampleNodes)(struct __pyx_obj_6Models_6models_Model *, long);
   double (*rand)(struct __pyx_obj_6Models_6models_Model *);
   PyArrayObject *(*simulate)(struct __pyx_obj_6Models_6models_Model *, PY_LONG_LONG, int __pyx_skip_dispatch);
+  __Pyx_memviewslice (*simulateNSteps)(struct __pyx_obj_6Models_6models_Model *, int);
   void (*reset)(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch);
-  PyArrayObject *(*neighborsAtDist)(struct __pyx_obj_6Models_6models_Model *, int, int, int __pyx_skip_dispatch);
+  std::unordered_map<int,std::vector<int> >  (*neighboursAtDist)(struct __pyx_obj_6Models_6models_Model *, int, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6Models_6models_Model *__pyx_vtabptr_6Models_6models_Model;
 
 
-/* "Toolbox/infcy.pyx":840
+/* "Toolbox/infcy.pyx":1034
  * 
  * @cython.auto_pickle(True)
  * cdef class Worker:             # <<<<<<<<<<<<<<
@@ -2013,23 +2084,54 @@ static PyObject* __Pyx_PyFloat_TrueDivideObjC(PyObject *op1, PyObject *op2, doub
     (inplace ? PyNumber_InPlaceTrueDivide(op1, op2) : PyNumber_TrueDivide(op1, op2))
 #endif
 
+/* PyUnicode_Unicode.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj);
+
+/* PyObjectFormatSimple.proto */
+#if CYTHON_COMPILING_IN_PYPY
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        PyObject_Format(s, f))
+#elif PY_MAJOR_VERSION < 3
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        likely(PyString_CheckExact(s)) ? PyUnicode_FromEncodedObject(s, NULL, "strict") :\
+        PyObject_Format(s, f))
+#elif CYTHON_USE_TYPE_SLOTS
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        likely(PyLong_CheckExact(s)) ? PyLong_Type.tp_str(s) :\
+        likely(PyFloat_CheckExact(s)) ? PyFloat_Type.tp_str(s) :\
+        PyObject_Format(s, f))
+#else
+    #define __Pyx_PyObject_FormatSimple(s, f) (\
+        likely(PyUnicode_CheckExact(s)) ? (Py_INCREF(s), s) :\
+        PyObject_Format(s, f))
+#endif
+
+/* SliceObject.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_GetSlice(
+        PyObject* obj, Py_ssize_t cstart, Py_ssize_t cstop,
+        PyObject** py_start, PyObject** py_stop, PyObject** py_slice,
+        int has_cstart, int has_cstop, int wraparound);
+
+/* RaiseTooManyValuesToUnpack.proto */
+static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected);
+
+/* RaiseNeedMoreValuesToUnpack.proto */
+static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index);
+
 /* IterFinish.proto */
 static CYTHON_INLINE int __Pyx_IterFinish(void);
+
+/* UnpackItemEndCheck.proto */
+static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
 
 /* PyObjectGetMethod.proto */
 static int __Pyx_PyObject_GetMethod(PyObject *obj, PyObject *name, PyObject **method);
 
 /* PyObjectCallMethod0.proto */
 static PyObject* __Pyx_PyObject_CallMethod0(PyObject* obj, PyObject* method_name);
-
-/* RaiseNeedMoreValuesToUnpack.proto */
-static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index);
-
-/* RaiseTooManyValuesToUnpack.proto */
-static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected);
-
-/* UnpackItemEndCheck.proto */
-static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
 
 /* RaiseNoneIterError.proto */
 static CYTHON_INLINE void __Pyx_RaiseNoneNotIterableError(void);
@@ -2671,15 +2773,19 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice, int __pyx_ski
 static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int, int, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6models_Model *, int, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getSnapShots *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6models_Model *, PyObject *, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_monteCarlo *__pyx_optional_args); /*proto*/
-static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_simulate(struct __pyx_obj_6Models_6models_Model *, struct __pyx_opt_args_7Toolbox_5infcy_simulate *__pyx_optional_args); /*proto*/
 static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_obj_6Models_6models_Model *, int, int, int, int, int __pyx_skip_dispatch); /*proto*/
+static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshotsMagThreshold(struct __pyx_obj_6Models_6models_Model *, int, int, int, int, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_collectSnapshotsMagThreshold *__pyx_optional_args); /*proto*/
 static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviewslice, int __pyx_skip_dispatch); /*proto*/
 static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice, __Pyx_memviewslice, int, int, int __pyx_skip_dispatch); /*proto*/
 static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int> , int __pyx_skip_dispatch); /*proto*/
-static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, __Pyx_memviewslice, int, int, int __pyx_skip_dispatch); /*proto*/
-static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6models_Model *, int, int, int, int, PyArrayObject *, int, int __pyx_skip_dispatch); /*proto*/
-static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice, long); /*proto*/
+static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, __Pyx_memviewslice, int, std::vector<int> , int __pyx_skip_dispatch); /*proto*/
+static PyArrayObject *__pyx_f_7Toolbox_5infcy_magTimeSeries(struct __pyx_obj_6Models_6models_Model *, int, int, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_magTimeSeries *__pyx_optional_args); /*proto*/
+static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy__magTimeSeries(struct __pyx_obj_6Models_6models_Model *, int, int, struct __pyx_opt_args_7Toolbox_5infcy__magTimeSeries *__pyx_optional_args); /*proto*/
+static PyObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6models_Model *, int, int, int, int, PyArrayObject *, int, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_runMI *__pyx_optional_args); /*proto*/
+static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice, long, struct __pyx_opt_args_7Toolbox_5infcy_mean *__pyx_optional_args); /*proto*/
 static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_magnetizationParallel *__pyx_optional_args); /*proto*/
+static PyArrayObject *__pyx_f_7Toolbox_5infcy_autocorrelation(PyArrayObject *, int __pyx_skip_dispatch); /*proto*/
+static PyObject *__pyx_f_7Toolbox_5infcy_determineMixingTime(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_determineMixingTime *__pyx_optional_args); /*proto*/
 static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __pyx_obj_6Models_6models_Model *, struct __pyx_opt_args_7Toolbox_5infcy_simulateGetMeanMag *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *, int, PyObject *, struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_Model *, PyObject *, int, int, int __pyx_skip_dispatch); /*proto*/
@@ -2690,7 +2796,6 @@ static PyObject *__pyx_convert_vector_to_py_long(const std::vector<long>  &); /*
 static PyObject *__pyx_convert_unordered_map_to_py_int____double(std::unordered_map<int,double>  const &); /*proto*/
 static std::unordered_map<int,int>  __pyx_convert_unordered_map_from_py_int__and_int(PyObject *); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &); /*proto*/
-static PyObject *__pyx_convert_vector_to_py_double(const std::vector<double>  &); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -2749,25 +2854,28 @@ static const char __pyx_k_c[] = "c";
 static const char __pyx_k_n[] = "n";
 static const char __pyx_k_t[] = "t";
 static const char __pyx_k_2f[] = " .2f";
+static const char __pyx_k__5[] = "_";
 static const char __pyx_k_id[] = "id";
 static const char __pyx_k_mp[] = "mp";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_abs[] = "abs";
 static const char __pyx_k_dec[] = "dec";
+static const char __pyx_k_fft[] = "fft";
 static const char __pyx_k_idx[] = "idx";
 static const char __pyx_k_inf[] = "inf";
 static const char __pyx_k_nan[] = "nan";
 static const char __pyx_k_new[] = "__new__";
+static const char __pyx_k_npy[] = ".npy";
 static const char __pyx_k_obj[] = "obj";
 static const char __pyx_k_sec[] = " sec";
-static const char __pyx_k_std[] = "std";
 static const char __pyx_k_sum[] = "sum";
+static const char __pyx_k_None[] = "None";
 static const char __pyx_k_axis[] = "axis";
 static const char __pyx_k_base[] = "base";
 static const char __pyx_k_copy[] = "copy";
 static const char __pyx_k_dict[] = "__dict__";
-static const char __pyx_k_dist[] = "dist";
 static const char __pyx_k_full[] = "full";
+static const char __pyx_k_ifft[] = "ifft";
 static const char __pyx_k_keys[] = "keys";
 static const char __pyx_k_log2[] = "log2";
 static const char __pyx_k_main[] = "__main__";
@@ -2777,6 +2885,8 @@ static const char __pyx_k_name[] = "name";
 static const char __pyx_k_ndim[] = "ndim";
 static const char __pyx_k_node[] = "node";
 static const char __pyx_k_pack[] = "pack";
+static const char __pyx_k_real[] = "real";
+static const char __pyx_k_save[] = "save";
 static const char __pyx_k_seed[] = "seed";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
@@ -2793,6 +2903,7 @@ static const char __pyx_k_close[] = "close";
 static const char __pyx_k_dtype[] = "dtype";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
+static const char __pyx_k_graph[] = "graph";
 static const char __pyx_k_items[] = "items";
 static const char __pyx_k_lower[] = "lower";
 static const char __pyx_k_model[] = "model";
@@ -2804,6 +2915,7 @@ static const char __pyx_k_print[] = "print";
 static const char __pyx_k_pulse[] = "pulse";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_reset[] = "reset";
+static const char __pyx_k_scipy[] = "scipy";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_start[] = "start";
 static const char __pyx_k_temps[] = "temps";
@@ -2812,10 +2924,13 @@ static const char __pyx_k_total[] = "total";
 static const char __pyx_k_where[] = "where";
 static const char __pyx_k_zeros[] = "zeros";
 static const char __pyx_k_Worker[] = "Worker";
+static const char __pyx_k_arange[] = "arange";
 static const char __pyx_k_ctypes[] = "ctypes";
+static const char __pyx_k_degree[] = "degree";
 static const char __pyx_k_deltas[] = "deltas";
 static const char __pyx_k_encode[] = "encode";
 static const char __pyx_k_format[] = "format";
+static const char __pyx_k_hstack[] = "hstack";
 static const char __pyx_k_import[] = "__import__";
 static const char __pyx_k_name_2[] = "__name__";
 static const char __pyx_k_nansum[] = "nansum";
@@ -2824,7 +2939,7 @@ static const char __pyx_k_pickle[] = "pickle";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_states[] = " states";
 static const char __pyx_k_struct[] = "struct";
-static const char __pyx_k_time_2[] = "time: {}";
+static const char __pyx_k_switch[] = "switch";
 static const char __pyx_k_timeit[] = "timeit";
 static const char __pyx_k_unique[] = "unique";
 static const char __pyx_k_unpack[] = "unpack";
@@ -2845,8 +2960,12 @@ static const char __pyx_k_nSamples[] = "nSamples";
 static const char __pyx_k_nThreads[] = "nThreads";
 static const char __pyx_k_platform[] = "platform";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
+static const char __pyx_k_rmapping[] = "rmapping";
 static const char __pyx_k_setstate[] = "__setstate__";
+static const char __pyx_k_states_2[] = "states";
 static const char __pyx_k_TypeError[] = "TypeError";
+static const char __pyx_k_conjugate[] = "conjugate";
+static const char __pyx_k_correlate[] = "correlate";
 static const char __pyx_k_cpu_count[] = "cpu_count";
 static const char __pyx_k_entropies[] = "entropies";
 static const char __pyx_k_enumerate[] = "enumerate";
@@ -2854,8 +2973,12 @@ static const char __pyx_k_iteritems[] = "iteritems";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_snapshots[] = "snapshots";
+static const char __pyx_k_threshold[] = "threshold";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
+static const char __pyx_k_linregress[] = "linregress";
+static const char __pyx_k_nStepsCorr[] = "nStepsCorr";
+static const char __pyx_k_neighbours[] = "neighbours";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_startState[] = "startState";
@@ -2864,24 +2987,30 @@ static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
 static const char __pyx_k_conditional[] = "conditional";
 static const char __pyx_k_distSamples[] = "distSamples";
+static const char __pyx_k_scipy_stats[] = "scipy.stats";
+static const char __pyx_k_snapshots_T[] = "/snapshots_T=";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_binEntropies[] = "binEntropies";
-static const char __pyx_k_process_time[] = "process_time";
+static const char __pyx_k_magThreshold[] = "magThreshold";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
+static const char __pyx_k_scipy_signal[] = "scipy.signal";
 static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_Toolbox_infcy[] = "Toolbox.infcy";
 static const char __pyx_k_burninSamples[] = "burninSamples";
 static const char __pyx_k_default_timer[] = "default_timer";
+static const char __pyx_k_nStepsRegress[] = "nStepsRegress";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
 static const char __pyx_k_return_counts[] = "return_counts";
 static const char __pyx_k_starting_runs[] = "starting runs";
+static const char __pyx_k_stepSizeBurnin[] = "stepSizeBurnin";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_multiprocessing[] = "multiprocessing";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
+static const char __pyx_k_targetDirectory[] = "targetDirectory";
 static const char __pyx_k_Toolbox_infcy_pyx[] = "Toolbox/infcy.pyx";
 static const char __pyx_k_checkDistribution[] = "checkDistribution";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
@@ -2948,6 +3077,7 @@ static PyObject *__pyx_kp_s_MemoryView_of_r_at_0x_x;
 static PyObject *__pyx_kp_s_MemoryView_of_r_object;
 static PyObject *__pyx_n_s_N;
 static PyObject *__pyx_kp_u_Non_native_byte_order_not_suppor;
+static PyObject *__pyx_kp_u_None;
 static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
@@ -2961,8 +3091,10 @@ static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_View_MemoryView;
 static PyObject *__pyx_kp_u_Warning_Windows_detected_Please;
 static PyObject *__pyx_n_s_Worker;
+static PyObject *__pyx_n_u__5;
 static PyObject *__pyx_n_s_abs;
 static PyObject *__pyx_n_s_allocate_buffer;
+static PyObject *__pyx_n_s_arange;
 static PyObject *__pyx_n_s_array;
 static PyObject *__pyx_n_s_axis;
 static PyObject *__pyx_n_s_base;
@@ -2975,19 +3107,21 @@ static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cline_in_traceback;
 static PyObject *__pyx_n_s_close;
 static PyObject *__pyx_n_s_conditional;
+static PyObject *__pyx_n_s_conjugate;
 static PyObject *__pyx_n_u_constant;
 static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
 static PyObject *__pyx_n_s_copy;
+static PyObject *__pyx_n_s_correlate;
 static PyObject *__pyx_n_s_cpu_count;
 static PyObject *__pyx_n_s_ctypes;
 static PyObject *__pyx_n_s_dec;
 static PyObject *__pyx_n_s_deepcopy;
 static PyObject *__pyx_n_s_default_timer;
+static PyObject *__pyx_n_s_degree;
 static PyObject *__pyx_n_s_deltas;
 static PyObject *__pyx_n_u_deltas;
 static PyObject *__pyx_n_s_dict;
-static PyObject *__pyx_n_s_dist;
 static PyObject *__pyx_n_s_distMax;
 static PyObject *__pyx_n_s_distSamples;
 static PyObject *__pyx_n_s_dtype;
@@ -2996,6 +3130,7 @@ static PyObject *__pyx_n_s_encode;
 static PyObject *__pyx_n_s_entropies;
 static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_error;
+static PyObject *__pyx_n_s_fft;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
@@ -3003,8 +3138,11 @@ static PyObject *__pyx_n_u_fortran;
 static PyObject *__pyx_n_s_full;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
+static PyObject *__pyx_n_s_graph;
+static PyObject *__pyx_n_s_hstack;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_u_idx;
+static PyObject *__pyx_n_s_ifft;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_inf;
 static PyObject *__pyx_n_s_items;
@@ -3012,9 +3150,11 @@ static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
 static PyObject *__pyx_n_s_iteritems;
 static PyObject *__pyx_n_s_keys;
+static PyObject *__pyx_n_s_linregress;
 static PyObject *__pyx_n_s_log2;
 static PyObject *__pyx_n_s_logspace;
 static PyObject *__pyx_n_s_lower;
+static PyObject *__pyx_n_s_magThreshold;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_matchMagnetization;
 static PyObject *__pyx_n_s_mean;
@@ -3026,6 +3166,8 @@ static PyObject *__pyx_n_s_mp;
 static PyObject *__pyx_n_s_multiprocessing;
 static PyObject *__pyx_n_s_n;
 static PyObject *__pyx_n_s_nSamples;
+static PyObject *__pyx_n_s_nStepsCorr;
+static PyObject *__pyx_n_s_nStepsRegress;
 static PyObject *__pyx_n_s_nThreads;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_name_2;
@@ -3034,6 +3176,7 @@ static PyObject *__pyx_n_s_nansum;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
+static PyObject *__pyx_n_s_neighbours;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_node;
@@ -3041,6 +3184,7 @@ static PyObject *__pyx_n_s_node1;
 static PyObject *__pyx_n_s_node2;
 static PyObject *__pyx_n_s_nodes;
 static PyObject *__pyx_n_s_np;
+static PyObject *__pyx_kp_u_npy;
 static PyObject *__pyx_n_s_nudges;
 static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_kp_u_numpy_core_multiarray_failed_to;
@@ -3050,7 +3194,6 @@ static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
 static PyObject *__pyx_n_s_platform;
 static PyObject *__pyx_n_s_print;
-static PyObject *__pyx_n_s_process_time;
 static PyObject *__pyx_n_u_pulse;
 static PyObject *__pyx_n_s_pyx_PickleError;
 static PyObject *__pyx_n_s_pyx_checksum;
@@ -3062,6 +3205,7 @@ static PyObject *__pyx_n_s_pyx_unpickle_Enum;
 static PyObject *__pyx_n_s_pyx_unpickle_Worker;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_range;
+static PyObject *__pyx_n_s_real;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
@@ -3070,6 +3214,11 @@ static PyObject *__pyx_n_u_repeats;
 static PyObject *__pyx_n_s_reset;
 static PyObject *__pyx_n_s_reshape;
 static PyObject *__pyx_n_s_return_counts;
+static PyObject *__pyx_n_s_rmapping;
+static PyObject *__pyx_n_s_save;
+static PyObject *__pyx_n_s_scipy;
+static PyObject *__pyx_n_s_scipy_signal;
+static PyObject *__pyx_n_s_scipy_stats;
 static PyObject *__pyx_kp_u_sec;
 static PyObject *__pyx_n_s_seed;
 static PyObject *__pyx_n_s_setstate;
@@ -3077,12 +3226,14 @@ static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_snapshots;
+static PyObject *__pyx_kp_u_snapshots_T;
 static PyObject *__pyx_n_s_start;
 static PyObject *__pyx_n_u_startState;
 static PyObject *__pyx_kp_u_starting_runs;
 static PyObject *__pyx_kp_u_states;
-static PyObject *__pyx_n_s_std;
+static PyObject *__pyx_n_s_states_2;
 static PyObject *__pyx_n_s_step;
+static PyObject *__pyx_n_s_stepSizeBurnin;
 static PyObject *__pyx_n_s_stop;
 static PyObject *__pyx_kp_s_strided_and_direct;
 static PyObject *__pyx_kp_s_strided_and_direct_or_indirect;
@@ -3090,11 +3241,13 @@ static PyObject *__pyx_kp_s_strided_and_indirect;
 static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_struct;
 static PyObject *__pyx_n_s_sum;
+static PyObject *__pyx_n_s_switch;
 static PyObject *__pyx_n_s_t;
+static PyObject *__pyx_n_s_targetDirectory;
 static PyObject *__pyx_n_s_temps;
 static PyObject *__pyx_n_s_test;
+static PyObject *__pyx_n_s_threshold;
 static PyObject *__pyx_n_s_time;
-static PyObject *__pyx_kp_u_time_2;
 static PyObject *__pyx_n_s_timeit;
 static PyObject *__pyx_n_s_timer;
 static PyObject *__pyx_n_s_total;
@@ -3114,19 +3267,23 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_4decodeState(CYTHON_UNUSED PyObject *_
 static PyObject *__pyx_pf_7Toolbox_5infcy_6getSnapShots(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_nSamples, int __pyx_v_step, int __pyx_v_burninSamples); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_8monteCarlo(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyObject *__pyx_v_snapshots, int __pyx_v_deltas, int __pyx_v_repeats, int __pyx_v_nThreads); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_10collectSnapshots(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_12binaryEntropies(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_14mutualInformationIDL(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_binEntropies, int __pyx_v_node1, int __pyx_v_node2); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_16entropy(CYTHON_UNUSED PyObject *__pyx_self, std::vector<int>  __pyx_v_samples); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_18MIAtDist(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_entropies, int __pyx_v_node, int __pyx_v_dist); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_20runMI(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, PyArrayObject *__pyx_v_nodes, int __pyx_v_distMax); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_22magnetizationParallel(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyArrayObject *__pyx_v_temps, int __pyx_v_n, int __pyx_v_burninSamples); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_24mutualInformation(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_conditional, int __pyx_v_deltas, PyObject *__pyx_v_snapshots, struct __pyx_obj_6Models_6models_Model *__pyx_v_model); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_26runMC(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyObject *__pyx_v_snapshots, int __pyx_v_deltas, int __pyx_v_repeats); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_28f(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_x); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_12collectSnapshotsMagThreshold(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, int __pyx_v_switch, double __pyx_v_threshold); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_14binaryEntropies(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_16mutualInformationIDL(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_binEntropies, int __pyx_v_node1, int __pyx_v_node2); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_18entropy(CYTHON_UNUSED PyObject *__pyx_self, std::vector<int>  __pyx_v_samples); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_20MIAtDist(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_entropies, int __pyx_v_node, std::vector<int>  __pyx_v_neighbours); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_22magTimeSeries(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_abs); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_24runMI(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, PyArrayObject *__pyx_v_nodes, int __pyx_v_distMax, double __pyx_v_magThreshold, PyObject *__pyx_v_targetDirectory); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_26magnetizationParallel(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyArrayObject *__pyx_v_temps, int __pyx_v_n, int __pyx_v_burninSamples); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_28autocorrelation(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_timeSeries); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_30determineMixingTime(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_stepSizeBurnin, int __pyx_v_nStepsRegress, double __pyx_v_threshold, int __pyx_v_nStepsCorr); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_32mutualInformation(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_conditional, int __pyx_v_deltas, PyObject *__pyx_v_snapshots, struct __pyx_obj_6Models_6models_Model *__pyx_v_model); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_34runMC(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyObject *__pyx_v_snapshots, int __pyx_v_deltas, int __pyx_v_repeats); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_36f(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_x); /* proto */
 static int __pyx_pf_7Toolbox_5infcy_6Worker___init__(struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_args, PyObject *__pyx_v_kwargs); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_6Worker_2__reduce_cython__(struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_6Worker_4__setstate_cython__(struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_self, PyObject *__pyx_v___pyx_state); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_30__pyx_unpickle_Worker(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_38__pyx_unpickle_Worker(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -3180,6 +3337,7 @@ static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_keys = {0, &__pyx_n_s_key
 static PyObject *__pyx_float_2_;
 static PyObject *__pyx_float_1e2;
 static PyObject *__pyx_float_1e3;
+static PyObject *__pyx_float_1e4;
 static PyObject *__pyx_int_0;
 static PyObject *__pyx_int_1;
 static PyObject *__pyx_int_2;
@@ -3189,16 +3347,15 @@ static PyObject *__pyx_int_184977713;
 static PyObject *__pyx_int_neg_1;
 static PyObject *__pyx_int_neg_3;
 static int __pyx_k__2;
-static int __pyx_k__5;
 static PyArrayObject *__pyx_k__6;
 static int __pyx_k__7;
 static int __pyx_k__8;
+static int __pyx_k__9;
+static int __pyx_k__10;
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__3;
 static PyObject *__pyx_tuple__4;
-static PyObject *__pyx_tuple__9;
-static PyObject *__pyx_slice__30;
-static PyObject *__pyx_tuple__10;
+static PyObject *__pyx_slice__32;
 static PyObject *__pyx_tuple__11;
 static PyObject *__pyx_tuple__12;
 static PyObject *__pyx_tuple__13;
@@ -3218,24 +3375,26 @@ static PyObject *__pyx_tuple__26;
 static PyObject *__pyx_tuple__27;
 static PyObject *__pyx_tuple__28;
 static PyObject *__pyx_tuple__29;
+static PyObject *__pyx_tuple__30;
 static PyObject *__pyx_tuple__31;
-static PyObject *__pyx_tuple__32;
 static PyObject *__pyx_tuple__33;
 static PyObject *__pyx_tuple__34;
+static PyObject *__pyx_tuple__35;
 static PyObject *__pyx_tuple__36;
-static PyObject *__pyx_tuple__37;
+static PyObject *__pyx_tuple__38;
 static PyObject *__pyx_tuple__39;
-static PyObject *__pyx_tuple__40;
 static PyObject *__pyx_tuple__41;
 static PyObject *__pyx_tuple__42;
 static PyObject *__pyx_tuple__43;
 static PyObject *__pyx_tuple__44;
-static PyObject *__pyx_codeobj__35;
-static PyObject *__pyx_codeobj__38;
-static PyObject *__pyx_codeobj__45;
+static PyObject *__pyx_tuple__45;
+static PyObject *__pyx_tuple__46;
+static PyObject *__pyx_codeobj__37;
+static PyObject *__pyx_codeobj__40;
+static PyObject *__pyx_codeobj__47;
 /* Late includes */
 
-/* "Toolbox/infcy.pyx":74
+/* "Toolbox/infcy.pyx":77
  * 
  * # print gil stuff; no mp used currently so ....useless
  * def checkDistribution():             # <<<<<<<<<<<<<<
@@ -3270,29 +3429,29 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_checkDistribution(CYTHON_UNUSED PyObje
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("checkDistribution", 0);
 
-  /* "Toolbox/infcy.pyx":76
+  /* "Toolbox/infcy.pyx":79
  * def checkDistribution():
  *     '''Warning statement'''
  *     from platform import platform             # <<<<<<<<<<<<<<
  *     if 'windows' in platform().lower():
  *         print('Warning: Windows detected. Please remember to respect the GIL'\
  */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_n_s_platform);
   __Pyx_GIVEREF(__pyx_n_s_platform);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_platform);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_platform, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_platform, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_platform); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 76, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_platform); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 79, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_t_1);
   __pyx_v_platform = __pyx_t_1;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":77
+  /* "Toolbox/infcy.pyx":80
  *     '''Warning statement'''
  *     from platform import platform
  *     if 'windows' in platform().lower():             # <<<<<<<<<<<<<<
@@ -3312,10 +3471,10 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_checkDistribution(CYTHON_UNUSED PyObje
   }
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_lower); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_lower); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -3330,26 +3489,26 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_checkDistribution(CYTHON_UNUSED PyObje
   }
   __pyx_t_2 = (__pyx_t_1) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_1) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = (__Pyx_PySequence_ContainsTF(__pyx_n_u_windows, __pyx_t_2, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __pyx_t_5 = (__Pyx_PySequence_ContainsTF(__pyx_n_u_windows, __pyx_t_2, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_6 = (__pyx_t_5 != 0);
   if (__pyx_t_6) {
 
-    /* "Toolbox/infcy.pyx":78
+    /* "Toolbox/infcy.pyx":81
  *     from platform import platform
  *     if 'windows' in platform().lower():
  *         print('Warning: Windows detected. Please remember to respect the GIL'\             # <<<<<<<<<<<<<<
  *               ' when using multi-core functions')
  * checkDistribution() # print it only once
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "Toolbox/infcy.pyx":77
+    /* "Toolbox/infcy.pyx":80
  *     '''Warning statement'''
  *     from platform import platform
  *     if 'windows' in platform().lower():             # <<<<<<<<<<<<<<
@@ -3358,7 +3517,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_checkDistribution(CYTHON_UNUSED PyObje
  */
   }
 
-  /* "Toolbox/infcy.pyx":74
+  /* "Toolbox/infcy.pyx":77
  * 
  * # print gil stuff; no mp used currently so ....useless
  * def checkDistribution():             # <<<<<<<<<<<<<<
@@ -3383,7 +3542,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_checkDistribution(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":88
+/* "Toolbox/infcy.pyx":91
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef int encodeState(long[::1] state) nogil:             # <<<<<<<<<<<<<<
@@ -3404,7 +3563,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
   Py_ssize_t __pyx_t_4;
   int __pyx_t_5;
 
-  /* "Toolbox/infcy.pyx":91
+  /* "Toolbox/infcy.pyx":94
  *     """Maps state to decimal number"""
  *     cdef:
  *         int binNum = 1             # <<<<<<<<<<<<<<
@@ -3413,7 +3572,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
  */
   __pyx_v_binNum = 1;
 
-  /* "Toolbox/infcy.pyx":92
+  /* "Toolbox/infcy.pyx":95
  *     cdef:
  *         int binNum = 1
  *         int N = state.shape[0]             # <<<<<<<<<<<<<<
@@ -3422,7 +3581,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
  */
   __pyx_v_N = (__pyx_v_state.shape[0]);
 
-  /* "Toolbox/infcy.pyx":94
+  /* "Toolbox/infcy.pyx":97
  *         int N = state.shape[0]
  *         int i
  *         int dec = 0             # <<<<<<<<<<<<<<
@@ -3431,7 +3590,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
  */
   __pyx_v_dec = 0;
 
-  /* "Toolbox/infcy.pyx":95
+  /* "Toolbox/infcy.pyx":98
  *         int i
  *         int dec = 0
  *     for i in range(N):             # <<<<<<<<<<<<<<
@@ -3443,7 +3602,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "Toolbox/infcy.pyx":96
+    /* "Toolbox/infcy.pyx":99
  *         int dec = 0
  *     for i in range(N):
  *         if state[i] == 1:             # <<<<<<<<<<<<<<
@@ -3454,7 +3613,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
     __pyx_t_5 = (((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_state.data) + __pyx_t_4)) ))) == 1) != 0);
     if (__pyx_t_5) {
 
-      /* "Toolbox/infcy.pyx":97
+      /* "Toolbox/infcy.pyx":100
  *     for i in range(N):
  *         if state[i] == 1:
  *             dec += binNum             # <<<<<<<<<<<<<<
@@ -3463,7 +3622,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
  */
       __pyx_v_dec = (__pyx_v_dec + __pyx_v_binNum);
 
-      /* "Toolbox/infcy.pyx":96
+      /* "Toolbox/infcy.pyx":99
  *         int dec = 0
  *     for i in range(N):
  *         if state[i] == 1:             # <<<<<<<<<<<<<<
@@ -3472,7 +3631,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
  */
     }
 
-    /* "Toolbox/infcy.pyx":98
+    /* "Toolbox/infcy.pyx":101
  *         if state[i] == 1:
  *             dec += binNum
  *         binNum *= 2             # <<<<<<<<<<<<<<
@@ -3482,7 +3641,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
     __pyx_v_binNum = (__pyx_v_binNum * 2);
   }
 
-  /* "Toolbox/infcy.pyx":99
+  /* "Toolbox/infcy.pyx":102
  *             dec += binNum
  *         binNum *= 2
  *     return dec             # <<<<<<<<<<<<<<
@@ -3492,7 +3651,7 @@ static int __pyx_f_7Toolbox_5infcy_encodeState(__Pyx_memviewslice __pyx_v_state,
   __pyx_r = __pyx_v_dec;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":88
+  /* "Toolbox/infcy.pyx":91
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef int encodeState(long[::1] state) nogil:             # <<<<<<<<<<<<<<
@@ -3514,7 +3673,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_3encodeState(PyObject *__pyx_self, PyO
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("encodeState (wrapper)", 0);
   assert(__pyx_arg_state); {
-    __pyx_v_state = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_arg_state, PyBUF_WRITABLE); if (unlikely(!__pyx_v_state.memview)) __PYX_ERR(0, 88, __pyx_L3_error)
+    __pyx_v_state = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_arg_state, PyBUF_WRITABLE); if (unlikely(!__pyx_v_state.memview)) __PYX_ERR(0, 91, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -3535,7 +3694,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_2encodeState(CYTHON_UNUSED PyObject *_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("encodeState", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_7Toolbox_5infcy_encodeState(__pyx_v_state, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_f_7Toolbox_5infcy_encodeState(__pyx_v_state, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3553,7 +3712,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_2encodeState(CYTHON_UNUSED PyObject *_
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":106
+/* "Toolbox/infcy.pyx":109
  * @cython.nonecheck(False)
  * @cython.cdivision(True)
  * cpdef vector[long] decodeState(int dec, int N) nogil:             # <<<<<<<<<<<<<<
@@ -3569,7 +3728,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
   std::vector<long>  __pyx_t_1;
   int __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":109
+  /* "Toolbox/infcy.pyx":112
  *     """Decodes decimal number to state"""
  *     cdef:
  *         int i = 0             # <<<<<<<<<<<<<<
@@ -3578,7 +3737,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
  */
   __pyx_v_i = 0;
 
-  /* "Toolbox/infcy.pyx":111
+  /* "Toolbox/infcy.pyx":114
  *         int i = 0
  *         # long[::1] buffer = np.zeros(N, dtype = int) - 1
  *         vector [long] buffer = vector[long](N, -1) # init with -1             # <<<<<<<<<<<<<<
@@ -3595,11 +3754,11 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
     #ifdef WITH_THREAD
     __Pyx_PyGILState_Release(__pyx_gilstate_save);
     #endif
-    __PYX_ERR(0, 111, __pyx_L1_error)
+    __PYX_ERR(0, 114, __pyx_L1_error)
   }
   __pyx_v_buffer = __pyx_t_1;
 
-  /* "Toolbox/infcy.pyx":112
+  /* "Toolbox/infcy.pyx":115
  *         # long[::1] buffer = np.zeros(N, dtype = int) - 1
  *         vector [long] buffer = vector[long](N, -1) # init with -1
  *     while dec > 0:             # <<<<<<<<<<<<<<
@@ -3610,7 +3769,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
     __pyx_t_2 = ((__pyx_v_dec > 0) != 0);
     if (!__pyx_t_2) break;
 
-    /* "Toolbox/infcy.pyx":113
+    /* "Toolbox/infcy.pyx":116
  *         vector [long] buffer = vector[long](N, -1) # init with -1
  *     while dec > 0:
  *         if dec % 2:             # <<<<<<<<<<<<<<
@@ -3620,7 +3779,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
     __pyx_t_2 = ((__pyx_v_dec % 2) != 0);
     if (__pyx_t_2) {
 
-      /* "Toolbox/infcy.pyx":114
+      /* "Toolbox/infcy.pyx":117
  *     while dec > 0:
  *         if dec % 2:
  *             buffer[i] = 1             # <<<<<<<<<<<<<<
@@ -3629,7 +3788,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
  */
       (__pyx_v_buffer[__pyx_v_i]) = 1;
 
-      /* "Toolbox/infcy.pyx":113
+      /* "Toolbox/infcy.pyx":116
  *         vector [long] buffer = vector[long](N, -1) # init with -1
  *     while dec > 0:
  *         if dec % 2:             # <<<<<<<<<<<<<<
@@ -3638,7 +3797,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
  */
     }
 
-    /* "Toolbox/infcy.pyx":115
+    /* "Toolbox/infcy.pyx":118
  *         if dec % 2:
  *             buffer[i] = 1
  *         i += 1             # <<<<<<<<<<<<<<
@@ -3647,7 +3806,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
  */
     __pyx_v_i = (__pyx_v_i + 1);
 
-    /* "Toolbox/infcy.pyx":116
+    /* "Toolbox/infcy.pyx":119
  *             buffer[i] = 1
  *         i += 1
  *         dec = dec // 2             # <<<<<<<<<<<<<<
@@ -3657,7 +3816,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
     __pyx_v_dec = (__pyx_v_dec / 2);
   }
 
-  /* "Toolbox/infcy.pyx":117
+  /* "Toolbox/infcy.pyx":120
  *         i += 1
  *         dec = dec // 2
  *     return buffer             # <<<<<<<<<<<<<<
@@ -3667,7 +3826,7 @@ static std::vector<long>  __pyx_f_7Toolbox_5infcy_decodeState(int __pyx_v_dec, i
   __pyx_r = __pyx_v_buffer;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":106
+  /* "Toolbox/infcy.pyx":109
  * @cython.nonecheck(False)
  * @cython.cdivision(True)
  * cpdef vector[long] decodeState(int dec, int N) nogil:             # <<<<<<<<<<<<<<
@@ -3715,11 +3874,11 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_5decodeState(PyObject *__pyx_self, PyO
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_N)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("decodeState", 1, 2, 2, 1); __PYX_ERR(0, 106, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("decodeState", 1, 2, 2, 1); __PYX_ERR(0, 109, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "decodeState") < 0)) __PYX_ERR(0, 106, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "decodeState") < 0)) __PYX_ERR(0, 109, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3727,12 +3886,12 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_5decodeState(PyObject *__pyx_self, PyO
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_dec = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_dec == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 106, __pyx_L3_error)
-    __pyx_v_N = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 106, __pyx_L3_error)
+    __pyx_v_dec = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_dec == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 109, __pyx_L3_error)
+    __pyx_v_N = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 109, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("decodeState", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 106, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("decodeState", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 109, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.decodeState", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3751,7 +3910,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_4decodeState(CYTHON_UNUSED PyObject *_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("decodeState", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_vector_to_py_long(__pyx_f_7Toolbox_5infcy_decodeState(__pyx_v_dec, __pyx_v_N, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_long(__pyx_f_7Toolbox_5infcy_decodeState(__pyx_v_dec, __pyx_v_N, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3768,7 +3927,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_4decodeState(CYTHON_UNUSED PyObject *_
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":124
+/* "Toolbox/infcy.pyx":127
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\             # <<<<<<<<<<<<<<
@@ -3821,7 +3980,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
     }
   }
 
-  /* "Toolbox/infcy.pyx":132
+  /* "Toolbox/infcy.pyx":135
  *         unordered_map[int, double] snapshots
  *         int i, sample
  *         int N          = nSamples * step             # <<<<<<<<<<<<<<
@@ -3830,19 +3989,19 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
  */
   __pyx_v_N = (__pyx_v_nSamples * __pyx_v_step);
 
-  /* "Toolbox/infcy.pyx":133
+  /* "Toolbox/infcy.pyx":136
  *         int i, sample
  *         int N          = nSamples * step
  *         long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs             # <<<<<<<<<<<<<<
  *         double Z       = <double> nSamples
  *         int idx
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, __pyx_v_N); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, __pyx_v_N); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 136, __pyx_L1_error)
   __pyx_v_r = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "Toolbox/infcy.pyx":134
+  /* "Toolbox/infcy.pyx":137
  *         int N          = nSamples * step
  *         long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs
  *         double Z       = <double> nSamples             # <<<<<<<<<<<<<<
@@ -3851,14 +4010,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
  */
   __pyx_v_Z = ((double)__pyx_v_nSamples);
 
-  /* "Toolbox/infcy.pyx":136
+  /* "Toolbox/infcy.pyx":139
  *         double Z       = <double> nSamples
  *         int idx
  *         double past    = timer()             # <<<<<<<<<<<<<<
  *         list modelsPy  = []
  *         vector[PyObjectHolder] models_
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_timer); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_timer); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -3872,35 +4031,35 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
   }
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_5 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_past = __pyx_t_5;
 
-  /* "Toolbox/infcy.pyx":137
+  /* "Toolbox/infcy.pyx":140
  *         int idx
  *         double past    = timer()
  *         list modelsPy  = []             # <<<<<<<<<<<<<<
  *         vector[PyObjectHolder] models_
  *         cdef int tid, nThreads = mp.cpu_count()
  */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 140, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_modelsPy = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":139
+  /* "Toolbox/infcy.pyx":142
  *         list modelsPy  = []
  *         vector[PyObjectHolder] models_
  *         cdef int tid, nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
  *     # threadsafe model access; can be reduces to n_threads
  *     for sample in range(nSamples):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_mp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_mp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -3915,14 +4074,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
   }
   __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 139, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_nThreads = __pyx_t_6;
 
-  /* "Toolbox/infcy.pyx":141
+  /* "Toolbox/infcy.pyx":144
  *         cdef int tid, nThreads = mp.cpu_count()
  *     # threadsafe model access; can be reduces to n_threads
  *     for sample in range(nSamples):             # <<<<<<<<<<<<<<
@@ -3934,16 +4093,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_sample = __pyx_t_8;
 
-    /* "Toolbox/infcy.pyx":142
+    /* "Toolbox/infcy.pyx":145
  *     # threadsafe model access; can be reduces to n_threads
  *     for sample in range(nSamples):
  *         tmp = copy.deepcopy(model)             # <<<<<<<<<<<<<<
  *         tmp.reset()
  *         tmp.seed += sample # enforce different seeds
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_copy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_copy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 145, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_4 = NULL;
@@ -3958,20 +4117,20 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_model));
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF_SET(__pyx_v_tmp, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "Toolbox/infcy.pyx":143
+    /* "Toolbox/infcy.pyx":146
  *     for sample in range(nSamples):
  *         tmp = copy.deepcopy(model)
  *         tmp.reset()             # <<<<<<<<<<<<<<
  *         tmp.seed += sample # enforce different seeds
  *         modelsPy.append(tmp)
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_tmp, __pyx_n_s_reset); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_tmp, __pyx_n_s_reset); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -3985,39 +4144,39 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
     }
     __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 143, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "Toolbox/infcy.pyx":144
+    /* "Toolbox/infcy.pyx":147
  *         tmp = copy.deepcopy(model)
  *         tmp.reset()
  *         tmp.seed += sample # enforce different seeds             # <<<<<<<<<<<<<<
  *         modelsPy.append(tmp)
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_tmp, __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 144, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_tmp, __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_sample); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 144, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_sample); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L1_error)
+    __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 147, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (__Pyx_PyObject_SetAttrStr(__pyx_v_tmp, __pyx_n_s_seed, __pyx_t_4) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(__pyx_v_tmp, __pyx_n_s_seed, __pyx_t_4) < 0) __PYX_ERR(0, 147, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-    /* "Toolbox/infcy.pyx":145
+    /* "Toolbox/infcy.pyx":148
  *         tmp.reset()
  *         tmp.seed += sample # enforce different seeds
  *         modelsPy.append(tmp)             # <<<<<<<<<<<<<<
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  */
-    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_modelsPy, __pyx_v_tmp); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 145, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_modelsPy, __pyx_v_tmp); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(0, 148, __pyx_L1_error)
 
-    /* "Toolbox/infcy.pyx":146
+    /* "Toolbox/infcy.pyx":149
  *         tmp.seed += sample # enforce different seeds
  *         modelsPy.append(tmp)
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))             # <<<<<<<<<<<<<<
@@ -4028,11 +4187,11 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
       __pyx_v_models_.push_back(PyObjectHolder(((PyObject *)__pyx_v_tmp)));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 146, __pyx_L1_error)
+      __PYX_ERR(0, 149, __pyx_L1_error)
     }
   }
 
-  /* "Toolbox/infcy.pyx":148
+  /* "Toolbox/infcy.pyx":151
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  *     tid = threadid()             # <<<<<<<<<<<<<<
@@ -4046,29 +4205,29 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
   #endif
   __pyx_v_tid = __pyx_t_6;
 
-  /* "Toolbox/infcy.pyx":149
+  /* "Toolbox/infcy.pyx":152
  * 
  *     tid = threadid()
  *     pbar = tqdm(total = nSamples)             # <<<<<<<<<<<<<<
  *     for sample in prange(nSamples, nogil = True, \
  *                          schedule = 'static', num_threads = nThreads): # nSample independent models in parallel
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_nSamples); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_nSamples); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_pbar = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":150
+  /* "Toolbox/infcy.pyx":153
  *     tid = threadid()
  *     pbar = tqdm(total = nSamples)
  *     for sample in prange(nSamples, nogil = True, \             # <<<<<<<<<<<<<<
@@ -4122,7 +4281,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
                             __pyx_v_i = ((int)0xbad0bad0);
                             __pyx_v_idx = ((int)0xbad0bad0);
 
-                            /* "Toolbox/infcy.pyx":153
+                            /* "Toolbox/infcy.pyx":156
  *                          schedule = 'static', num_threads = nThreads): # nSample independent models in parallel
  *         # perform n steps
  *         for i in range(step):             # <<<<<<<<<<<<<<
@@ -4134,7 +4293,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
                             for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
                               __pyx_v_i = __pyx_t_12;
 
-                              /* "Toolbox/infcy.pyx":154
+                              /* "Toolbox/infcy.pyx":157
  *         # perform n steps
  *         for i in range(step):
  *             (<Model> models_[sample].ptr)._updateState(r[(i + 1) * (sample + 1)])             # <<<<<<<<<<<<<<
@@ -4148,7 +4307,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
                               {
     Py_ssize_t __pyx_tmp_idx = ((__pyx_v_i + 1) * (__pyx_v_sample + 1));
     Py_ssize_t __pyx_tmp_stride = __pyx_v_r.strides[0];
-        if ((0)) __PYX_ERR(0, 154, __pyx_L10_error)
+        if ((0)) __PYX_ERR(0, 157, __pyx_L10_error)
         __pyx_t_14.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -4156,7 +4315,7 @@ __pyx_t_14.shape[0] = __pyx_v_r.shape[1];
 __pyx_t_14.strides[0] = __pyx_v_r.strides[1];
     __pyx_t_14.suboffsets[0] = -1;
 
-__pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_13)->__pyx_vtab)->_updateState(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_13), __pyx_t_14); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 154, __pyx_L10_error)
+__pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_13)->__pyx_vtab)->_updateState(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_13), __pyx_t_14); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 157, __pyx_L10_error)
                               __PYX_XDEC_MEMVIEW(&__pyx_t_14, 0);
                               __pyx_t_14.memview = NULL;
                               __pyx_t_14.data = NULL;
@@ -4165,7 +4324,7 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                               __pyx_t_15.data = NULL;
                             }
 
-                            /* "Toolbox/infcy.pyx":155
+                            /* "Toolbox/infcy.pyx":158
  *         for i in range(step):
  *             (<Model> models_[sample].ptr)._updateState(r[(i + 1) * (sample + 1)])
  *         with gil:             # <<<<<<<<<<<<<<
@@ -4178,7 +4337,7 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                 #endif
                                 /*try:*/ {
 
-                                  /* "Toolbox/infcy.pyx":156
+                                  /* "Toolbox/infcy.pyx":159
  *             (<Model> models_[sample].ptr)._updateState(r[(i + 1) * (sample + 1)])
  *         with gil:
  *             idx = encodeState((<Model> models_[sample].ptr)._states)             # <<<<<<<<<<<<<<
@@ -4188,7 +4347,7 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                   __pyx_t_13 = (__pyx_v_models_[__pyx_v_sample]).ptr;
                                   __pyx_v_idx = __pyx_f_7Toolbox_5infcy_encodeState(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_13)->_states, 0);
 
-                                  /* "Toolbox/infcy.pyx":157
+                                  /* "Toolbox/infcy.pyx":160
  *         with gil:
  *             idx = encodeState((<Model> models_[sample].ptr)._states)
  *             snapshots[idx] += 1/Z # each index corresponds to one system state, the array contains the probability of each state             # <<<<<<<<<<<<<<
@@ -4198,14 +4357,14 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                   __pyx_t_10 = __pyx_v_idx;
                                   (__pyx_v_snapshots[__pyx_t_10]) = ((__pyx_v_snapshots[__pyx_t_10]) + (1.0 / __pyx_v_Z));
 
-                                  /* "Toolbox/infcy.pyx":158
+                                  /* "Toolbox/infcy.pyx":161
  *             idx = encodeState((<Model> models_[sample].ptr)._states)
  *             snapshots[idx] += 1/Z # each index corresponds to one system state, the array contains the probability of each state
  *             pbar.update(1)             # <<<<<<<<<<<<<<
  * 
  *     # pbar = tqdm(total = nSamples)
  */
-                                  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L17_error)
+                                  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L17_error)
                                   __Pyx_GOTREF(__pyx_t_3);
                                   __pyx_t_4 = NULL;
                                   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -4219,13 +4378,13 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                   }
                                   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_int_1);
                                   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-                                  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 158, __pyx_L17_error)
+                                  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 161, __pyx_L17_error)
                                   __Pyx_GOTREF(__pyx_t_2);
                                   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                 }
 
-                                /* "Toolbox/infcy.pyx":155
+                                /* "Toolbox/infcy.pyx":158
  *         for i in range(step):
  *             (<Model> models_[sample].ptr)._updateState(r[(i + 1) * (sample + 1)])
  *         with gil:             # <<<<<<<<<<<<<<
@@ -4341,7 +4500,7 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
         #endif
       }
 
-      /* "Toolbox/infcy.pyx":150
+      /* "Toolbox/infcy.pyx":153
  *     tid = threadid()
  *     pbar = tqdm(total = nSamples)
  *     for sample in prange(nSamples, nogil = True, \             # <<<<<<<<<<<<<<
@@ -4367,14 +4526,14 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
       }
   }
 
-  /* "Toolbox/infcy.pyx":170
+  /* "Toolbox/infcy.pyx":173
  *     #     model._updateState(r[i])
  *     # pbar.close()
  *     print(f'Found {len(snapshots)} states')             # <<<<<<<<<<<<<<
  *     print(f"Delta = {timer() - past: .2f} sec")
  *     return snapshots
  */
-  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_16 = 0;
   __pyx_t_17 = 127;
@@ -4382,11 +4541,11 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   __pyx_t_16 += 6;
   __Pyx_GIVEREF(__pyx_kp_u_Found);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_kp_u_Found);
-  __pyx_t_3 = __pyx_convert_unordered_map_to_py_int____double(__pyx_v_snapshots); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_3 = __pyx_convert_unordered_map_to_py_int____double(__pyx_v_snapshots); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_18 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_18 == ((Py_ssize_t)-1))) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_18 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_18 == ((Py_ssize_t)-1))) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyUnicode_From_Py_ssize_t(__pyx_t_18, 0, ' ', 'd'); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyUnicode_From_Py_ssize_t(__pyx_t_18, 0, ' ', 'd'); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_16 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_3);
@@ -4396,22 +4555,22 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   __pyx_t_16 += 7;
   __Pyx_GIVEREF(__pyx_kp_u_states);
   PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_kp_u_states);
-  __pyx_t_3 = __Pyx_PyUnicode_Join(__pyx_t_2, 3, __pyx_t_16, __pyx_t_17); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyUnicode_Join(__pyx_t_2, 3, __pyx_t_16, __pyx_t_17); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 170, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 173, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":171
+  /* "Toolbox/infcy.pyx":174
  *     # pbar.close()
  *     print(f'Found {len(snapshots)} states')
  *     print(f"Delta = {timer() - past: .2f} sec")             # <<<<<<<<<<<<<<
  *     return snapshots
  * 
  */
-  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_16 = 0;
   __pyx_t_17 = 127;
@@ -4419,7 +4578,7 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   __pyx_t_16 += 8;
   __Pyx_GIVEREF(__pyx_kp_u_Delta);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_kp_u_Delta);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_timer); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_timer); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_19 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -4433,16 +4592,16 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   }
   __pyx_t_3 = (__pyx_t_19) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_19) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_19); __pyx_t_19 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 171, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_past); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_past); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_19 = PyNumber_Subtract(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_19 = PyNumber_Subtract(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_19);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_Format(__pyx_t_19, __pyx_kp_u_2f); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Format(__pyx_t_19, __pyx_kp_u_2f); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_19); __pyx_t_19 = 0;
   __pyx_t_17 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) > __pyx_t_17) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_4) : __pyx_t_17;
@@ -4454,15 +4613,15 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   __pyx_t_16 += 4;
   __Pyx_GIVEREF(__pyx_kp_u_sec);
   PyTuple_SET_ITEM(__pyx_t_2, 2, __pyx_kp_u_sec);
-  __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_2, 3, __pyx_t_16, __pyx_t_17); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyUnicode_Join(__pyx_t_2, 3, __pyx_t_16, __pyx_t_17); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 171, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":172
+  /* "Toolbox/infcy.pyx":175
  *     print(f'Found {len(snapshots)} states')
  *     print(f"Delta = {timer() - past: .2f} sec")
  *     return snapshots             # <<<<<<<<<<<<<<
@@ -4470,14 +4629,14 @@ __pyx_t_15 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __pyx_convert_unordered_map_to_py_int____double(__pyx_v_snapshots); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 172, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_unordered_map_to_py_int____double(__pyx_v_snapshots); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (!(likely(PyDict_CheckExact(__pyx_t_2))||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 172, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_t_2))||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 175, __pyx_L1_error)
   __pyx_r = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":124
+  /* "Toolbox/infcy.pyx":127
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\             # <<<<<<<<<<<<<<
@@ -4544,7 +4703,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_7getSnapShots(PyObject *__pyx_self, Py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getSnapShots", 0, 2, 4, 1); __PYX_ERR(0, 124, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getSnapShots", 0, 2, 4, 1); __PYX_ERR(0, 127, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -4560,7 +4719,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_7getSnapShots(PyObject *__pyx_self, Py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getSnapShots") < 0)) __PYX_ERR(0, 124, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "getSnapShots") < 0)) __PYX_ERR(0, 127, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -4575,27 +4734,27 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_7getSnapShots(PyObject *__pyx_self, Py
       }
     }
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
-    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 127, __pyx_L3_error)
     if (values[2]) {
-      __pyx_v_step = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_step == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 124, __pyx_L3_error)
+      __pyx_v_step = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_step == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 127, __pyx_L3_error)
     } else {
       __pyx_v_step = ((int)1);
     }
     if (values[3]) {
-      __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 125, __pyx_L3_error)
+      __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L3_error)
     } else {
       __pyx_v_burninSamples = __pyx_k__2;
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getSnapShots", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 124, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getSnapShots", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 127, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.getSnapShots", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 127, __pyx_L1_error)
   __pyx_r = __pyx_pf_7Toolbox_5infcy_6getSnapShots(__pyx_self, __pyx_v_model, __pyx_v_nSamples, __pyx_v_step, __pyx_v_burninSamples);
 
   /* function exit code */
@@ -4617,7 +4776,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_6getSnapShots(CYTHON_UNUSED PyObject *
   __pyx_t_2.__pyx_n = 2;
   __pyx_t_2.step = __pyx_v_step;
   __pyx_t_2.burninSamples = __pyx_v_burninSamples;
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_getSnapShots(__pyx_v_model, __pyx_v_nSamples, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_getSnapShots(__pyx_v_model, __pyx_v_nSamples, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4634,7 +4793,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_6getSnapShots(CYTHON_UNUSED PyObject *
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":182
+/* "Toolbox/infcy.pyx":185
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict monteCarlo(\             # <<<<<<<<<<<<<<
@@ -4735,25 +4894,25 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
     }
   }
 
-  /* "Toolbox/infcy.pyx":196
+  /* "Toolbox/infcy.pyx":199
  *     # one idea would be to have the buffers inside the for loop. However prange is not possible
  *     # if that is used.
  *     print('Pre-computing rngs')             # <<<<<<<<<<<<<<
  *     cdef:
  *         float past = timer()
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":198
+  /* "Toolbox/infcy.pyx":201
  *     print('Pre-computing rngs')
  *     cdef:
  *         float past = timer()             # <<<<<<<<<<<<<<
  *     # pre-declaration
  *         double Z              = <double> repeats
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_timer); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_timer); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4767,14 +4926,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_4 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 198, __pyx_L1_error)
+  __pyx_t_4 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_4 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_past = __pyx_t_4;
 
-  /* "Toolbox/infcy.pyx":200
+  /* "Toolbox/infcy.pyx":203
  *         float past = timer()
  *     # pre-declaration
  *         double Z              = <double> repeats             # <<<<<<<<<<<<<<
@@ -4783,16 +4942,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
   __pyx_v_Z = ((double)__pyx_v_repeats);
 
-  /* "Toolbox/infcy.pyx":201
+  /* "Toolbox/infcy.pyx":204
  *     # pre-declaration
  *         double Z              = <double> repeats
  *         double[::1] copyNudge = model.nudges.copy()             # <<<<<<<<<<<<<<
  *         bint reset            = True
  *         # loop stuff
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_nudges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_nudges); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -4807,16 +4966,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 201, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 204, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_copyNudge = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "Toolbox/infcy.pyx":202
+  /* "Toolbox/infcy.pyx":205
  *         double Z              = <double> repeats
  *         double[::1] copyNudge = model.nudges.copy()
  *         bint reset            = True             # <<<<<<<<<<<<<<
@@ -4825,22 +4984,22 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
   __pyx_v_reset = 1;
 
-  /* "Toolbox/infcy.pyx":206
+  /* "Toolbox/infcy.pyx":209
  *         # extract startstates
  *         # list comprehension is slower than true loops cython
  *         long[:, ::1] s = np.array([decodeState(i, model._nNodes) for i in tqdm(snapshots)]) # array of system states             # <<<<<<<<<<<<<<
  *         int states     = len(snapshots) # number of different states observed
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_array); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   { /* enter inner scope */
-    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 206, __pyx_L5_error)
+    __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 209, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 206, __pyx_L5_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 209, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
@@ -4854,16 +5013,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
     }
     __pyx_t_6 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_8, __pyx_v_snapshots) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_v_snapshots);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 206, __pyx_L5_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 209, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     if (likely(PyList_CheckExact(__pyx_t_6)) || PyTuple_CheckExact(__pyx_t_6)) {
       __pyx_t_7 = __pyx_t_6; __Pyx_INCREF(__pyx_t_7); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_7 = PyObject_GetIter(__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 206, __pyx_L5_error)
+      __pyx_t_9 = -1; __pyx_t_7 = PyObject_GetIter(__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 209, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_10 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 206, __pyx_L5_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 209, __pyx_L5_error)
     }
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     for (;;) {
@@ -4871,17 +5030,17 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
         if (likely(PyList_CheckExact(__pyx_t_7))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_7)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_6 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_9); __Pyx_INCREF(__pyx_t_6); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 206, __pyx_L5_error)
+          __pyx_t_6 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_9); __Pyx_INCREF(__pyx_t_6); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 209, __pyx_L5_error)
           #else
-          __pyx_t_6 = PySequence_ITEM(__pyx_t_7, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 206, __pyx_L5_error)
+          __pyx_t_6 = PySequence_ITEM(__pyx_t_7, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 209, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_6);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_7)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_9); __Pyx_INCREF(__pyx_t_6); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 206, __pyx_L5_error)
+          __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_9); __Pyx_INCREF(__pyx_t_6); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 209, __pyx_L5_error)
           #else
-          __pyx_t_6 = PySequence_ITEM(__pyx_t_7, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 206, __pyx_L5_error)
+          __pyx_t_6 = PySequence_ITEM(__pyx_t_7, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 209, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_6);
           #endif
         }
@@ -4891,7 +5050,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 206, __pyx_L5_error)
+            else __PYX_ERR(0, 209, __pyx_L5_error)
           }
           break;
         }
@@ -4899,10 +5058,10 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
       }
       __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_i, __pyx_t_6);
       __pyx_t_6 = 0;
-      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 206, __pyx_L5_error)
-      __pyx_t_6 = __pyx_convert_vector_to_py_long(__pyx_f_7Toolbox_5infcy_decodeState(__pyx_t_11, __pyx_v_model->_nNodes, 0)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 206, __pyx_L5_error)
+      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 209, __pyx_L5_error)
+      __pyx_t_6 = __pyx_convert_vector_to_py_long(__pyx_f_7Toolbox_5infcy_decodeState(__pyx_t_11, __pyx_v_model->_nNodes, 0)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 209, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_6);
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 206, __pyx_L5_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_3, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 209, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -4926,16 +5085,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   __pyx_t_1 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_7, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 206, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 206, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 209, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_s = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "Toolbox/infcy.pyx":207
+  /* "Toolbox/infcy.pyx":210
  *         # list comprehension is slower than true loops cython
  *         long[:, ::1] s = np.array([decodeState(i, model._nNodes) for i in tqdm(snapshots)]) # array of system states
  *         int states     = len(snapshots) # number of different states observed             # <<<<<<<<<<<<<<
@@ -4944,12 +5103,12 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
   if (unlikely(__pyx_v_snapshots == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 207, __pyx_L1_error)
+    __PYX_ERR(0, 210, __pyx_L1_error)
   }
-  __pyx_t_9 = PyDict_Size(__pyx_v_snapshots); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_t_9 = PyDict_Size(__pyx_v_snapshots); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 210, __pyx_L1_error)
   __pyx_v_states = __pyx_t_9;
 
-  /* "Toolbox/infcy.pyx":211
+  /* "Toolbox/infcy.pyx":214
  *         # CANT do this inline which sucks either assign it below with gill or move this to proper c/c++
  *         # loop parameters
  *         int repeat, delta, node, statei, half = deltas // 2, state             # <<<<<<<<<<<<<<
@@ -4958,7 +5117,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
   __pyx_v_half = (__pyx_v_deltas / 2);
 
-  /* "Toolbox/infcy.pyx":212
+  /* "Toolbox/infcy.pyx":215
  *         # loop parameters
  *         int repeat, delta, node, statei, half = deltas // 2, state
  *         vector[int] kdxs        = list(snapshots.keys()) # extra mapping idx (list of decimal representations of states)             # <<<<<<<<<<<<<<
@@ -4967,50 +5126,50 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
   if (unlikely(__pyx_v_snapshots == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "keys");
-    __PYX_ERR(0, 212, __pyx_L1_error)
+    __PYX_ERR(0, 215, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyDict_Keys(__pyx_v_snapshots); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_Keys(__pyx_v_snapshots); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PySequence_List(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_2 = PySequence_List(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_13 = __pyx_convert_vector_from_py_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 212, __pyx_L1_error)
+  __pyx_t_13 = __pyx_convert_vector_from_py_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_kdxs = __pyx_t_13;
 
-  /* "Toolbox/infcy.pyx":213
+  /* "Toolbox/infcy.pyx":216
  *         int repeat, delta, node, statei, half = deltas // 2, state
  *         vector[int] kdxs        = list(snapshots.keys()) # extra mapping idx (list of decimal representations of states)
  *         dict conditional = {}             # <<<<<<<<<<<<<<
  *         # unordered_map[int, double *] conditional
  *         long[::1] startState
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_conditional = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":217
+  /* "Toolbox/infcy.pyx":220
  *         long[::1] startState
  *         int jdx
  *         double[:, :, :, ::1] out     = np.zeros((states , (deltas), model._nNodes, model._nStates))             # <<<<<<<<<<<<<<
  *         long[  :,       ::1] r       = model.sampleNodes( states * (deltas) * repeats)
  *         # list m = []
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_states); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_states); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_deltas); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_deltas); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_model->_nStates); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_model->_nStates); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_14 = PyTuple_New(4); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_14 = PyTuple_New(4); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_1);
@@ -5037,28 +5196,28 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   __pyx_t_2 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_8, __pyx_t_14) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_14);
   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_to_MemoryviewSlice_d_d_d_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_15.memview)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_out = __pyx_t_15;
   __pyx_t_15.memview = NULL;
   __pyx_t_15.data = NULL;
 
-  /* "Toolbox/infcy.pyx":218
+  /* "Toolbox/infcy.pyx":221
  *         int jdx
  *         double[:, :, :, ::1] out     = np.zeros((states , (deltas), model._nNodes, model._nStates))
  *         long[  :,       ::1] r       = model.sampleNodes( states * (deltas) * repeats)             # <<<<<<<<<<<<<<
  *         # list m = []
  * 
  */
-  __pyx_t_12 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, ((__pyx_v_states * __pyx_v_deltas) * __pyx_v_repeats)); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_12 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, ((__pyx_v_states * __pyx_v_deltas) * __pyx_v_repeats)); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 221, __pyx_L1_error)
   __pyx_v_r = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "Toolbox/infcy.pyx":221
+  /* "Toolbox/infcy.pyx":224
  *         # list m = []
  * 
  *         int nNodes = model._nNodes, nStates = model._nStates             # <<<<<<<<<<<<<<
@@ -5070,7 +5229,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   __pyx_t_11 = __pyx_v_model->_nStates;
   __pyx_v_nStates = __pyx_t_11;
 
-  /* "Toolbox/infcy.pyx":222
+  /* "Toolbox/infcy.pyx":225
  * 
  *         int nNodes = model._nNodes, nStates = model._nStates
  *         long[::1] agentStates = model.agentStates             # <<<<<<<<<<<<<<
@@ -5083,7 +5242,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   __pyx_t_16.memview = NULL;
   __pyx_t_16.data = NULL;
 
-  /* "Toolbox/infcy.pyx":223
+  /* "Toolbox/infcy.pyx":226
  *         int nNodes = model._nNodes, nStates = model._nStates
  *         long[::1] agentStates = model.agentStates
  *         str nudgeType = model._nudgeType             # <<<<<<<<<<<<<<
@@ -5095,7 +5254,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   __pyx_v_nudgeType = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":225
+  /* "Toolbox/infcy.pyx":228
  *         str nudgeType = model._nudgeType
  * 
  *         unordered_map[int, int] idxer = {state : idx for idx, state in enumerate(agentStates)}             # <<<<<<<<<<<<<<
@@ -5103,19 +5262,19 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  *         list modelsPy = []
  */
   { /* enter inner scope */
-    __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L11_error)
+    __pyx_t_2 = PyDict_New(); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L11_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_int_0);
     __pyx_t_3 = __pyx_int_0;
-    __pyx_t_14 = __pyx_memoryview_fromslice(__pyx_v_agentStates, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 225, __pyx_L11_error)
+    __pyx_t_14 = __pyx_memoryview_fromslice(__pyx_v_agentStates, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 228, __pyx_L11_error)
     __Pyx_GOTREF(__pyx_t_14);
     if (likely(PyList_CheckExact(__pyx_t_14)) || PyTuple_CheckExact(__pyx_t_14)) {
       __pyx_t_8 = __pyx_t_14; __Pyx_INCREF(__pyx_t_8); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_8 = PyObject_GetIter(__pyx_t_14); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 225, __pyx_L11_error)
+      __pyx_t_9 = -1; __pyx_t_8 = PyObject_GetIter(__pyx_t_14); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 228, __pyx_L11_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_10 = Py_TYPE(__pyx_t_8)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 225, __pyx_L11_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_8)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 228, __pyx_L11_error)
     }
     __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
     for (;;) {
@@ -5123,17 +5282,17 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
         if (likely(PyList_CheckExact(__pyx_t_8))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_8)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_14 = PyList_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_14); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 225, __pyx_L11_error)
+          __pyx_t_14 = PyList_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_14); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 228, __pyx_L11_error)
           #else
-          __pyx_t_14 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 225, __pyx_L11_error)
+          __pyx_t_14 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 228, __pyx_L11_error)
           __Pyx_GOTREF(__pyx_t_14);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_8)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_14 = PyTuple_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_14); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 225, __pyx_L11_error)
+          __pyx_t_14 = PyTuple_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_14); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 228, __pyx_L11_error)
           #else
-          __pyx_t_14 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 225, __pyx_L11_error)
+          __pyx_t_14 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 228, __pyx_L11_error)
           __Pyx_GOTREF(__pyx_t_14);
           #endif
         }
@@ -5143,25 +5302,25 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 225, __pyx_L11_error)
+            else __PYX_ERR(0, 228, __pyx_L11_error)
           }
           break;
         }
         __Pyx_GOTREF(__pyx_t_14);
       }
-      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_14); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 225, __pyx_L11_error)
+      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_14); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 228, __pyx_L11_error)
       __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
       __pyx_8genexpr1__pyx_v_state = __pyx_t_11;
       __Pyx_INCREF(__pyx_t_3);
       __Pyx_XDECREF_SET(__pyx_8genexpr1__pyx_v_idx, __pyx_t_3);
-      __pyx_t_14 = __Pyx_PyInt_AddObjC(__pyx_t_3, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 225, __pyx_L11_error)
+      __pyx_t_14 = __Pyx_PyInt_AddObjC(__pyx_t_3, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 228, __pyx_L11_error)
       __Pyx_GOTREF(__pyx_t_14);
       __Pyx_DECREF(__pyx_t_3);
       __pyx_t_3 = __pyx_t_14;
       __pyx_t_14 = 0;
-      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_8genexpr1__pyx_v_state); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 225, __pyx_L11_error)
+      __pyx_t_14 = __Pyx_PyInt_From_int(__pyx_8genexpr1__pyx_v_state); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 228, __pyx_L11_error)
       __Pyx_GOTREF(__pyx_t_14);
-      if (unlikely(PyDict_SetItem(__pyx_t_2, (PyObject*)__pyx_t_14, (PyObject*)__pyx_8genexpr1__pyx_v_idx))) __PYX_ERR(0, 225, __pyx_L11_error)
+      if (unlikely(PyDict_SetItem(__pyx_t_2, (PyObject*)__pyx_t_14, (PyObject*)__pyx_8genexpr1__pyx_v_idx))) __PYX_ERR(0, 228, __pyx_L11_error)
       __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
     }
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -5173,23 +5332,23 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
     goto __pyx_L1_error;
     __pyx_L14_exit_scope:;
   } /* exit inner scope */
-  __pyx_t_17 = __pyx_convert_unordered_map_from_py_int__and_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_t_17 = __pyx_convert_unordered_map_from_py_int__and_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 228, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_idxer = __pyx_t_17;
 
-  /* "Toolbox/infcy.pyx":227
+  /* "Toolbox/infcy.pyx":230
  *         unordered_map[int, int] idxer = {state : idx for idx, state in enumerate(agentStates)}
  * 
  *         list modelsPy = []             # <<<<<<<<<<<<<<
  *         vector[PyObjectHolder] models_
  *         Model tmp
  */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_modelsPy = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":232
+  /* "Toolbox/infcy.pyx":235
  * 
  *     # threadsafe model access; can be reduces to n_threads
  *     for state in range(states):             # <<<<<<<<<<<<<<
@@ -5201,16 +5360,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   for (__pyx_t_19 = 0; __pyx_t_19 < __pyx_t_18; __pyx_t_19+=1) {
     __pyx_v_state = __pyx_t_19;
 
-    /* "Toolbox/infcy.pyx":233
+    /* "Toolbox/infcy.pyx":236
  *     # threadsafe model access; can be reduces to n_threads
  *     for state in range(states):
  *         tmp = copy.deepcopy(model)             # <<<<<<<<<<<<<<
  *         tmp.seed += state # enforce different seeds
  *         modelsPy.append(tmp)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 236, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 233, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 236, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_3 = NULL;
@@ -5225,41 +5384,41 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
     }
     __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_3, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_8, ((PyObject *)__pyx_v_model));
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 233, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 236, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 233, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 236, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_tmp, ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "Toolbox/infcy.pyx":234
+    /* "Toolbox/infcy.pyx":237
  *     for state in range(states):
  *         tmp = copy.deepcopy(model)
  *         tmp.seed += state # enforce different seeds             # <<<<<<<<<<<<<<
  *         modelsPy.append(tmp)
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_tmp), __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_tmp), __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_state); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_state); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 234, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_tmp), __pyx_n_s_seed, __pyx_t_3) < 0) __PYX_ERR(0, 234, __pyx_L1_error)
+    if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_v_tmp), __pyx_n_s_seed, __pyx_t_3) < 0) __PYX_ERR(0, 237, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "Toolbox/infcy.pyx":235
+    /* "Toolbox/infcy.pyx":238
  *         tmp = copy.deepcopy(model)
  *         tmp.seed += state # enforce different seeds
  *         modelsPy.append(tmp)             # <<<<<<<<<<<<<<
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  */
-    __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_modelsPy, ((PyObject *)__pyx_v_tmp)); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 235, __pyx_L1_error)
+    __pyx_t_20 = __Pyx_PyList_Append(__pyx_v_modelsPy, ((PyObject *)__pyx_v_tmp)); if (unlikely(__pyx_t_20 == ((int)-1))) __PYX_ERR(0, 238, __pyx_L1_error)
 
-    /* "Toolbox/infcy.pyx":236
+    /* "Toolbox/infcy.pyx":239
  *         tmp.seed += state # enforce different seeds
  *         modelsPy.append(tmp)
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))             # <<<<<<<<<<<<<<
@@ -5270,22 +5429,22 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
       __pyx_v_models_.push_back(PyObjectHolder(((PyObject *)__pyx_v_tmp)));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 236, __pyx_L1_error)
+      __PYX_ERR(0, 239, __pyx_L1_error)
     }
   }
 
-  /* "Toolbox/infcy.pyx":238
+  /* "Toolbox/infcy.pyx":241
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  *     print('starting runs')             # <<<<<<<<<<<<<<
  *     if nThreads == -1:
  *         nThreads = mp.cpu_count()
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "Toolbox/infcy.pyx":239
+  /* "Toolbox/infcy.pyx":242
  * 
  *     print('starting runs')
  *     if nThreads == -1:             # <<<<<<<<<<<<<<
@@ -5295,16 +5454,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
   __pyx_t_21 = ((__pyx_v_nThreads == -1L) != 0);
   if (__pyx_t_21) {
 
-    /* "Toolbox/infcy.pyx":240
+    /* "Toolbox/infcy.pyx":243
  *     print('starting runs')
  *     if nThreads == -1:
  *         nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
  *     pbar = tqdm(total = states) # init  progbar
  *     for state in prange(states, nogil = True, schedule = 'static', num_threads = nThreads):
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_mp); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 240, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_mp); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 243, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __pyx_t_8 = NULL;
@@ -5319,14 +5478,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
     }
     __pyx_t_3 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 240, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 243, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 240, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 243, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_nThreads = __pyx_t_11;
 
-    /* "Toolbox/infcy.pyx":239
+    /* "Toolbox/infcy.pyx":242
  * 
  *     print('starting runs')
  *     if nThreads == -1:             # <<<<<<<<<<<<<<
@@ -5335,29 +5494,29 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
   }
 
-  /* "Toolbox/infcy.pyx":241
+  /* "Toolbox/infcy.pyx":244
  *     if nThreads == -1:
  *         nThreads = mp.cpu_count()
  *     pbar = tqdm(total = states) # init  progbar             # <<<<<<<<<<<<<<
  *     for state in prange(states, nogil = True, schedule = 'static', num_threads = nThreads):
  *     # for state in range(states):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_states); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_states); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_total, __pyx_t_8) < 0) __PYX_ERR(0, 241, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_total, __pyx_t_8) < 0) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 241, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 244, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_pbar = __pyx_t_8;
   __pyx_t_8 = 0;
 
-  /* "Toolbox/infcy.pyx":242
+  /* "Toolbox/infcy.pyx":245
  *         nThreads = mp.cpu_count()
  *     pbar = tqdm(total = states) # init  progbar
  *     for state in prange(states, nogil = True, schedule = 'static', num_threads = nThreads):             # <<<<<<<<<<<<<<
@@ -5415,7 +5574,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                             __pyx_v_node = ((int)0xbad0bad0);
                             __pyx_v_repeat = ((int)0xbad0bad0);
 
-                            /* "Toolbox/infcy.pyx":245
+                            /* "Toolbox/infcy.pyx":248
  *     # for state in range(states):
  *         # with gil:
  *         for repeat in range(repeats):             # <<<<<<<<<<<<<<
@@ -5427,7 +5586,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                             for (__pyx_t_24 = 0; __pyx_t_24 < __pyx_t_23; __pyx_t_24+=1) {
                               __pyx_v_repeat = __pyx_t_24;
 
-                              /* "Toolbox/infcy.pyx":252
+                              /* "Toolbox/infcy.pyx":255
  *             # (<Model>models_[state].ptr)._nudges = copyNudge
  *             # only copy values
  *             for node in range(nNodes):             # <<<<<<<<<<<<<<
@@ -5439,7 +5598,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                               for (__pyx_t_27 = 0; __pyx_t_27 < __pyx_t_26; __pyx_t_27+=1) {
                                 __pyx_v_node = __pyx_t_27;
 
-                                /* "Toolbox/infcy.pyx":254
+                                /* "Toolbox/infcy.pyx":257
  *             for node in range(nNodes):
  *                 # kinda uggly syntax
  *                 (<Model>models_[state].ptr)._states[node] = s[state][node]             # <<<<<<<<<<<<<<
@@ -5452,7 +5611,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                                 __pyx_t_31 = __pyx_v_node;
                                 *((long *) ( /* dim=0 */ ((char *) (((long *) ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_30)->_states.data) + __pyx_t_31)) )) = (*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_s.data + __pyx_t_28 * __pyx_v_s.strides[0]) )) + __pyx_t_29)) )));
 
-                                /* "Toolbox/infcy.pyx":255
+                                /* "Toolbox/infcy.pyx":258
  *                 # kinda uggly syntax
  *                 (<Model>models_[state].ptr)._states[node] = s[state][node]
  *                 (<Model>models_[state].ptr)._nudges[node] = copyNudge[node]             # <<<<<<<<<<<<<<
@@ -5465,7 +5624,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                                 *((double *) ( /* dim=0 */ ((char *) (((double *) ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_30)->_nudges.data) + __pyx_t_33)) )) = (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_copyNudge.data) + __pyx_t_32)) )));
                               }
 
-                              /* "Toolbox/infcy.pyx":261
+                              /* "Toolbox/infcy.pyx":264
  *             # reset simulation
  *             # sample for N times
  *             for delta in range(deltas ):             # <<<<<<<<<<<<<<
@@ -5477,7 +5636,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                               for (__pyx_t_27 = 0; __pyx_t_27 < __pyx_t_26; __pyx_t_27+=1) {
                                 __pyx_v_delta = __pyx_t_27;
 
-                                /* "Toolbox/infcy.pyx":263
+                                /* "Toolbox/infcy.pyx":266
  *             for delta in range(deltas ):
  *                 # bin data
  *                 for node in range(nNodes):             # <<<<<<<<<<<<<<
@@ -5489,7 +5648,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                                 for (__pyx_t_36 = 0; __pyx_t_36 < __pyx_t_35; __pyx_t_36+=1) {
                                   __pyx_v_node = __pyx_t_36;
 
-                                  /* "Toolbox/infcy.pyx":264
+                                  /* "Toolbox/infcy.pyx":267
  *                 # bin data
  *                 for node in range(nNodes):
  *                     out[state, delta, node, idxer[(<Model>models_[state].ptr)._states[node]]] += 1 / Z             # <<<<<<<<<<<<<<
@@ -5505,7 +5664,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                                   *((double *) ( /* dim=3 */ ((char *) (((double *) ( /* dim=2 */ (( /* dim=1 */ (( /* dim=0 */ (__pyx_v_out.data + __pyx_t_38 * __pyx_v_out.strides[0]) ) + __pyx_t_39 * __pyx_v_out.strides[1]) ) + __pyx_t_40 * __pyx_v_out.strides[2]) )) + __pyx_t_41)) )) += (1.0 / __pyx_v_Z);
                                 }
 
-                                /* "Toolbox/infcy.pyx":271
+                                /* "Toolbox/infcy.pyx":274
  *                             # break
  *                 # update
  *                 jdx  = (delta + 1) * (repeat + 1)  * (state + 1)- 1             # <<<<<<<<<<<<<<
@@ -5514,7 +5673,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
  */
                                 __pyx_v_jdx = ((((__pyx_v_delta + 1) * (__pyx_v_repeat + 1)) * (__pyx_v_state + 1)) - 1);
 
-                                /* "Toolbox/infcy.pyx":274
+                                /* "Toolbox/infcy.pyx":277
  *                 # (<Model>models[n])._updateState(r[jdx])
  *                 # model._updateState(model.sampleNodes(1)[0])
  *                 (<Model>models_[state].ptr)._updateState(r[jdx])             # <<<<<<<<<<<<<<
@@ -5528,7 +5687,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_monteCarlo(struct __pyx_obj_6Models_6mo
                                 {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_jdx;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_r.strides[0];
-        if ((0)) __PYX_ERR(0, 274, __pyx_L23_error)
+        if ((0)) __PYX_ERR(0, 277, __pyx_L23_error)
         __pyx_t_16.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -5536,7 +5695,7 @@ __pyx_t_16.shape[0] = __pyx_v_r.shape[1];
 __pyx_t_16.strides[0] = __pyx_v_r.strides[1];
     __pyx_t_16.suboffsets[0] = -1;
 
-__pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_30)->__pyx_vtab)->_updateState(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_30), __pyx_t_16); if (unlikely(!__pyx_t_42.memview)) __PYX_ERR(0, 274, __pyx_L23_error)
+__pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_30)->__pyx_vtab)->_updateState(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_30), __pyx_t_16); if (unlikely(!__pyx_t_42.memview)) __PYX_ERR(0, 277, __pyx_L23_error)
                                 __PYX_XDEC_MEMVIEW(&__pyx_t_16, 0);
                                 __pyx_t_16.memview = NULL;
                                 __pyx_t_16.data = NULL;
@@ -5544,14 +5703,14 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                 __pyx_t_42.memview = NULL;
                                 __pyx_t_42.data = NULL;
 
-                                /* "Toolbox/infcy.pyx":279
+                                /* "Toolbox/infcy.pyx":282
  *                 # turn-off the nudges
  *                     # check for type of nudge
  *                 if nudgeType == 'pulse' or \             # <<<<<<<<<<<<<<
  *                 nudgeType    == 'constant' and delta >= half:
  *                     # (<Model>models[n])._nudges[:] =
  */
-                                __pyx_t_43 = (__Pyx_PyUnicode_Equals(__pyx_v_nudgeType, __pyx_n_u_pulse, Py_EQ)); if (unlikely(__pyx_t_43 < 0)) __PYX_ERR(0, 279, __pyx_L23_error)
+                                __pyx_t_43 = (__Pyx_PyUnicode_Equals(__pyx_v_nudgeType, __pyx_n_u_pulse, Py_EQ)); if (unlikely(__pyx_t_43 < 0)) __PYX_ERR(0, 282, __pyx_L23_error)
                                 __pyx_t_44 = (__pyx_t_43 != 0);
                                 if (!__pyx_t_44) {
                                 } else {
@@ -5559,14 +5718,14 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                   goto __pyx_L34_bool_binop_done;
                                 }
 
-                                /* "Toolbox/infcy.pyx":280
+                                /* "Toolbox/infcy.pyx":283
  *                     # check for type of nudge
  *                 if nudgeType == 'pulse' or \
  *                 nudgeType    == 'constant' and delta >= half:             # <<<<<<<<<<<<<<
  *                     # (<Model>models[n])._nudges[:] =
  *                     (<Model>models_[state].ptr)._nudges[:] = 0
  */
-                                __pyx_t_44 = (__Pyx_PyUnicode_Equals(__pyx_v_nudgeType, __pyx_n_u_constant, Py_EQ)); if (unlikely(__pyx_t_44 < 0)) __PYX_ERR(0, 280, __pyx_L23_error)
+                                __pyx_t_44 = (__Pyx_PyUnicode_Equals(__pyx_v_nudgeType, __pyx_n_u_constant, Py_EQ)); if (unlikely(__pyx_t_44 < 0)) __PYX_ERR(0, 283, __pyx_L23_error)
                                 __pyx_t_43 = (__pyx_t_44 != 0);
                                 if (__pyx_t_43) {
                                 } else {
@@ -5577,7 +5736,7 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                 __pyx_t_21 = __pyx_t_43;
                                 __pyx_L34_bool_binop_done:;
 
-                                /* "Toolbox/infcy.pyx":279
+                                /* "Toolbox/infcy.pyx":282
  *                 # turn-off the nudges
  *                     # check for type of nudge
  *                 if nudgeType == 'pulse' or \             # <<<<<<<<<<<<<<
@@ -5586,7 +5745,7 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
  */
                                 if (__pyx_t_21) {
 
-                                  /* "Toolbox/infcy.pyx":282
+                                  /* "Toolbox/infcy.pyx":285
  *                 nudgeType    == 'constant' and delta >= half:
  *                     # (<Model>models[n])._nudges[:] =
  *                     (<Model>models_[state].ptr)._nudges[:] = 0             # <<<<<<<<<<<<<<
@@ -5607,7 +5766,7 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                       }
                                   }
 
-                                  /* "Toolbox/infcy.pyx":279
+                                  /* "Toolbox/infcy.pyx":282
  *                 # turn-off the nudges
  *                     # check for type of nudge
  *                 if nudgeType == 'pulse' or \             # <<<<<<<<<<<<<<
@@ -5618,7 +5777,7 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                               }
                             }
 
-                            /* "Toolbox/infcy.pyx":290
+                            /* "Toolbox/infcy.pyx":293
  *                     # model._nudges[:] = 0
  *         # TODO: replace this with a concurrent unordered_map
  *         with gil:             # <<<<<<<<<<<<<<
@@ -5631,14 +5790,14 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                 #endif
                                 /*try:*/ {
 
-                                  /* "Toolbox/infcy.pyx":291
+                                  /* "Toolbox/infcy.pyx":294
  *         # TODO: replace this with a concurrent unordered_map
  *         with gil:
  *             pbar.update(1)             # <<<<<<<<<<<<<<
  *             conditional[kdxs[state]] = out.base[state]# [state, 0, 0, 0]
  *     # cdef unordered_map[int, double *].iterator start = conditional.begin()
  */
-                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 291, __pyx_L40_error)
+                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 294, __pyx_L40_error)
                                   __Pyx_GOTREF(__pyx_t_2);
                                   __pyx_t_3 = NULL;
                                   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5652,34 +5811,34 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
                                   }
                                   __pyx_t_8 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_int_1);
                                   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-                                  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 291, __pyx_L40_error)
+                                  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 294, __pyx_L40_error)
                                   __Pyx_GOTREF(__pyx_t_8);
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-                                  /* "Toolbox/infcy.pyx":292
+                                  /* "Toolbox/infcy.pyx":295
  *         with gil:
  *             pbar.update(1)
  *             conditional[kdxs[state]] = out.base[state]# [state, 0, 0, 0]             # <<<<<<<<<<<<<<
  *     # cdef unordered_map[int, double *].iterator start = conditional.begin()
  *     # cdef unordered_map[int, double *].iterator end   = conditional.end()
  */
-                                  __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_out, 4, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 292, __pyx_L40_error)
+                                  __pyx_t_8 = __pyx_memoryview_fromslice(__pyx_v_out, 4, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 295, __pyx_L40_error)
                                   __Pyx_GOTREF(__pyx_t_8);
-                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_base); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L40_error)
+                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_base); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L40_error)
                                   __Pyx_GOTREF(__pyx_t_2);
                                   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-                                  __pyx_t_8 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_state, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 292, __pyx_L40_error)
+                                  __pyx_t_8 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_state, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 295, __pyx_L40_error)
                                   __Pyx_GOTREF(__pyx_t_8);
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-                                  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_kdxs[__pyx_v_state])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 292, __pyx_L40_error)
+                                  __pyx_t_2 = __Pyx_PyInt_From_int((__pyx_v_kdxs[__pyx_v_state])); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 295, __pyx_L40_error)
                                   __Pyx_GOTREF(__pyx_t_2);
-                                  if (unlikely(PyDict_SetItem(__pyx_v_conditional, __pyx_t_2, __pyx_t_8) < 0)) __PYX_ERR(0, 292, __pyx_L40_error)
+                                  if (unlikely(PyDict_SetItem(__pyx_v_conditional, __pyx_t_2, __pyx_t_8) < 0)) __PYX_ERR(0, 295, __pyx_L40_error)
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
                                 }
 
-                                /* "Toolbox/infcy.pyx":290
+                                /* "Toolbox/infcy.pyx":293
  *                     # model._nudges[:] = 0
  *         # TODO: replace this with a concurrent unordered_map
  *         with gil:             # <<<<<<<<<<<<<<
@@ -5799,7 +5958,7 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
         #endif
       }
 
-      /* "Toolbox/infcy.pyx":242
+      /* "Toolbox/infcy.pyx":245
  *         nThreads = mp.cpu_count()
  *     pbar = tqdm(total = states) # init  progbar
  *     for state in prange(states, nogil = True, schedule = 'static', num_threads = nThreads):             # <<<<<<<<<<<<<<
@@ -5825,14 +5984,14 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
       }
   }
 
-  /* "Toolbox/infcy.pyx":309
+  /* "Toolbox/infcy.pyx":312
  *     # for nThread in range(n):
  *     #     Py_XDECREF(models.at(nThread))
  *     pbar.close()             # <<<<<<<<<<<<<<
  *     print(f"Delta = {timer() - past: .2f} sec")
  *     return conditional
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_close); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 309, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_close); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -5846,19 +6005,19 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   }
   __pyx_t_8 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 309, __pyx_L1_error)
+  if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 312, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "Toolbox/infcy.pyx":310
+  /* "Toolbox/infcy.pyx":313
  *     #     Py_XDECREF(models.at(nThread))
  *     pbar.close()
  *     print(f"Delta = {timer() - past: .2f} sec")             # <<<<<<<<<<<<<<
  *     return conditional
  * 
  */
-  __pyx_t_8 = PyTuple_New(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_8 = PyTuple_New(3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_9 = 0;
   __pyx_t_45 = 127;
@@ -5866,7 +6025,7 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   __pyx_t_9 += 8;
   __Pyx_GIVEREF(__pyx_kp_u_Delta);
   PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_kp_u_Delta);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_timer); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_timer); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_14 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -5880,16 +6039,16 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   }
   __pyx_t_2 = (__pyx_t_14) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_14) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 310, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_past); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_3 = PyFloat_FromDouble(__pyx_v_past); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_14 = PyNumber_Subtract(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_14 = PyNumber_Subtract(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Format(__pyx_t_14, __pyx_kp_u_2f); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Format(__pyx_t_14, __pyx_kp_u_2f); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
   __pyx_t_45 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_3) > __pyx_t_45) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_3) : __pyx_t_45;
@@ -5901,27 +6060,27 @@ __pyx_t_42 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_ob
   __pyx_t_9 += 4;
   __Pyx_GIVEREF(__pyx_kp_u_sec);
   PyTuple_SET_ITEM(__pyx_t_8, 2, __pyx_kp_u_sec);
-  __pyx_t_3 = __Pyx_PyUnicode_Join(__pyx_t_8, 3, __pyx_t_9, __pyx_t_45); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyUnicode_Join(__pyx_t_8, 3, __pyx_t_9, __pyx_t_45); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 310, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 313, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-  /* "Toolbox/infcy.pyx":311
+  /* "Toolbox/infcy.pyx":314
  *     pbar.close()
  *     print(f"Delta = {timer() - past: .2f} sec")
  *     return conditional             # <<<<<<<<<<<<<<
  * 
- * @cython.boundscheck(False)
+ * """
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_conditional);
   __pyx_r = __pyx_v_conditional;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":182
+  /* "Toolbox/infcy.pyx":185
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict monteCarlo(\             # <<<<<<<<<<<<<<
@@ -6004,7 +6163,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_9monteCarlo(PyObject *__pyx_self, PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_snapshots)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("monteCarlo", 0, 2, 5, 1); __PYX_ERR(0, 182, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("monteCarlo", 0, 2, 5, 1); __PYX_ERR(0, 185, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -6026,7 +6185,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_9monteCarlo(PyObject *__pyx_self, PyOb
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "monteCarlo") < 0)) __PYX_ERR(0, 182, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "monteCarlo") < 0)) __PYX_ERR(0, 185, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -6045,31 +6204,31 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_9monteCarlo(PyObject *__pyx_self, PyOb
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
     __pyx_v_snapshots = ((PyObject*)values[1]);
     if (values[2]) {
-      __pyx_v_deltas = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_deltas == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L3_error)
+      __pyx_v_deltas = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_deltas == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 187, __pyx_L3_error)
     } else {
       __pyx_v_deltas = ((int)10);
     }
     if (values[3]) {
-      __pyx_v_repeats = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L3_error)
+      __pyx_v_repeats = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 187, __pyx_L3_error)
     } else {
       __pyx_v_repeats = ((int)11);
     }
     if (values[4]) {
-      __pyx_v_nThreads = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_nThreads == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 185, __pyx_L3_error)
+      __pyx_v_nThreads = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_nThreads == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 188, __pyx_L3_error)
     } else {
       __pyx_v_nThreads = ((int)-1);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("monteCarlo", 0, 2, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 182, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("monteCarlo", 0, 2, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 185, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.monteCarlo", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 183, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_snapshots), (&PyDict_Type), 1, "snapshots", 1))) __PYX_ERR(0, 183, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_snapshots), (&PyDict_Type), 1, "snapshots", 1))) __PYX_ERR(0, 186, __pyx_L1_error)
   __pyx_r = __pyx_pf_7Toolbox_5infcy_8monteCarlo(__pyx_self, __pyx_v_model, __pyx_v_snapshots, __pyx_v_deltas, __pyx_v_repeats, __pyx_v_nThreads);
 
   /* function exit code */
@@ -6092,7 +6251,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_8monteCarlo(CYTHON_UNUSED PyObject *__
   __pyx_t_2.deltas = __pyx_v_deltas;
   __pyx_t_2.repeats = __pyx_v_repeats;
   __pyx_t_2.nThreads = __pyx_v_nThreads;
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_monteCarlo(__pyx_v_model, __pyx_v_snapshots, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 182, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_monteCarlo(__pyx_v_model, __pyx_v_snapshots, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 185, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -6109,131 +6268,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_8monteCarlo(CYTHON_UNUSED PyObject *__
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":319
- * @cython.initializedcheck(False)
- * @cython.overflowcheck(False)
- * cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
- *     cdef:
- *         long[:, ::1] r = model.sampleNodes(nSamples)
- */
-
-static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_simulate(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, struct __pyx_opt_args_7Toolbox_5infcy_simulate *__pyx_optional_args) {
-  int __pyx_v_nSamples = __pyx_k__5;
-  __Pyx_memviewslice __pyx_v_r = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_v_step;
-  __Pyx_memviewslice __pyx_r = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_t_2;
-  int __pyx_t_3;
-  int __pyx_t_4;
-  __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  if (__pyx_optional_args) {
-    if (__pyx_optional_args->__pyx_n > 0) {
-      __pyx_v_nSamples = __pyx_optional_args->nSamples;
-    }
-  }
-
-  /* "Toolbox/infcy.pyx":321
- * cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:
- *     cdef:
- *         long[:, ::1] r = model.sampleNodes(nSamples)             # <<<<<<<<<<<<<<
- *         int step
- * 
- */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, __pyx_v_nSamples); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 321, __pyx_L1_error)
-  __pyx_v_r = __pyx_t_1;
-  __pyx_t_1.memview = NULL;
-  __pyx_t_1.data = NULL;
-
-  /* "Toolbox/infcy.pyx":324
- *         int step
- * 
- *     for step in range(nSamples):             # <<<<<<<<<<<<<<
- *         model._updateState(r[step])
- * 
- */
-  __pyx_t_2 = __pyx_v_nSamples;
-  __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
-    __pyx_v_step = __pyx_t_4;
-
-    /* "Toolbox/infcy.pyx":325
- * 
- *     for step in range(nSamples):
- *         model._updateState(r[step])             # <<<<<<<<<<<<<<
- * 
- *     return model._states
- */
-    __pyx_t_5.data = __pyx_v_r.data;
-    __pyx_t_5.memview = __pyx_v_r.memview;
-    __PYX_INC_MEMVIEW(&__pyx_t_5, 0);
-    {
-    Py_ssize_t __pyx_tmp_idx = __pyx_v_step;
-    Py_ssize_t __pyx_tmp_stride = __pyx_v_r.strides[0];
-        if ((0)) __PYX_ERR(0, 325, __pyx_L1_error)
-        __pyx_t_5.data += __pyx_tmp_idx * __pyx_tmp_stride;
-}
-
-__pyx_t_5.shape[0] = __pyx_v_r.shape[1];
-__pyx_t_5.strides[0] = __pyx_v_r.strides[1];
-    __pyx_t_5.suboffsets[0] = -1;
-
-__pyx_t_6 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->_updateState(__pyx_v_model, __pyx_t_5); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 325, __pyx_L1_error)
-    __PYX_XDEC_MEMVIEW(&__pyx_t_5, 0);
-    __pyx_t_5.memview = NULL;
-    __pyx_t_5.data = NULL;
-    __PYX_XDEC_MEMVIEW(&__pyx_t_6, 0);
-    __pyx_t_6.memview = NULL;
-    __pyx_t_6.data = NULL;
-  }
-
-  /* "Toolbox/infcy.pyx":327
- *         model._updateState(r[step])
- * 
- *     return model._states             # <<<<<<<<<<<<<<
- * 
- * @cython.boundscheck(False)
- */
-  __PYX_INC_MEMVIEW(&__pyx_v_model->_states, 1);
-  __pyx_r = __pyx_v_model->_states;
-  goto __pyx_L0;
-
-  /* "Toolbox/infcy.pyx":319
- * @cython.initializedcheck(False)
- * @cython.overflowcheck(False)
- * cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
- *     cdef:
- *         long[:, ::1] r = model.sampleNodes(nSamples)
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __PYX_XDEC_MEMVIEW(&__pyx_t_1, 0);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 0);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 0);
-  __pyx_r.data = NULL;
-  __pyx_r.memview = NULL;
-  {
-    #ifdef WITH_THREAD
-    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-    #endif
-    __Pyx_AddTraceback("Toolbox.infcy.simulate", __pyx_clineno, __pyx_lineno, __pyx_filename);
-    #ifdef WITH_THREAD
-    __Pyx_PyGILState_Release(__pyx_gilstate_save);
-    #endif
-  }
-  goto __pyx_L2;
-  __pyx_L0:;
-  if (unlikely(!__pyx_r.memview)) {
-    PyErr_SetString(PyExc_TypeError, "Memoryview return value is not initialized");
-  }
-  __pyx_L2:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_r, 0);
-  return __pyx_r;
-}
-
-/* "Toolbox/infcy.pyx":335
+/* "Toolbox/infcy.pyx":340
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef long[:,::1] collectSnapshots(Model model, int repeats, int burninSamples, int nSamples, int distSamples):             # <<<<<<<<<<<<<<
@@ -6267,22 +6302,21 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
   PyObject *__pyx_t_11;
   struct __pyx_obj_6Models_6models_Model *__pyx_t_12 = NULL;
   __Pyx_memviewslice __pyx_t_13 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  struct __pyx_opt_args_7Toolbox_5infcy_simulate __pyx_t_14;
+  int __pyx_t_14;
   int __pyx_t_15;
-  int __pyx_t_16;
-  __Pyx_memviewslice __pyx_t_17 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_16 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("collectSnapshots", 0);
 
-  /* "Toolbox/infcy.pyx":340
+  /* "Toolbox/infcy.pyx":345
  *         vector[PyObjectHolder] models_
  *         Model tmp
  *         int start, sample, idx, step, nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
  *         long rep, s, tid
  *         long[:,::1] snapshots = np.zeros((repeats * nSamples, model._nNodes), int) #np.intc)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_mp); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_mp); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -6297,30 +6331,30 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 345, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_nThreads = __pyx_t_4;
 
-  /* "Toolbox/infcy.pyx":342
+  /* "Toolbox/infcy.pyx":347
  *         int start, sample, idx, step, nThreads = mp.cpu_count()
  *         long rep, s, tid
  *         long[:,::1] snapshots = np.zeros((repeats * nSamples, model._nNodes), int) #np.intc)             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int((__pyx_v_repeats * __pyx_v_nSamples)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int((__pyx_v_repeats * __pyx_v_nSamples)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3);
@@ -6343,7 +6377,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_6, ((PyObject *)(&PyInt_Type))};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 342, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -6352,14 +6386,14 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_6, ((PyObject *)(&PyInt_Type))};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 342, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   } else
   #endif
   {
-    __pyx_t_3 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 342, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -6370,18 +6404,18 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
     __Pyx_GIVEREF(((PyObject *)(&PyInt_Type)));
     PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_4, ((PyObject *)(&PyInt_Type)));
     __pyx_t_6 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 342, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 342, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 347, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_snapshots = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "Toolbox/infcy.pyx":346
+  /* "Toolbox/infcy.pyx":351
  * 
  *     #for rep in range(repeats):
  *     for rep in range(nThreads):             # <<<<<<<<<<<<<<
@@ -6393,16 +6427,16 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
   for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
     __pyx_v_rep = __pyx_t_9;
 
-    /* "Toolbox/infcy.pyx":347
+    /* "Toolbox/infcy.pyx":352
  *     #for rep in range(repeats):
  *     for rep in range(nThreads):
  *         tmp = copy.deepcopy(model)             # <<<<<<<<<<<<<<
  *         #tmp.seed += rep # enforce different seeds
  *         #modelsPy.append(tmp)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 347, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 352, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 347, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 352, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_2 = NULL;
@@ -6417,14 +6451,14 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
     }
     __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_model));
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 347, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 347, __pyx_L1_error)
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 352, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_tmp, ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "Toolbox/infcy.pyx":350
+    /* "Toolbox/infcy.pyx":355
  *         #tmp.seed += rep # enforce different seeds
  *         #modelsPy.append(tmp)
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))             # <<<<<<<<<<<<<<
@@ -6435,33 +6469,33 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
       __pyx_v_models_.push_back(PyObjectHolder(((PyObject *)__pyx_v_tmp)));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 350, __pyx_L1_error)
+      __PYX_ERR(0, 355, __pyx_L1_error)
     }
   }
 
-  /* "Toolbox/infcy.pyx":352
+  /* "Toolbox/infcy.pyx":357
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  *     pbar = tqdm(total = repeats) # init  progbar             # <<<<<<<<<<<<<<
  *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
  *         tid = threadid()
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_repeats); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_repeats); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 352, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 352, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_pbar = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":353
+  /* "Toolbox/infcy.pyx":358
  * 
  *     pbar = tqdm(total = repeats) # init  progbar
  *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):             # <<<<<<<<<<<<<<
@@ -6496,7 +6530,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
             if (__pyx_t_10 > 0)
             {
                 #ifdef _OPENMP
-                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_11, __pyx_t_14, __pyx_t_15, __pyx_t_16, __pyx_t_8) firstprivate(__pyx_t_1, __pyx_t_12, __pyx_t_13, __pyx_t_17, __pyx_t_2, __pyx_t_3) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
+                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_11, __pyx_t_14, __pyx_t_15, __pyx_t_8) firstprivate(__pyx_t_1, __pyx_t_12, __pyx_t_13, __pyx_t_16, __pyx_t_2, __pyx_t_3) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
                 #endif /* _OPENMP */
                 {
                     #ifdef _OPENMP
@@ -6517,7 +6551,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
                             __pyx_v_start = ((int)0xbad0bad0);
                             __pyx_v_tid = ((long)0xbad0bad0);
 
-                            /* "Toolbox/infcy.pyx":354
+                            /* "Toolbox/infcy.pyx":359
  *     pbar = tqdm(total = repeats) # init  progbar
  *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
  *         tid = threadid()             # <<<<<<<<<<<<<<
@@ -6531,7 +6565,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
                             #endif
                             __pyx_v_tid = __pyx_t_8;
 
-                            /* "Toolbox/infcy.pyx":355
+                            /* "Toolbox/infcy.pyx":360
  *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
  *         tid = threadid()
  *         with gil:             # <<<<<<<<<<<<<<
@@ -6544,40 +6578,40 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
                                 #endif
                                 /*try:*/ {
 
-                                  /* "Toolbox/infcy.pyx":356
+                                  /* "Toolbox/infcy.pyx":361
  *         tid = threadid()
  *         with gil:
  *             (<Model>models_[tid].ptr).reset()             # <<<<<<<<<<<<<<
  *             (<Model>models_[tid].ptr).seed += rep
- *         simulate(<Model>models_[tid].ptr, burninSamples)
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
  */
                                   __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
                                   ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->reset(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), 0);
 
-                                  /* "Toolbox/infcy.pyx":357
+                                  /* "Toolbox/infcy.pyx":362
  *         with gil:
  *             (<Model>models_[tid].ptr).reset()
  *             (<Model>models_[tid].ptr).seed += rep             # <<<<<<<<<<<<<<
- *         simulate(<Model>models_[tid].ptr, burninSamples)
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
  *         tid = threadid()
  */
                                   __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
                                   __Pyx_INCREF(((PyObject *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)));
                                   __pyx_t_12 = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11);
-                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_12), __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L15_error)
+                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_12), __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L15_error)
                                   __Pyx_GOTREF(__pyx_t_2);
-                                  __pyx_t_3 = __Pyx_PyInt_From_long(__pyx_v_rep); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L15_error)
+                                  __pyx_t_3 = __Pyx_PyInt_From_long(__pyx_v_rep); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L15_error)
                                   __Pyx_GOTREF(__pyx_t_3);
-                                  __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L15_error)
+                                  __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L15_error)
                                   __Pyx_GOTREF(__pyx_t_1);
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_12), __pyx_n_s_seed, __pyx_t_1) < 0) __PYX_ERR(0, 357, __pyx_L15_error)
+                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_12), __pyx_n_s_seed, __pyx_t_1) < 0) __PYX_ERR(0, 362, __pyx_L15_error)
                                   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
                                   __Pyx_DECREF(((PyObject *)__pyx_t_12)); __pyx_t_12 = 0;
                                 }
 
-                                /* "Toolbox/infcy.pyx":355
+                                /* "Toolbox/infcy.pyx":360
  *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
  *         tid = threadid()
  *         with gil:             # <<<<<<<<<<<<<<
@@ -6601,24 +6635,22 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
                                 }
                             }
 
-                            /* "Toolbox/infcy.pyx":358
+                            /* "Toolbox/infcy.pyx":363
  *             (<Model>models_[tid].ptr).reset()
  *             (<Model>models_[tid].ptr).seed += rep
- *         simulate(<Model>models_[tid].ptr, burninSamples)             # <<<<<<<<<<<<<<
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)             # <<<<<<<<<<<<<<
  *         tid = threadid()
  *         #with gil: print("thread {}".format(tid))
  */
                             __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
-                            __pyx_t_14.__pyx_n = 1;
-                            __pyx_t_14.nSamples = __pyx_v_burninSamples;
-                            __pyx_t_13 = __pyx_f_7Toolbox_5infcy_simulate(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), &__pyx_t_14); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 358, __pyx_L10_error)
+                            __pyx_t_13 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->simulateNSteps(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), __pyx_v_burninSamples); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 363, __pyx_L10_error)
                             __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
                             __pyx_t_13.memview = NULL;
                             __pyx_t_13.data = NULL;
 
-                            /* "Toolbox/infcy.pyx":359
+                            /* "Toolbox/infcy.pyx":364
  *             (<Model>models_[tid].ptr).seed += rep
- *         simulate(<Model>models_[tid].ptr, burninSamples)
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
  *         tid = threadid()             # <<<<<<<<<<<<<<
  *         #with gil: print("thread {}".format(tid))
  *         start = rep * nSamples
@@ -6630,7 +6662,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
                             #endif
                             __pyx_v_tid = __pyx_t_8;
 
-                            /* "Toolbox/infcy.pyx":361
+                            /* "Toolbox/infcy.pyx":366
  *         tid = threadid()
  *         #with gil: print("thread {}".format(tid))
  *         start = rep * nSamples             # <<<<<<<<<<<<<<
@@ -6639,67 +6671,51 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshots(struct __pyx_
  */
                             __pyx_v_start = (__pyx_v_rep * __pyx_v_nSamples);
 
-                            /* "Toolbox/infcy.pyx":363
+                            /* "Toolbox/infcy.pyx":368
  *         start = rep * nSamples
  * 
  *         for sample in range(nSamples):             # <<<<<<<<<<<<<<
- *             simulate(<Model>models_[tid].ptr, distSamples)
- *             snapshots[start + sample] = (<Model>models_[tid].ptr)._states
- */
-                            __pyx_t_8 = __pyx_v_nSamples;
-                            __pyx_t_15 = __pyx_t_8;
-                            for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
-                              __pyx_v_sample = __pyx_t_16;
-
-                              /* "Toolbox/infcy.pyx":364
- * 
- *         for sample in range(nSamples):
- *             simulate(<Model>models_[tid].ptr, distSamples)             # <<<<<<<<<<<<<<
- *             snapshots[start + sample] = (<Model>models_[tid].ptr)._states
+ *             snapshots[start + sample] = (<Model>models_[tid].ptr).simulateNSteps(distSamples)
  *             #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
  */
-                              __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
-                              __pyx_t_14.__pyx_n = 1;
-                              __pyx_t_14.nSamples = __pyx_v_distSamples;
-                              __pyx_t_13 = __pyx_f_7Toolbox_5infcy_simulate(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), &__pyx_t_14); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 364, __pyx_L10_error)
-                              __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
-                              __pyx_t_13.memview = NULL;
-                              __pyx_t_13.data = NULL;
+                            __pyx_t_8 = __pyx_v_nSamples;
+                            __pyx_t_14 = __pyx_t_8;
+                            for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
+                              __pyx_v_sample = __pyx_t_15;
 
-                              /* "Toolbox/infcy.pyx":365
+                              /* "Toolbox/infcy.pyx":369
+ * 
  *         for sample in range(nSamples):
- *             simulate(<Model>models_[tid].ptr, distSamples)
- *             snapshots[start + sample] = (<Model>models_[tid].ptr)._states             # <<<<<<<<<<<<<<
+ *             snapshots[start + sample] = (<Model>models_[tid].ptr).simulateNSteps(distSamples)             # <<<<<<<<<<<<<<
  *             #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
  *             #with gil:
  */
                               __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
-                              __pyx_t_13 = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->_states;
-                              __PYX_INC_MEMVIEW(&__pyx_t_13, 0);
-                              __pyx_t_17.data = __pyx_v_snapshots.data;
-                              __pyx_t_17.memview = __pyx_v_snapshots.memview;
-                              __PYX_INC_MEMVIEW(&__pyx_t_17, 0);
+                              __pyx_t_13 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->simulateNSteps(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), __pyx_v_distSamples); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 369, __pyx_L10_error)
+                              __pyx_t_16.data = __pyx_v_snapshots.data;
+                              __pyx_t_16.memview = __pyx_v_snapshots.memview;
+                              __PYX_INC_MEMVIEW(&__pyx_t_16, 0);
                               {
     Py_ssize_t __pyx_tmp_idx = (__pyx_v_start + __pyx_v_sample);
     Py_ssize_t __pyx_tmp_stride = __pyx_v_snapshots.strides[0];
-        if ((0)) __PYX_ERR(0, 365, __pyx_L10_error)
-        __pyx_t_17.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        if ((0)) __PYX_ERR(0, 369, __pyx_L10_error)
+        __pyx_t_16.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_17.shape[0] = __pyx_v_snapshots.shape[1];
-__pyx_t_17.strides[0] = __pyx_v_snapshots.strides[1];
-    __pyx_t_17.suboffsets[0] = -1;
+__pyx_t_16.shape[0] = __pyx_v_snapshots.shape[1];
+__pyx_t_16.strides[0] = __pyx_v_snapshots.strides[1];
+    __pyx_t_16.suboffsets[0] = -1;
 
-if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0)) __PYX_ERR(0, 365, __pyx_L10_error)
-                              __PYX_XDEC_MEMVIEW(&__pyx_t_17, 0);
-                              __pyx_t_17.memview = NULL;
-                              __pyx_t_17.data = NULL;
+if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_16, 1, 1, 0) < 0)) __PYX_ERR(0, 369, __pyx_L10_error)
+                              __PYX_XDEC_MEMVIEW(&__pyx_t_16, 0);
+                              __pyx_t_16.memview = NULL;
+                              __pyx_t_16.data = NULL;
                               __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
                               __pyx_t_13.memview = NULL;
                               __pyx_t_13.data = NULL;
                             }
 
-                            /* "Toolbox/infcy.pyx":372
+                            /* "Toolbox/infcy.pyx":376
  *                 #print("decoded   : {}".format(decodeState(code, model._nNodes)))
  *                 #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
  *         with gil:             # <<<<<<<<<<<<<<
@@ -6712,14 +6728,14 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0
                                 #endif
                                 /*try:*/ {
 
-                                  /* "Toolbox/infcy.pyx":373
+                                  /* "Toolbox/infcy.pyx":377
  *                 #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
  *         with gil:
  *             pbar.update(1)             # <<<<<<<<<<<<<<
  * 
  *     return snapshots
  */
-                                  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 373, __pyx_L22_error)
+                                  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 377, __pyx_L22_error)
                                   __Pyx_GOTREF(__pyx_t_3);
                                   __pyx_t_2 = NULL;
                                   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -6733,13 +6749,13 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0
                                   }
                                   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_int_1);
                                   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-                                  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 373, __pyx_L22_error)
+                                  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 377, __pyx_L22_error)
                                   __Pyx_GOTREF(__pyx_t_1);
                                   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
                                   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
                                 }
 
-                                /* "Toolbox/infcy.pyx":372
+                                /* "Toolbox/infcy.pyx":376
  *                 #print("decoded   : {}".format(decodeState(code, model._nNodes)))
  *                 #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
  *         with gil:             # <<<<<<<<<<<<<<
@@ -6812,7 +6828,7 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0
                     __Pyx_XDECREF(((PyObject *)__pyx_t_12));
                     __pyx_t_12 = NULL;
                     __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
-                    __PYX_XDEC_MEMVIEW(&__pyx_t_17, 0);
+                    __PYX_XDEC_MEMVIEW(&__pyx_t_16, 0);
                     __Pyx_XDECREF(__pyx_t_2);
                     __pyx_t_2 = NULL;
                     __Pyx_XDECREF(__pyx_t_3);
@@ -6859,7 +6875,7 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0
         #endif
       }
 
-      /* "Toolbox/infcy.pyx":353
+      /* "Toolbox/infcy.pyx":358
  * 
  *     pbar = tqdm(total = repeats) # init  progbar
  *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):             # <<<<<<<<<<<<<<
@@ -6885,18 +6901,18 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0
       }
   }
 
-  /* "Toolbox/infcy.pyx":375
+  /* "Toolbox/infcy.pyx":379
  *             pbar.update(1)
  * 
  *     return snapshots             # <<<<<<<<<<<<<<
  * 
- * @cython.boundscheck(False)
+ * 
  */
   __PYX_INC_MEMVIEW(&__pyx_v_snapshots, 0);
   __pyx_r = __pyx_v_snapshots;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":335
+  /* "Toolbox/infcy.pyx":340
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef long[:,::1] collectSnapshots(Model model, int repeats, int burninSamples, int nSamples, int distSamples):             # <<<<<<<<<<<<<<
@@ -6914,7 +6930,7 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_17, 1, 1, 0) < 0
   __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
   __Pyx_XDECREF(((PyObject *)__pyx_t_12));
   __PYX_XDEC_MEMVIEW(&__pyx_t_13, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_17, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_16, 1);
   __pyx_r.data = NULL;
   __pyx_r.memview = NULL;
   __Pyx_AddTraceback("Toolbox.infcy.collectSnapshots", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -6971,29 +6987,29 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_11collectSnapshots(PyObject *__pyx_sel
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_repeats)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 1); __PYX_ERR(0, 335, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 1); __PYX_ERR(0, 340, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_burninSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 2); __PYX_ERR(0, 335, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 2); __PYX_ERR(0, 340, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 3); __PYX_ERR(0, 335, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 3); __PYX_ERR(0, 340, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_distSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 4); __PYX_ERR(0, 335, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, 4); __PYX_ERR(0, 340, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "collectSnapshots") < 0)) __PYX_ERR(0, 335, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "collectSnapshots") < 0)) __PYX_ERR(0, 340, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -7005,20 +7021,20 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_11collectSnapshots(PyObject *__pyx_sel
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
-    __pyx_v_repeats = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 335, __pyx_L3_error)
-    __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 335, __pyx_L3_error)
-    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 335, __pyx_L3_error)
-    __pyx_v_distSamples = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_distSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 335, __pyx_L3_error)
+    __pyx_v_repeats = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
+    __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
+    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
+    __pyx_v_distSamples = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_distSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 340, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 335, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("collectSnapshots", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 340, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.collectSnapshots", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 335, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 340, __pyx_L1_error)
   __pyx_r = __pyx_pf_7Toolbox_5infcy_10collectSnapshots(__pyx_self, __pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples);
 
   /* function exit code */
@@ -7037,8 +7053,8 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_10collectSnapshots(CYTHON_UNUSED PyObj
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("collectSnapshots", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_collectSnapshots(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 335, __pyx_L1_error)
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 2, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_collectSnapshots(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 2, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 340, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
   __pyx_t_1.memview = NULL;
@@ -7059,7 +7075,950 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_10collectSnapshots(CYTHON_UNUSED PyObj
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":383
+/* "Toolbox/infcy.pyx":388
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef long[:,::1] collectSnapshotsMagThreshold(Model model, int repeats, int burninSamples, int nSamples, int distSamples, int switch=1, double threshold=0.05):             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         #list modelsPy  = []
+ */
+
+static PyObject *__pyx_pw_7Toolbox_5infcy_13collectSnapshotsMagThreshold(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_collectSnapshotsMagThreshold(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_collectSnapshotsMagThreshold *__pyx_optional_args) {
+  int __pyx_v_switch = ((int)1);
+  double __pyx_v_threshold = ((double)0.05);
+  std::vector<PyObjectHolder>  __pyx_v_models_;
+  struct __pyx_obj_6Models_6models_Model *__pyx_v_tmp = 0;
+  int __pyx_v_start;
+  int __pyx_v_sample;
+  int __pyx_v_nThreads;
+  long __pyx_v_rep;
+  long __pyx_v_tid;
+  long __pyx_v_nNodes;
+  double __pyx_v_mu;
+  __Pyx_memviewslice __pyx_v_snapshots = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_v_pbar = NULL;
+  __Pyx_memviewslice __pyx_r = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  int __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_8;
+  long __pyx_t_9;
+  long __pyx_t_10;
+  PyObject *__pyx_t_11;
+  struct __pyx_obj_6Models_6models_Model *__pyx_t_12 = NULL;
+  __Pyx_memviewslice __pyx_t_13 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_14;
+  int __pyx_t_15;
+  double __pyx_t_16;
+  struct __pyx_opt_args_7Toolbox_5infcy_mean __pyx_t_17;
+  int __pyx_t_18;
+  int __pyx_t_19;
+  __Pyx_memviewslice __pyx_t_20 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_RefNannySetupContext("collectSnapshotsMagThreshold", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_switch = __pyx_optional_args->__pyx_switch;
+      if (__pyx_optional_args->__pyx_n > 1) {
+        __pyx_v_threshold = __pyx_optional_args->threshold;
+      }
+    }
+  }
+
+  /* "Toolbox/infcy.pyx":393
+ *         vector[PyObjectHolder] models_
+ *         Model tmp
+ *         int start, sample = 0, idx, step, nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
+ *         long rep, s, tid, nNodes = model._nNodes
+ *         double mu
+ */
+  __pyx_v_sample = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_mp); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 393, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 393, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 393, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 393, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_nThreads = __pyx_t_4;
+
+  /* "Toolbox/infcy.pyx":394
+ *         Model tmp
+ *         int start, sample = 0, idx, step, nThreads = mp.cpu_count()
+ *         long rep, s, tid, nNodes = model._nNodes             # <<<<<<<<<<<<<<
+ *         double mu
+ *         long[:,::1] snapshots = np.zeros((repeats * nSamples, nNodes), int) #np.intc)
+ */
+  __pyx_t_4 = __pyx_v_model->_nNodes;
+  __pyx_v_nNodes = __pyx_t_4;
+
+  /* "Toolbox/infcy.pyx":396
+ *         long rep, s, tid, nNodes = model._nNodes
+ *         double mu
+ *         long[:,::1] snapshots = np.zeros((repeats * nSamples, nNodes), int) #np.intc)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyInt_From_int((__pyx_v_repeats * __pyx_v_nSamples)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = __Pyx_PyInt_From_long(__pyx_v_nNodes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_5);
+  __pyx_t_3 = 0;
+  __pyx_t_5 = 0;
+  __pyx_t_5 = NULL;
+  __pyx_t_4 = 0;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_2);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_2, function);
+      __pyx_t_4 = 1;
+    }
+  }
+  #if CYTHON_FAST_PYCALL
+  if (PyFunction_Check(__pyx_t_2)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_6, ((PyObject *)(&PyInt_Type))};
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 396, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  } else
+  #endif
+  #if CYTHON_FAST_PYCCALL
+  if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
+    PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_6, ((PyObject *)(&PyInt_Type))};
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_4, 2+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 396, __pyx_L1_error)
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  } else
+  #endif
+  {
+    __pyx_t_3 = PyTuple_New(2+__pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 396, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (__pyx_t_5) {
+      __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
+    }
+    __Pyx_GIVEREF(__pyx_t_6);
+    PyTuple_SET_ITEM(__pyx_t_3, 0+__pyx_t_4, __pyx_t_6);
+    __Pyx_INCREF(((PyObject *)(&PyInt_Type)));
+    __Pyx_GIVEREF(((PyObject *)(&PyInt_Type)));
+    PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_4, ((PyObject *)(&PyInt_Type)));
+    __pyx_t_6 = 0;
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 396, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  }
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_snapshots = __pyx_t_7;
+  __pyx_t_7.memview = NULL;
+  __pyx_t_7.data = NULL;
+
+  /* "Toolbox/infcy.pyx":400
+ * 
+ *     #for rep in range(repeats):
+ *     for rep in range(nThreads):             # <<<<<<<<<<<<<<
+ *         tmp = copy.deepcopy(model)
+ *         #tmp.seed += rep # enforce different seeds
+ */
+  __pyx_t_4 = __pyx_v_nThreads;
+  __pyx_t_8 = __pyx_t_4;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_rep = __pyx_t_9;
+
+    /* "Toolbox/infcy.pyx":401
+ *     #for rep in range(repeats):
+ *     for rep in range(nThreads):
+ *         tmp = copy.deepcopy(model)             # <<<<<<<<<<<<<<
+ *         #tmp.seed += rep # enforce different seeds
+ *         #modelsPy.append(tmp)
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_copy); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 401, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 401, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_2 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_2)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_2);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_model));
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 401, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 401, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_tmp, ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_1));
+    __pyx_t_1 = 0;
+
+    /* "Toolbox/infcy.pyx":404
+ *         #tmp.seed += rep # enforce different seeds
+ *         #modelsPy.append(tmp)
+ *         models_.push_back(PyObjectHolder(<PyObject *> tmp))             # <<<<<<<<<<<<<<
+ * 
+ *     pbar = tqdm(total = repeats) # init  progbar
+ */
+    try {
+      __pyx_v_models_.push_back(PyObjectHolder(((PyObject *)__pyx_v_tmp)));
+    } catch(...) {
+      __Pyx_CppExn2PyErr();
+      __PYX_ERR(0, 404, __pyx_L1_error)
+    }
+  }
+
+  /* "Toolbox/infcy.pyx":406
+ *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
+ * 
+ *     pbar = tqdm(total = repeats) # init  progbar             # <<<<<<<<<<<<<<
+ *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+ *         tid = threadid()
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_repeats); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_total, __pyx_t_2) < 0) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 406, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_v_pbar = __pyx_t_2;
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":407
+ * 
+ *     pbar = tqdm(total = repeats) # init  progbar
+ *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):             # <<<<<<<<<<<<<<
+ *         tid = threadid()
+ *         with gil:
+ */
+  {
+      #ifdef WITH_THREAD
+      PyThreadState *_save;
+      Py_UNBLOCK_THREADS
+      __Pyx_FastGIL_Remember();
+      #endif
+      /*try:*/ {
+        __pyx_t_4 = __pyx_v_repeats;
+        if (1 == 0) abort();
+        {
+            double __pyx_parallel_temp0 = ((double)__PYX_NAN());
+            long __pyx_parallel_temp1 = ((long)0xbad0bad0);
+            int __pyx_parallel_temp2 = ((int)0xbad0bad0);
+            int __pyx_parallel_temp3 = ((int)0xbad0bad0);
+            long __pyx_parallel_temp4 = ((long)0xbad0bad0);
+            const char *__pyx_parallel_filename = NULL; int __pyx_parallel_lineno = 0, __pyx_parallel_clineno = 0;
+            PyObject *__pyx_parallel_exc_type = NULL, *__pyx_parallel_exc_value = NULL, *__pyx_parallel_exc_tb = NULL;
+            int __pyx_parallel_why;
+            __pyx_parallel_why = 0;
+            #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+                #undef likely
+                #undef unlikely
+                #define likely(x)   (x)
+                #define unlikely(x) (x)
+            #endif
+            __pyx_t_10 = (__pyx_t_4 - 0 + 1 - 1/abs(1)) / 1;
+            if (__pyx_t_10 > 0)
+            {
+                #ifdef _OPENMP
+                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_11, __pyx_t_14, __pyx_t_15, __pyx_t_16, __pyx_t_17, __pyx_t_18, __pyx_t_19, __pyx_t_8) firstprivate(__pyx_t_1, __pyx_t_12, __pyx_t_13, __pyx_t_2, __pyx_t_20, __pyx_t_3) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
+                #endif /* _OPENMP */
+                {
+                    #ifdef _OPENMP
+                    #ifdef WITH_THREAD
+                    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                    #endif
+                    Py_BEGIN_ALLOW_THREADS
+                    #endif /* _OPENMP */
+                    #ifdef _OPENMP
+                    #pragma omp for lastprivate(__pyx_v_mu) firstprivate(__pyx_v_rep) lastprivate(__pyx_v_rep) lastprivate(__pyx_v_sample) lastprivate(__pyx_v_start) lastprivate(__pyx_v_tid) schedule(dynamic)
+                    #endif /* _OPENMP */
+                    for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_10; __pyx_t_9++){
+                        if (__pyx_parallel_why < 2)
+                        {
+                            __pyx_v_rep = (long)(0 + 1 * __pyx_t_9);
+                            /* Initialize private variables to invalid values */
+                            __pyx_v_mu = ((double)__PYX_NAN());
+                            __pyx_v_sample = ((int)0xbad0bad0);
+                            __pyx_v_start = ((int)0xbad0bad0);
+                            __pyx_v_tid = ((long)0xbad0bad0);
+
+                            /* "Toolbox/infcy.pyx":408
+ *     pbar = tqdm(total = repeats) # init  progbar
+ *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+ *         tid = threadid()             # <<<<<<<<<<<<<<
+ *         with gil:
+ *             (<Model>models_[tid].ptr).reset()
+ */
+                            #ifdef _OPENMP
+                            __pyx_t_8 = omp_get_thread_num();
+                            #else
+                            __pyx_t_8 = 0;
+                            #endif
+                            __pyx_v_tid = __pyx_t_8;
+
+                            /* "Toolbox/infcy.pyx":409
+ *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+ *         tid = threadid()
+ *         with gil:             # <<<<<<<<<<<<<<
+ *             (<Model>models_[tid].ptr).reset()
+ *             (<Model>models_[tid].ptr).seed += rep
+ */
+                            {
+                                #ifdef WITH_THREAD
+                                PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                                #endif
+                                /*try:*/ {
+
+                                  /* "Toolbox/infcy.pyx":410
+ *         tid = threadid()
+ *         with gil:
+ *             (<Model>models_[tid].ptr).reset()             # <<<<<<<<<<<<<<
+ *             (<Model>models_[tid].ptr).seed += rep
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
+ */
+                                  __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
+                                  ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->reset(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), 0);
+
+                                  /* "Toolbox/infcy.pyx":411
+ *         with gil:
+ *             (<Model>models_[tid].ptr).reset()
+ *             (<Model>models_[tid].ptr).seed += rep             # <<<<<<<<<<<<<<
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
+ *         tid = threadid()
+ */
+                                  __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
+                                  __Pyx_INCREF(((PyObject *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)));
+                                  __pyx_t_12 = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11);
+                                  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_12), __pyx_n_s_seed); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 411, __pyx_L15_error)
+                                  __Pyx_GOTREF(__pyx_t_2);
+                                  __pyx_t_3 = __Pyx_PyInt_From_long(__pyx_v_rep); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 411, __pyx_L15_error)
+                                  __Pyx_GOTREF(__pyx_t_3);
+                                  __pyx_t_1 = PyNumber_InPlaceAdd(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 411, __pyx_L15_error)
+                                  __Pyx_GOTREF(__pyx_t_1);
+                                  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+                                  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_12), __pyx_n_s_seed, __pyx_t_1) < 0) __PYX_ERR(0, 411, __pyx_L15_error)
+                                  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+                                  __Pyx_DECREF(((PyObject *)__pyx_t_12)); __pyx_t_12 = 0;
+                                }
+
+                                /* "Toolbox/infcy.pyx":409
+ *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+ *         tid = threadid()
+ *         with gil:             # <<<<<<<<<<<<<<
+ *             (<Model>models_[tid].ptr).reset()
+ *             (<Model>models_[tid].ptr).seed += rep
+ */
+                                /*finally:*/ {
+                                  /*normal exit:*/{
+                                    #ifdef WITH_THREAD
+                                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                                    #endif
+                                    goto __pyx_L16;
+                                  }
+                                  __pyx_L15_error: {
+                                    #ifdef WITH_THREAD
+                                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                                    #endif
+                                    goto __pyx_L10_error;
+                                  }
+                                  __pyx_L16:;
+                                }
+                            }
+
+                            /* "Toolbox/infcy.pyx":412
+ *             (<Model>models_[tid].ptr).reset()
+ *             (<Model>models_[tid].ptr).seed += rep
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)             # <<<<<<<<<<<<<<
+ *         tid = threadid()
+ *         #with gil: print("thread {}".format(tid))
+ */
+                            __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
+                            __pyx_t_13 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->simulateNSteps(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), __pyx_v_burninSamples); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 412, __pyx_L10_error)
+                            __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
+                            __pyx_t_13.memview = NULL;
+                            __pyx_t_13.data = NULL;
+
+                            /* "Toolbox/infcy.pyx":413
+ *             (<Model>models_[tid].ptr).seed += rep
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
+ *         tid = threadid()             # <<<<<<<<<<<<<<
+ *         #with gil: print("thread {}".format(tid))
+ *         start = rep * nSamples
+ */
+                            #ifdef _OPENMP
+                            __pyx_t_8 = omp_get_thread_num();
+                            #else
+                            __pyx_t_8 = 0;
+                            #endif
+                            __pyx_v_tid = __pyx_t_8;
+
+                            /* "Toolbox/infcy.pyx":415
+ *         tid = threadid()
+ *         #with gil: print("thread {}".format(tid))
+ *         start = rep * nSamples             # <<<<<<<<<<<<<<
+ * 
+ *         for sample in range(nSamples):
+ */
+                            __pyx_v_start = (__pyx_v_rep * __pyx_v_nSamples);
+
+                            /* "Toolbox/infcy.pyx":417
+ *         start = rep * nSamples
+ * 
+ *         for sample in range(nSamples):             # <<<<<<<<<<<<<<
+ *             mu = mean((<Model>models_[tid].ptr).simulateNSteps(distSamples), nNodes, abs=1)
+ *             while ((switch and mu >= threshold) and (not switch and mu < threshold)):
+ */
+                            __pyx_t_8 = __pyx_v_nSamples;
+                            __pyx_t_14 = __pyx_t_8;
+                            for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
+                              __pyx_v_sample = __pyx_t_15;
+
+                              /* "Toolbox/infcy.pyx":418
+ * 
+ *         for sample in range(nSamples):
+ *             mu = mean((<Model>models_[tid].ptr).simulateNSteps(distSamples), nNodes, abs=1)             # <<<<<<<<<<<<<<
+ *             while ((switch and mu >= threshold) and (not switch and mu < threshold)):
+ *                 # continue simulating until system state reached where intended avg mag level is reached
+ */
+                              __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
+                              __pyx_t_13 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->simulateNSteps(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), __pyx_v_distSamples); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 418, __pyx_L10_error)
+                              __pyx_t_17.__pyx_n = 1;
+                              __pyx_t_17.abs = 1;
+                              __pyx_t_16 = __pyx_f_7Toolbox_5infcy_mean(__pyx_t_13, __pyx_v_nNodes, &__pyx_t_17); 
+                              __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
+                              __pyx_t_13.memview = NULL;
+                              __pyx_t_13.data = NULL;
+                              __pyx_v_mu = __pyx_t_16;
+
+                              /* "Toolbox/infcy.pyx":419
+ *         for sample in range(nSamples):
+ *             mu = mean((<Model>models_[tid].ptr).simulateNSteps(distSamples), nNodes, abs=1)
+ *             while ((switch and mu >= threshold) and (not switch and mu < threshold)):             # <<<<<<<<<<<<<<
+ *                 # continue simulating until system state reached where intended avg mag level is reached
+ *                 mu = mean((<Model>models_[tid].ptr).simulateNSteps(1), nNodes, abs=1)
+ */
+                              while (1) {
+                                __pyx_t_19 = (__pyx_v_switch != 0);
+                                if (__pyx_t_19) {
+                                } else {
+                                  __pyx_t_18 = __pyx_t_19;
+                                  goto __pyx_L21_bool_binop_done;
+                                }
+                                __pyx_t_19 = ((__pyx_v_mu >= __pyx_v_threshold) != 0);
+                                if (__pyx_t_19) {
+                                } else {
+                                  __pyx_t_18 = __pyx_t_19;
+                                  goto __pyx_L21_bool_binop_done;
+                                }
+                                __pyx_t_19 = ((!(__pyx_v_switch != 0)) != 0);
+                                if (__pyx_t_19) {
+                                } else {
+                                  __pyx_t_18 = __pyx_t_19;
+                                  goto __pyx_L21_bool_binop_done;
+                                }
+                                __pyx_t_19 = ((__pyx_v_mu < __pyx_v_threshold) != 0);
+                                __pyx_t_18 = __pyx_t_19;
+                                __pyx_L21_bool_binop_done:;
+                                if (!__pyx_t_18) break;
+
+                                /* "Toolbox/infcy.pyx":421
+ *             while ((switch and mu >= threshold) and (not switch and mu < threshold)):
+ *                 # continue simulating until system state reached where intended avg mag level is reached
+ *                 mu = mean((<Model>models_[tid].ptr).simulateNSteps(1), nNodes, abs=1)             # <<<<<<<<<<<<<<
+ *             snapshots[start + sample] = (<Model>models_[tid].ptr)._states
+ *             #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
+ */
+                                __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
+                                __pyx_t_13 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->__pyx_vtab)->simulateNSteps(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11), 1); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 421, __pyx_L10_error)
+                                __pyx_t_17.__pyx_n = 1;
+                                __pyx_t_17.abs = 1;
+                                __pyx_t_16 = __pyx_f_7Toolbox_5infcy_mean(__pyx_t_13, __pyx_v_nNodes, &__pyx_t_17); 
+                                __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
+                                __pyx_t_13.memview = NULL;
+                                __pyx_t_13.data = NULL;
+                                __pyx_v_mu = __pyx_t_16;
+                              }
+
+                              /* "Toolbox/infcy.pyx":422
+ *                 # continue simulating until system state reached where intended avg mag level is reached
+ *                 mu = mean((<Model>models_[tid].ptr).simulateNSteps(1), nNodes, abs=1)
+ *             snapshots[start + sample] = (<Model>models_[tid].ptr)._states             # <<<<<<<<<<<<<<
+ *             #snapshots[start + sample] = encodeState((<Model>models_[rep].ptr)._states)
+ *             #with gil:
+ */
+                              __pyx_t_11 = (__pyx_v_models_[__pyx_v_tid]).ptr;
+                              __pyx_t_13 = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_11)->_states;
+                              __PYX_INC_MEMVIEW(&__pyx_t_13, 0);
+                              __pyx_t_20.data = __pyx_v_snapshots.data;
+                              __pyx_t_20.memview = __pyx_v_snapshots.memview;
+                              __PYX_INC_MEMVIEW(&__pyx_t_20, 0);
+                              {
+    Py_ssize_t __pyx_tmp_idx = (__pyx_v_start + __pyx_v_sample);
+    Py_ssize_t __pyx_tmp_stride = __pyx_v_snapshots.strides[0];
+        if ((0)) __PYX_ERR(0, 422, __pyx_L10_error)
+        __pyx_t_20.data += __pyx_tmp_idx * __pyx_tmp_stride;
+}
+
+__pyx_t_20.shape[0] = __pyx_v_snapshots.shape[1];
+__pyx_t_20.strides[0] = __pyx_v_snapshots.strides[1];
+    __pyx_t_20.suboffsets[0] = -1;
+
+if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_13, __pyx_t_20, 1, 1, 0) < 0)) __PYX_ERR(0, 422, __pyx_L10_error)
+                              __PYX_XDEC_MEMVIEW(&__pyx_t_20, 0);
+                              __pyx_t_20.memview = NULL;
+                              __pyx_t_20.data = NULL;
+                              __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
+                              __pyx_t_13.memview = NULL;
+                              __pyx_t_13.data = NULL;
+                            }
+
+                            /* "Toolbox/infcy.pyx":429
+ *                 #print("decoded   : {}".format(decodeState(code, model._nNodes)))
+ *                 #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
+ *         with gil:             # <<<<<<<<<<<<<<
+ *             pbar.update(1)
+ * 
+ */
+                            {
+                                #ifdef WITH_THREAD
+                                PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                                #endif
+                                /*try:*/ {
+
+                                  /* "Toolbox/infcy.pyx":430
+ *                 #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
+ *         with gil:
+ *             pbar.update(1)             # <<<<<<<<<<<<<<
+ * 
+ *     return snapshots
+ */
+                                  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 430, __pyx_L28_error)
+                                  __Pyx_GOTREF(__pyx_t_3);
+                                  __pyx_t_2 = NULL;
+                                  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+                                    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_3);
+                                    if (likely(__pyx_t_2)) {
+                                      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+                                      __Pyx_INCREF(__pyx_t_2);
+                                      __Pyx_INCREF(function);
+                                      __Pyx_DECREF_SET(__pyx_t_3, function);
+                                    }
+                                  }
+                                  __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_int_1);
+                                  __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+                                  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 430, __pyx_L28_error)
+                                  __Pyx_GOTREF(__pyx_t_1);
+                                  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+                                  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+                                }
+
+                                /* "Toolbox/infcy.pyx":429
+ *                 #print("decoded   : {}".format(decodeState(code, model._nNodes)))
+ *                 #print("difference: {}".format(np.array((<Model>models_[rep].ptr)._states.base) - np.array(decodeState(code, model._nNodes))))
+ *         with gil:             # <<<<<<<<<<<<<<
+ *             pbar.update(1)
+ * 
+ */
+                                /*finally:*/ {
+                                  /*normal exit:*/{
+                                    #ifdef WITH_THREAD
+                                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                                    #endif
+                                    goto __pyx_L29;
+                                  }
+                                  __pyx_L28_error: {
+                                    #ifdef WITH_THREAD
+                                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                                    #endif
+                                    goto __pyx_L10_error;
+                                  }
+                                  __pyx_L29:;
+                                }
+                            }
+                            goto __pyx_L31;
+                            __pyx_L10_error:;
+                            {
+                                #ifdef WITH_THREAD
+                                PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                                #endif
+                                #ifdef _OPENMP
+                                #pragma omp flush(__pyx_parallel_exc_type)
+                                #endif /* _OPENMP */
+                                if (!__pyx_parallel_exc_type) {
+                                  __Pyx_ErrFetchWithState(&__pyx_parallel_exc_type, &__pyx_parallel_exc_value, &__pyx_parallel_exc_tb);
+                                  __pyx_parallel_filename = __pyx_filename; __pyx_parallel_lineno = __pyx_lineno; __pyx_parallel_clineno = __pyx_clineno;
+                                  __Pyx_GOTREF(__pyx_parallel_exc_type);
+                                }
+                                #ifdef WITH_THREAD
+                                __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                                #endif
+                            }
+                            __pyx_parallel_why = 4;
+                            goto __pyx_L30;
+                            __pyx_L30:;
+                            #ifdef _OPENMP
+                            #pragma omp critical(__pyx_parallel_lastprivates3)
+                            #endif /* _OPENMP */
+                            {
+                                __pyx_parallel_temp0 = __pyx_v_mu;
+                                __pyx_parallel_temp1 = __pyx_v_rep;
+                                __pyx_parallel_temp2 = __pyx_v_sample;
+                                __pyx_parallel_temp3 = __pyx_v_start;
+                                __pyx_parallel_temp4 = __pyx_v_tid;
+                            }
+                            __pyx_L31:;
+                            #ifdef _OPENMP
+                            #pragma omp flush(__pyx_parallel_why)
+                            #endif /* _OPENMP */
+                        }
+                    }
+                    #ifdef _OPENMP
+                    Py_END_ALLOW_THREADS
+                    #else
+{
+#ifdef WITH_THREAD
+                    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                    #endif
+                    #endif /* _OPENMP */
+                    /* Clean up any temporaries */
+                    __Pyx_XDECREF(__pyx_t_1);
+                    __pyx_t_1 = NULL;
+                    __Pyx_XDECREF(((PyObject *)__pyx_t_12));
+                    __pyx_t_12 = NULL;
+                    __PYX_XDEC_MEMVIEW(&__pyx_t_13, 0);
+                    __Pyx_XDECREF(__pyx_t_2);
+                    __pyx_t_2 = NULL;
+                    __PYX_XDEC_MEMVIEW(&__pyx_t_20, 0);
+                    __Pyx_XDECREF(__pyx_t_3);
+                    __pyx_t_3 = NULL;
+                    #ifdef WITH_THREAD
+                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                    #endif
+                    #ifndef _OPENMP
+}
+#endif /* _OPENMP */
+                }
+            }
+            if (__pyx_parallel_exc_type) {
+              /* This may have been overridden by a continue, break or return in another thread. Prefer the error. */
+              __pyx_parallel_why = 4;
+            }
+            if (__pyx_parallel_why) {
+              __pyx_v_mu = __pyx_parallel_temp0;
+              __pyx_v_rep = __pyx_parallel_temp1;
+              __pyx_v_sample = __pyx_parallel_temp2;
+              __pyx_v_start = __pyx_parallel_temp3;
+              __pyx_v_tid = __pyx_parallel_temp4;
+              switch (__pyx_parallel_why) {
+                    case 4:
+                {
+                    #ifdef WITH_THREAD
+                    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                    #endif
+                    __Pyx_GIVEREF(__pyx_parallel_exc_type);
+                    __Pyx_ErrRestoreWithState(__pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb);
+                    __pyx_filename = __pyx_parallel_filename; __pyx_lineno = __pyx_parallel_lineno; __pyx_clineno = __pyx_parallel_clineno;
+                    #ifdef WITH_THREAD
+                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                    #endif
+                }
+                goto __pyx_L6_error;
+              }
+            }
+        }
+        #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
+            #undef likely
+            #undef unlikely
+            #define likely(x)   __builtin_expect(!!(x), 1)
+            #define unlikely(x) __builtin_expect(!!(x), 0)
+        #endif
+      }
+
+      /* "Toolbox/infcy.pyx":407
+ * 
+ *     pbar = tqdm(total = repeats) # init  progbar
+ *     for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = nThreads):             # <<<<<<<<<<<<<<
+ *         tid = threadid()
+ *         with gil:
+ */
+      /*finally:*/ {
+        /*normal exit:*/{
+          #ifdef WITH_THREAD
+          __Pyx_FastGIL_Forget();
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L7;
+        }
+        __pyx_L6_error: {
+          #ifdef WITH_THREAD
+          __Pyx_FastGIL_Forget();
+          Py_BLOCK_THREADS
+          #endif
+          goto __pyx_L1_error;
+        }
+        __pyx_L7:;
+      }
+  }
+
+  /* "Toolbox/infcy.pyx":432
+ *             pbar.update(1)
+ * 
+ *     return snapshots             # <<<<<<<<<<<<<<
+ * 
+ * @cython.boundscheck(False)
+ */
+  __PYX_INC_MEMVIEW(&__pyx_v_snapshots, 0);
+  __pyx_r = __pyx_v_snapshots;
+  goto __pyx_L0;
+
+  /* "Toolbox/infcy.pyx":388
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef long[:,::1] collectSnapshotsMagThreshold(Model model, int repeats, int burninSamples, int nSamples, int distSamples, int switch=1, double threshold=0.05):             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         #list modelsPy  = []
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+  __Pyx_XDECREF(((PyObject *)__pyx_t_12));
+  __PYX_XDEC_MEMVIEW(&__pyx_t_13, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_20, 1);
+  __pyx_r.data = NULL;
+  __pyx_r.memview = NULL;
+  __Pyx_AddTraceback("Toolbox.infcy.collectSnapshotsMagThreshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  goto __pyx_L2;
+  __pyx_L0:;
+  if (unlikely(!__pyx_r.memview)) {
+    PyErr_SetString(PyExc_TypeError, "Memoryview return value is not initialized");
+  }
+  __pyx_L2:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_tmp);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_snapshots, 1);
+  __Pyx_XDECREF(__pyx_v_pbar);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7Toolbox_5infcy_13collectSnapshotsMagThreshold(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_13collectSnapshotsMagThreshold(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
+  int __pyx_v_repeats;
+  int __pyx_v_burninSamples;
+  int __pyx_v_nSamples;
+  int __pyx_v_distSamples;
+  int __pyx_v_switch;
+  double __pyx_v_threshold;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("collectSnapshotsMagThreshold (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_repeats,&__pyx_n_s_burninSamples,&__pyx_n_s_nSamples,&__pyx_n_s_distSamples,&__pyx_n_s_switch,&__pyx_n_s_threshold,0};
+    PyObject* values[7] = {0,0,0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        CYTHON_FALLTHROUGH;
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_model)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_repeats)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("collectSnapshotsMagThreshold", 0, 5, 7, 1); __PYX_ERR(0, 388, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_burninSamples)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("collectSnapshotsMagThreshold", 0, 5, 7, 2); __PYX_ERR(0, 388, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("collectSnapshotsMagThreshold", 0, 5, 7, 3); __PYX_ERR(0, 388, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  4:
+        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_distSamples)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("collectSnapshotsMagThreshold", 0, 5, 7, 4); __PYX_ERR(0, 388, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  5:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_switch);
+          if (value) { values[5] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  6:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_threshold);
+          if (value) { values[6] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "collectSnapshotsMagThreshold") < 0)) __PYX_ERR(0, 388, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        CYTHON_FALLTHROUGH;
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
+    __pyx_v_repeats = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    __pyx_v_distSamples = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_distSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    if (values[5]) {
+      __pyx_v_switch = __Pyx_PyInt_As_int(values[5]); if (unlikely((__pyx_v_switch == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    } else {
+      __pyx_v_switch = ((int)1);
+    }
+    if (values[6]) {
+      __pyx_v_threshold = __pyx_PyFloat_AsDouble(values[6]); if (unlikely((__pyx_v_threshold == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    } else {
+      __pyx_v_threshold = ((double)0.05);
+    }
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("collectSnapshotsMagThreshold", 0, 5, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 388, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("Toolbox.infcy.collectSnapshotsMagThreshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_12collectSnapshotsMagThreshold(__pyx_self, __pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, __pyx_v_switch, __pyx_v_threshold);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7Toolbox_5infcy_12collectSnapshotsMagThreshold(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, int __pyx_v_switch, double __pyx_v_threshold) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  struct __pyx_opt_args_7Toolbox_5infcy_collectSnapshotsMagThreshold __pyx_t_2;
+  PyObject *__pyx_t_3 = NULL;
+  __Pyx_RefNannySetupContext("collectSnapshotsMagThreshold", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2.__pyx_n = 2;
+  __pyx_t_2.__pyx_switch = __pyx_v_switch;
+  __pyx_t_2.threshold = __pyx_v_threshold;
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_collectSnapshotsMagThreshold(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_t_1, 2, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
+  __pyx_t_1.memview = NULL;
+  __pyx_t_1.data = NULL;
+  __pyx_r = __pyx_t_3;
+  __pyx_t_3 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("Toolbox.infcy.collectSnapshotsMagThreshold", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "Toolbox/infcy.pyx":440
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef double[::1] binaryEntropies(long[:,::1] snapshots):             # <<<<<<<<<<<<<<
@@ -7067,7 +8026,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_10collectSnapshots(CYTHON_UNUSED PyObj
  *         #np.ndarray H = np.zeros(nNodes)
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_13binaryEntropies(PyObject *__pyx_self, PyObject *__pyx_arg_snapshots); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_15binaryEntropies(PyObject *__pyx_self, PyObject *__pyx_arg_snapshots); /*proto*/
 static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviewslice __pyx_v_snapshots, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PyArrayObject *__pyx_v_tmp = 0;
   PyArrayObject *__pyx_v_H = 0;
@@ -7087,42 +8046,42 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannySetupContext("binaryEntropies", 0);
 
-  /* "Toolbox/infcy.pyx":388
+  /* "Toolbox/infcy.pyx":445
  *         #long[:, ::1] s = np.array([decodeState(i, nNodes) for i in tqdm(snapshots)])
  *         #np.ndarray H = np.sum(s.base, axis=0)
  *         np.ndarray tmp, H = np.sum(snapshots.base, axis=0, dtype=float)             # <<<<<<<<<<<<<<
  *         double[::1] cview_H
  *         int idx
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sum); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_sum); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_snapshots, 2, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_snapshots, 2, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_base); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_base); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3);
   __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 388, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 388, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 388, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 445, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, ((PyObject *)(&PyFloat_Type))) < 0) __PYX_ERR(0, 445, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 445, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 388, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 445, __pyx_L1_error)
   __pyx_v_H = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "Toolbox/infcy.pyx":391
+  /* "Toolbox/infcy.pyx":448
  *         double[::1] cview_H
  *         int idx
  *         double len = <double> snapshots.shape[0]             # <<<<<<<<<<<<<<
@@ -7131,18 +8090,18 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
  */
   __pyx_v_len = ((double)(__pyx_v_snapshots.shape[0]));
 
-  /* "Toolbox/infcy.pyx":395
+  /* "Toolbox/infcy.pyx":452
  *     #print(s.base)
  * 
  *     H = (len - np.abs(H))/2. + np.abs(H)             # <<<<<<<<<<<<<<
  *     H = H/len
  * 
  */
-  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_len); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_v_len); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_abs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_abs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -7157,19 +8116,19 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   }
   __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_1, ((PyObject *)__pyx_v_H)) : __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_H));
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 395, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Subtract(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Subtract(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_2, __pyx_float_2_, 2., 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyFloat_TrueDivideObjC(__pyx_t_2, __pyx_float_2_, 2., 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_abs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_abs); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -7184,58 +8143,58 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   }
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_1, __pyx_t_4, ((PyObject *)__pyx_v_H)) : __Pyx_PyObject_CallOneArg(__pyx_t_1, ((PyObject *)__pyx_v_H));
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 395, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Add(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 395, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Add(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 395, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_DECREF_SET(__pyx_v_H, ((PyArrayObject *)__pyx_t_1));
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":396
+  /* "Toolbox/infcy.pyx":453
  * 
  *     H = (len - np.abs(H))/2. + np.abs(H)
  *     H = H/len             # <<<<<<<<<<<<<<
  * 
  *     tmp = 1-H
  */
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_len); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_v_len); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 453, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyNumber_Divide(((PyObject *)__pyx_v_H), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 396, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Divide(((PyObject *)__pyx_v_H), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 453, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 396, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 453, __pyx_L1_error)
   __Pyx_DECREF_SET(__pyx_v_H, ((PyArrayObject *)__pyx_t_2));
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":398
+  /* "Toolbox/infcy.pyx":455
  *     H = H/len
  * 
  *     tmp = 1-H             # <<<<<<<<<<<<<<
  *     H = - H * np.log2(H) - tmp * np.log2(np.where(tmp==0, 1, tmp)) # compute entropy for each node (use 0*log(0) = 0)
  * 
  */
-  __pyx_t_2 = PyNumber_Subtract(__pyx_int_1, ((PyObject *)__pyx_v_H)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 398, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Subtract(__pyx_int_1, ((PyObject *)__pyx_v_H)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 455, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 398, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 455, __pyx_L1_error)
   __pyx_v_tmp = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":399
+  /* "Toolbox/infcy.pyx":456
  * 
  *     tmp = 1-H
  *     H = - H * np.log2(H) - tmp * np.log2(np.where(tmp==0, 1, tmp)) # compute entropy for each node (use 0*log(0) = 0)             # <<<<<<<<<<<<<<
  * 
  *     cview_H = H
  */
-  __pyx_t_2 = PyNumber_Negative(((PyObject *)__pyx_v_H)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Negative(((PyObject *)__pyx_v_H)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_log2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_log2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -7250,24 +8209,24 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_3, ((PyObject *)__pyx_v_H)) : __Pyx_PyObject_CallOneArg(__pyx_t_4, ((PyObject *)__pyx_v_H));
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 399, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Multiply(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Multiply(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_log2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_log2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_where); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_where); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyObject_RichCompare(((PyObject *)__pyx_v_tmp), __pyx_int_0, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_5 = PyObject_RichCompare(((PyObject *)__pyx_v_tmp), __pyx_int_0, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 456, __pyx_L1_error)
   __pyx_t_7 = NULL;
   __pyx_t_8 = 0;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -7283,7 +8242,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_6)) {
     PyObject *__pyx_temp[4] = {__pyx_t_7, __pyx_t_5, __pyx_int_1, ((PyObject *)__pyx_v_tmp)};
-    __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -7292,14 +8251,14 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
     PyObject *__pyx_temp[4] = {__pyx_t_7, __pyx_t_5, __pyx_int_1, ((PyObject *)__pyx_v_tmp)};
-    __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   } else
   #endif
   {
-    __pyx_t_9 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __pyx_t_9 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 456, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     if (__pyx_t_7) {
       __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -7313,7 +8272,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
     __Pyx_GIVEREF(((PyObject *)__pyx_v_tmp));
     PyTuple_SET_ITEM(__pyx_t_9, 2+__pyx_t_8, ((PyObject *)__pyx_v_tmp));
     __pyx_t_5 = 0;
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 399, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   }
@@ -7331,33 +8290,33 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_6, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 399, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Multiply(((PyObject *)__pyx_v_tmp), __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Multiply(((PyObject *)__pyx_v_tmp), __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Subtract(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 399, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Subtract(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 399, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_DECREF_SET(__pyx_v_H, ((PyArrayObject *)__pyx_t_1));
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":401
+  /* "Toolbox/infcy.pyx":458
  *     H = - H * np.log2(H) - tmp * np.log2(np.where(tmp==0, 1, tmp)) # compute entropy for each node (use 0*log(0) = 0)
  * 
  *     cview_H = H             # <<<<<<<<<<<<<<
  * 
  *     #print("bin entropies: {}".format(H))
  */
-  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_v_H), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 401, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_v_H), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 458, __pyx_L1_error)
   __pyx_v_cview_H = __pyx_t_10;
   __pyx_t_10.memview = NULL;
   __pyx_t_10.data = NULL;
 
-  /* "Toolbox/infcy.pyx":405
+  /* "Toolbox/infcy.pyx":462
  *     #print("bin entropies: {}".format(H))
  * 
  *     return cview_H             # <<<<<<<<<<<<<<
@@ -7368,7 +8327,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
   __pyx_r = __pyx_v_cview_H;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":383
+  /* "Toolbox/infcy.pyx":440
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef double[::1] binaryEntropies(long[:,::1] snapshots):             # <<<<<<<<<<<<<<
@@ -7404,14 +8363,14 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_binaryEntropies(__Pyx_memviews
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_13binaryEntropies(PyObject *__pyx_self, PyObject *__pyx_arg_snapshots); /*proto*/
-static PyObject *__pyx_pw_7Toolbox_5infcy_13binaryEntropies(PyObject *__pyx_self, PyObject *__pyx_arg_snapshots) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_15binaryEntropies(PyObject *__pyx_self, PyObject *__pyx_arg_snapshots); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_15binaryEntropies(PyObject *__pyx_self, PyObject *__pyx_arg_snapshots) {
   __Pyx_memviewslice __pyx_v_snapshots = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("binaryEntropies (wrapper)", 0);
   assert(__pyx_arg_snapshots); {
-    __pyx_v_snapshots = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_arg_snapshots, PyBUF_WRITABLE); if (unlikely(!__pyx_v_snapshots.memview)) __PYX_ERR(0, 383, __pyx_L3_error)
+    __pyx_v_snapshots = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(__pyx_arg_snapshots, PyBUF_WRITABLE); if (unlikely(!__pyx_v_snapshots.memview)) __PYX_ERR(0, 440, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -7419,22 +8378,22 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_13binaryEntropies(PyObject *__pyx_self
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_12binaryEntropies(__pyx_self, __pyx_v_snapshots);
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_14binaryEntropies(__pyx_self, __pyx_v_snapshots);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_12binaryEntropies(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_14binaryEntropies(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("binaryEntropies", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_binaryEntropies(__pyx_v_snapshots, 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 383, __pyx_L1_error)
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 383, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_binaryEntropies(__pyx_v_snapshots, 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 440, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 440, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
   __pyx_t_1.memview = NULL;
@@ -7456,7 +8415,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_12binaryEntropies(CYTHON_UNUSED PyObje
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":411
+/* "Toolbox/infcy.pyx":468
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:             # <<<<<<<<<<<<<<
@@ -7464,7 +8423,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_12binaryEntropies(CYTHON_UNUSED PyObje
  *         int idx, nSamples = snapshots.shape[0]
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_15mutualInformationIDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_17mutualInformationIDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_binEntropies, int __pyx_v_node1, int __pyx_v_node2, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_idx;
   int __pyx_v_nSamples;
@@ -7488,7 +8447,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
   #endif
   __Pyx_RefNannySetupContext("mutualInformationIDL", 1);
 
-  /* "Toolbox/infcy.pyx":412
+  /* "Toolbox/infcy.pyx":469
  * @cython.overflowcheck(False)
  * cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:
  *     cdef:             # <<<<<<<<<<<<<<
@@ -7497,7 +8456,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
  */
   /*try:*/ {
 
-    /* "Toolbox/infcy.pyx":413
+    /* "Toolbox/infcy.pyx":470
  * cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:
  *     cdef:
  *         int idx, nSamples = snapshots.shape[0]             # <<<<<<<<<<<<<<
@@ -7506,7 +8465,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
  */
     __pyx_v_nSamples = (__pyx_v_snapshots.shape[0]);
 
-    /* "Toolbox/infcy.pyx":415
+    /* "Toolbox/infcy.pyx":472
  *         int idx, nSamples = snapshots.shape[0]
  *         vector[long] states
  *         vector[int] jointDistr = vector[int](nSamples, 0)             # <<<<<<<<<<<<<<
@@ -7523,11 +8482,11 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
       #ifdef WITH_THREAD
       __Pyx_PyGILState_Release(__pyx_gilstate_save);
       #endif
-      __PYX_ERR(0, 415, __pyx_L4_error)
+      __PYX_ERR(0, 472, __pyx_L4_error)
     }
     __pyx_v_jointDistr = __pyx_t_1;
 
-    /* "Toolbox/infcy.pyx":422
+    /* "Toolbox/infcy.pyx":479
  *     #    jointDistr = np.zeros(len, dtype=np.intc)
  * 
  *     for idx in range(nSamples):             # <<<<<<<<<<<<<<
@@ -7539,7 +8498,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_v_idx = __pyx_t_4;
 
-      /* "Toolbox/infcy.pyx":424
+      /* "Toolbox/infcy.pyx":481
  *     for idx in range(nSamples):
  *         #states = decodeState(snapshots[idx], nNodes)
  *         jointDistr[idx] = snapshots[idx][node1] + snapshots[idx][node2]*2 # -3,-1,1,3 represent the 4 possible combinations of spins             # <<<<<<<<<<<<<<
@@ -7557,7 +8516,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
       (__pyx_v_jointDistr[__pyx_v_idx]) = ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_snapshots.data + __pyx_t_5 * __pyx_v_snapshots.strides[0]) )) + __pyx_t_6)) ))) + ((*((long *) ( /* dim=1 */ ((char *) (((long *) ( /* dim=0 */ (__pyx_v_snapshots.data + __pyx_t_7 * __pyx_v_snapshots.strides[0]) )) + __pyx_t_8)) ))) * 2));
     }
 
-    /* "Toolbox/infcy.pyx":431
+    /* "Toolbox/infcy.pyx":488
  *     #jointStates[3] = 3
  * 
  *     with gil:             # <<<<<<<<<<<<<<
@@ -7570,7 +8529,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
         #endif
         /*try:*/ {
 
-          /* "Toolbox/infcy.pyx":433
+          /* "Toolbox/infcy.pyx":490
  *     with gil:
  *         #print(binEntropies[node1], binEntropies[node2], entropy(jointDistr))
  *         jointEntropy = entropy(jointDistr)             # <<<<<<<<<<<<<<
@@ -7580,7 +8539,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
           __pyx_v_jointEntropy = __pyx_f_7Toolbox_5infcy_entropy(__pyx_v_jointDistr, 0);
         }
 
-        /* "Toolbox/infcy.pyx":431
+        /* "Toolbox/infcy.pyx":488
  *     #jointStates[3] = 3
  * 
  *     with gil:             # <<<<<<<<<<<<<<
@@ -7598,7 +8557,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
         }
     }
 
-    /* "Toolbox/infcy.pyx":435
+    /* "Toolbox/infcy.pyx":492
  *         jointEntropy = entropy(jointDistr)
  * 
  *     mi = binEntropies[node1] + binEntropies[node2] - jointEntropy             # <<<<<<<<<<<<<<
@@ -7611,7 +8570,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
     if (__pyx_t_10 < 0) __pyx_t_10 += __pyx_v_binEntropies.shape[0];
     __pyx_v_mi = (((*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_binEntropies.data) + __pyx_t_9)) ))) + (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_binEntropies.data) + __pyx_t_10)) )))) - __pyx_v_jointEntropy);
 
-    /* "Toolbox/infcy.pyx":436
+    /* "Toolbox/infcy.pyx":493
  * 
  *     mi = binEntropies[node1] + binEntropies[node2] - jointEntropy
  *     return mi             # <<<<<<<<<<<<<<
@@ -7622,7 +8581,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
     goto __pyx_L3_return;
   }
 
-  /* "Toolbox/infcy.pyx":412
+  /* "Toolbox/infcy.pyx":469
  * @cython.overflowcheck(False)
  * cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:
  *     cdef:             # <<<<<<<<<<<<<<
@@ -7644,7 +8603,7 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
     }
   }
 
-  /* "Toolbox/infcy.pyx":411
+  /* "Toolbox/infcy.pyx":468
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:             # <<<<<<<<<<<<<<
@@ -7666,8 +8625,8 @@ static double __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__Pyx_memviewslice __
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_15mutualInformationIDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_7Toolbox_5infcy_15mutualInformationIDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_17mutualInformationIDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_17mutualInformationIDL(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_snapshots = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_binEntropies = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_node1;
@@ -7702,23 +8661,23 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_15mutualInformationIDL(PyObject *__pyx
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_binEntropies)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, 1); __PYX_ERR(0, 411, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, 1); __PYX_ERR(0, 468, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_node1)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, 2); __PYX_ERR(0, 411, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, 2); __PYX_ERR(0, 468, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_node2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, 3); __PYX_ERR(0, 411, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, 3); __PYX_ERR(0, 468, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "mutualInformationIDL") < 0)) __PYX_ERR(0, 411, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "mutualInformationIDL") < 0)) __PYX_ERR(0, 468, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -7728,33 +8687,33 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_15mutualInformationIDL(PyObject *__pyx
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_snapshots = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_snapshots.memview)) __PYX_ERR(0, 411, __pyx_L3_error)
-    __pyx_v_binEntropies = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_binEntropies.memview)) __PYX_ERR(0, 411, __pyx_L3_error)
-    __pyx_v_node1 = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_node1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 411, __pyx_L3_error)
-    __pyx_v_node2 = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_node2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 411, __pyx_L3_error)
+    __pyx_v_snapshots = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_snapshots.memview)) __PYX_ERR(0, 468, __pyx_L3_error)
+    __pyx_v_binEntropies = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_binEntropies.memview)) __PYX_ERR(0, 468, __pyx_L3_error)
+    __pyx_v_node1 = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_node1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 468, __pyx_L3_error)
+    __pyx_v_node2 = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_node2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 468, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 411, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("mutualInformationIDL", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 468, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.mutualInformationIDL", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_14mutualInformationIDL(__pyx_self, __pyx_v_snapshots, __pyx_v_binEntropies, __pyx_v_node1, __pyx_v_node2);
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_16mutualInformationIDL(__pyx_self, __pyx_v_snapshots, __pyx_v_binEntropies, __pyx_v_node1, __pyx_v_node2);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_14mutualInformationIDL(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_binEntropies, int __pyx_v_node1, int __pyx_v_node2) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_16mutualInformationIDL(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_binEntropies, int __pyx_v_node1, int __pyx_v_node2) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("mutualInformationIDL", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_f_7Toolbox_5infcy_mutualInformationIDL(__pyx_v_snapshots, __pyx_v_binEntropies, __pyx_v_node1, __pyx_v_node2, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 411, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_f_7Toolbox_5infcy_mutualInformationIDL(__pyx_v_snapshots, __pyx_v_binEntropies, __pyx_v_node1, __pyx_v_node2, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 468, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7773,7 +8732,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_14mutualInformationIDL(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":440
+/* "Toolbox/infcy.pyx":497
  * 
  * 
  * cpdef double entropy(vector[int] samples):             # <<<<<<<<<<<<<<
@@ -7781,7 +8740,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_14mutualInformationIDL(CYTHON_UNUSED P
  *         long[::1] counts = np.unique(samples, return_counts=True)[1]
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_17entropy(PyObject *__pyx_self, PyObject *__pyx_arg_samples); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_19entropy(PyObject *__pyx_self, PyObject *__pyx_arg_samples); /*proto*/
 static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples, CYTHON_UNUSED int __pyx_skip_dispatch) {
   __Pyx_memviewslice __pyx_v_counts = { 0, 0, { 0 }, { 0 }, { 0 } };
   double __pyx_v_entropy;
@@ -7804,43 +8763,43 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
   double __pyx_t_13;
   __Pyx_RefNannySetupContext("entropy", 0);
 
-  /* "Toolbox/infcy.pyx":442
+  /* "Toolbox/infcy.pyx":499
  * cpdef double entropy(vector[int] samples):
  *     cdef:
  *         long[::1] counts = np.unique(samples, return_counts=True)[1]             # <<<<<<<<<<<<<<
  *         double entropy, n = <double> samples.size()
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unique); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_unique); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __pyx_convert_vector_to_py_int(__pyx_v_samples); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_vector_to_py_int(__pyx_v_samples); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_return_counts, Py_True) < 0) __PYX_ERR(0, 442, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 442, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_return_counts, Py_True) < 0) __PYX_ERR(0, 499, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_4, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_4, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 442, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 499, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_counts = __pyx_t_5;
   __pyx_t_5.memview = NULL;
   __pyx_t_5.data = NULL;
 
-  /* "Toolbox/infcy.pyx":443
+  /* "Toolbox/infcy.pyx":500
  *     cdef:
  *         long[::1] counts = np.unique(samples, return_counts=True)[1]
  *         double entropy, n = <double> samples.size()             # <<<<<<<<<<<<<<
@@ -7849,30 +8808,30 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
  */
   __pyx_v_n = ((double)__pyx_v_samples.size());
 
-  /* "Toolbox/infcy.pyx":445
+  /* "Toolbox/infcy.pyx":502
  *         double entropy, n = <double> samples.size()
  * 
  *     entropy = -np.sum([c/n * np.log2(c/n) for c in counts])             # <<<<<<<<<<<<<<
  *     return entropy
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 445, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 502, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 445, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 502, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   { /* enter inner scope */
-    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 445, __pyx_L5_error)
+    __pyx_t_4 = PyList_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 502, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_counts, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L5_error)
+    __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_counts, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 502, __pyx_L5_error)
     __Pyx_GOTREF(__pyx_t_2);
     if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
       __pyx_t_6 = __pyx_t_2; __Pyx_INCREF(__pyx_t_6); __pyx_t_7 = 0;
       __pyx_t_8 = NULL;
     } else {
-      __pyx_t_7 = -1; __pyx_t_6 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_7 = -1; __pyx_t_6 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_8 = Py_TYPE(__pyx_t_6)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_8 = Py_TYPE(__pyx_t_6)->tp_iternext; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 502, __pyx_L5_error)
     }
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     for (;;) {
@@ -7880,17 +8839,17 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
         if (likely(PyList_CheckExact(__pyx_t_6))) {
           if (__pyx_t_7 >= PyList_GET_SIZE(__pyx_t_6)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_6, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 445, __pyx_L5_error)
+          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_6, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 502, __pyx_L5_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_6, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L5_error)
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_6, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 502, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         } else {
           if (__pyx_t_7 >= PyTuple_GET_SIZE(__pyx_t_6)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_6, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 445, __pyx_L5_error)
+          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_6, __pyx_t_7); __Pyx_INCREF(__pyx_t_2); __pyx_t_7++; if (unlikely(0 < 0)) __PYX_ERR(0, 502, __pyx_L5_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_6, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L5_error)
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_6, __pyx_t_7); __pyx_t_7++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 502, __pyx_L5_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         }
@@ -7900,7 +8859,7 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 445, __pyx_L5_error)
+            else __PYX_ERR(0, 502, __pyx_L5_error)
           }
           break;
         }
@@ -7908,19 +8867,19 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
       }
       __Pyx_XDECREF_SET(__pyx_8genexpr2__pyx_v_c, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_2 = PyFloat_FromDouble(__pyx_v_n); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_2 = PyFloat_FromDouble(__pyx_v_n); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_9 = __Pyx_PyNumber_Divide(__pyx_8genexpr2__pyx_v_c, __pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_9 = __Pyx_PyNumber_Divide(__pyx_8genexpr2__pyx_v_c, __pyx_t_2); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_10, __pyx_n_s_np); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_log2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_10, __pyx_n_s_log2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-      __pyx_t_10 = PyFloat_FromDouble(__pyx_v_n); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_10 = PyFloat_FromDouble(__pyx_v_n); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_12 = __Pyx_PyNumber_Divide(__pyx_8genexpr2__pyx_v_c, __pyx_t_10); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_12 = __Pyx_PyNumber_Divide(__pyx_8genexpr2__pyx_v_c, __pyx_t_10); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_12);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       __pyx_t_10 = NULL;
@@ -7936,14 +8895,14 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
       __pyx_t_2 = (__pyx_t_10) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_10, __pyx_t_12) : __Pyx_PyObject_CallOneArg(__pyx_t_11, __pyx_t_12);
       __Pyx_XDECREF(__pyx_t_10); __pyx_t_10 = 0;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 445, __pyx_L5_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_11 = PyNumber_Multiply(__pyx_t_9, __pyx_t_2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 445, __pyx_L5_error)
+      __pyx_t_11 = PyNumber_Multiply(__pyx_t_9, __pyx_t_2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_11))) __PYX_ERR(0, 445, __pyx_L5_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_4, (PyObject*)__pyx_t_11))) __PYX_ERR(0, 502, __pyx_L5_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     }
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -7967,17 +8926,17 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
   __pyx_t_1 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_6, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 445, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 502, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Negative(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 445, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Negative(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 502, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 445, __pyx_L1_error)
+  __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 502, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_entropy = __pyx_t_13;
 
-  /* "Toolbox/infcy.pyx":446
+  /* "Toolbox/infcy.pyx":503
  * 
  *     entropy = -np.sum([c/n * np.log2(c/n) for c in counts])
  *     return entropy             # <<<<<<<<<<<<<<
@@ -7987,7 +8946,7 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
   __pyx_r = __pyx_v_entropy;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":440
+  /* "Toolbox/infcy.pyx":497
  * 
  * 
  * cpdef double entropy(vector[int] samples):             # <<<<<<<<<<<<<<
@@ -8017,14 +8976,14 @@ static double __pyx_f_7Toolbox_5infcy_entropy(std::vector<int>  __pyx_v_samples,
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_17entropy(PyObject *__pyx_self, PyObject *__pyx_arg_samples); /*proto*/
-static PyObject *__pyx_pw_7Toolbox_5infcy_17entropy(PyObject *__pyx_self, PyObject *__pyx_arg_samples) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_19entropy(PyObject *__pyx_self, PyObject *__pyx_arg_samples); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_19entropy(PyObject *__pyx_self, PyObject *__pyx_arg_samples) {
   std::vector<int>  __pyx_v_samples;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("entropy (wrapper)", 0);
   assert(__pyx_arg_samples); {
-    __pyx_v_samples = __pyx_convert_vector_from_py_int(__pyx_arg_samples); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 440, __pyx_L3_error)
+    __pyx_v_samples = __pyx_convert_vector_from_py_int(__pyx_arg_samples); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 497, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -8032,20 +8991,20 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_17entropy(PyObject *__pyx_self, PyObje
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_16entropy(__pyx_self, ((std::vector<int> )__pyx_v_samples));
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_18entropy(__pyx_self, ((std::vector<int> )__pyx_v_samples));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_16entropy(CYTHON_UNUSED PyObject *__pyx_self, std::vector<int>  __pyx_v_samples) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_18entropy(CYTHON_UNUSED PyObject *__pyx_self, std::vector<int>  __pyx_v_samples) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("entropy", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyFloat_FromDouble(__pyx_f_7Toolbox_5infcy_entropy(__pyx_v_samples, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 440, __pyx_L1_error)
+  __pyx_t_1 = PyFloat_FromDouble(__pyx_f_7Toolbox_5infcy_entropy(__pyx_v_samples, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 497, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8062,25 +9021,23 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_16entropy(CYTHON_UNUSED PyObject *__py
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":456
+/* "Toolbox/infcy.pyx":513
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, int dist) nogil:             # <<<<<<<<<<<<<<
+ * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, vector[int] neighbours) nogil:             # <<<<<<<<<<<<<<
  * 
  *     cdef:
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_19MIAtDist(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_entropies, int __pyx_v_node, int __pyx_v_dist, CYTHON_UNUSED int __pyx_skip_dispatch) {
-  __Pyx_memviewslice __pyx_v_neighbors = { 0, 0, { 0 }, { 0 }, { 0 } };
+static PyObject *__pyx_pw_7Toolbox_5infcy_21MIAtDist(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_entropies, int __pyx_v_node, std::vector<int>  __pyx_v_neighbours, CYTHON_UNUSED int __pyx_skip_dispatch) {
   int __pyx_v_idx;
   int __pyx_v_n;
-  std::vector<double>  __pyx_v_MI;
   __Pyx_memviewslice __pyx_v_out = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_r = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  __Pyx_memviewslice __pyx_t_2 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
@@ -8088,13 +9045,9 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
   PyObject *__pyx_t_7 = NULL;
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_t_9;
-  std::vector<double>  __pyx_t_10;
+  int __pyx_t_10;
   int __pyx_t_11;
-  int __pyx_t_12;
-  Py_ssize_t __pyx_t_13;
-  double __pyx_t_14;
-  Py_ssize_t __pyx_t_15;
-  Py_ssize_t __pyx_t_16;
+  Py_ssize_t __pyx_t_12;
   #ifdef WITH_THREAD
   PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
   #endif
@@ -8103,21 +9056,30 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
   __Pyx_PyGILState_Release(__pyx_gilstate_save);
   #endif
 
-  /* "Toolbox/infcy.pyx":458
- * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, int dist) nogil:
+  /* "Toolbox/infcy.pyx":515
+ * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, vector[int] neighbours) nogil:
  * 
  *     cdef:             # <<<<<<<<<<<<<<
- *         int[::1] neighbors
- *         int idx, n
+ *         #int[::1] neighbours
+ *         #vector[int] neighbours
  */
   /*try:*/ {
 
-    /* "Toolbox/infcy.pyx":464
+    /* "Toolbox/infcy.pyx":518
+ *         #int[::1] neighbours
+ *         #vector[int] neighbours
+ *         int idx, n = neighbours.size() #.shape[0]             # <<<<<<<<<<<<<<
+ *         #vector[double] MI
+ *         double[::1] out
+ */
+    __pyx_v_n = __pyx_v_neighbours.size();
+
+    /* "Toolbox/infcy.pyx":522
  *         double[::1] out
  * 
  *     with gil: # TODO possible without GIL?             # <<<<<<<<<<<<<<
- *         neighbors = model.neighborsAtDist(node, dist)
- *         n = neighbors.shape[0]
+ *         #neighbors = model.neighborsAtDist(node, dist)
+ *         #neighbours = allNeighbours[dist]
  */
     {
         #ifdef WITH_THREAD
@@ -8125,107 +9087,87 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
         #endif
         /*try:*/ {
 
-          /* "Toolbox/infcy.pyx":465
- * 
- *     with gil: # TODO possible without GIL?
- *         neighbors = model.neighborsAtDist(node, dist)             # <<<<<<<<<<<<<<
- *         n = neighbors.shape[0]
- *         out = np.full(2, np.nan)
- */
-          __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->neighborsAtDist(__pyx_v_model, __pyx_v_node, __pyx_v_dist, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 465, __pyx_L7_error)
-          __Pyx_GOTREF(__pyx_t_1);
-          __pyx_t_2 = __Pyx_PyObject_to_MemoryviewSlice_dc_int(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 465, __pyx_L7_error)
-          __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-          __pyx_v_neighbors = __pyx_t_2;
-          __pyx_t_2.memview = NULL;
-          __pyx_t_2.data = NULL;
-
-          /* "Toolbox/infcy.pyx":466
- *     with gil: # TODO possible without GIL?
- *         neighbors = model.neighborsAtDist(node, dist)
- *         n = neighbors.shape[0]             # <<<<<<<<<<<<<<
- *         out = np.full(2, np.nan)
- *         #print("num neighbors: {}".format(n))
- */
-          __pyx_v_n = (__pyx_v_neighbors.shape[0]);
-
-          /* "Toolbox/infcy.pyx":467
- *         neighbors = model.neighborsAtDist(node, dist)
- *         n = neighbors.shape[0]
- *         out = np.full(2, np.nan)             # <<<<<<<<<<<<<<
+          /* "Toolbox/infcy.pyx":527
+ *         #n = neighbors.shape[0]
+ *         #out = np.full(3, np.nan)
+ *         out = np.full(model._nNodes, np.nan)             # <<<<<<<<<<<<<<
  *         #print("num neighbors: {}".format(n))
  * 
  */
-          __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 467, __pyx_L7_error)
+          __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 527, __pyx_L7_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_full); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 527, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_3);
-          __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_full); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 467, __pyx_L7_error)
+          __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+          __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 527, __pyx_L7_error)
+          __Pyx_GOTREF(__pyx_t_2);
+          __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 527, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_4);
-          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 467, __pyx_L7_error)
-          __Pyx_GOTREF(__pyx_t_3);
-          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_nan); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 467, __pyx_L7_error)
+          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_nan); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 527, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_5);
-          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-          __pyx_t_3 = NULL;
+          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+          __pyx_t_4 = NULL;
           __pyx_t_6 = 0;
-          if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-            __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
-            if (likely(__pyx_t_3)) {
-              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-              __Pyx_INCREF(__pyx_t_3);
+          if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+            __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+            if (likely(__pyx_t_4)) {
+              PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+              __Pyx_INCREF(__pyx_t_4);
               __Pyx_INCREF(function);
-              __Pyx_DECREF_SET(__pyx_t_4, function);
+              __Pyx_DECREF_SET(__pyx_t_3, function);
               __pyx_t_6 = 1;
             }
           }
           #if CYTHON_FAST_PYCALL
-          if (PyFunction_Check(__pyx_t_4)) {
-            PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_int_2, __pyx_t_5};
-            __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 467, __pyx_L7_error)
-            __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (PyFunction_Check(__pyx_t_3)) {
+            PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_2, __pyx_t_5};
+            __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L7_error)
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
             __Pyx_GOTREF(__pyx_t_1);
+            __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           } else
           #endif
           #if CYTHON_FAST_PYCCALL
-          if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
-            PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_int_2, __pyx_t_5};
-            __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 467, __pyx_L7_error)
-            __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+          if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+            PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_2, __pyx_t_5};
+            __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L7_error)
+            __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
             __Pyx_GOTREF(__pyx_t_1);
+            __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
             __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           } else
           #endif
           {
-            __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 467, __pyx_L7_error)
+            __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 527, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_7);
-            if (__pyx_t_3) {
-              __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_3); __pyx_t_3 = NULL;
+            if (__pyx_t_4) {
+              __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4); __pyx_t_4 = NULL;
             }
-            __Pyx_INCREF(__pyx_int_2);
-            __Pyx_GIVEREF(__pyx_int_2);
-            PyTuple_SET_ITEM(__pyx_t_7, 0+__pyx_t_6, __pyx_int_2);
+            __Pyx_GIVEREF(__pyx_t_2);
+            PyTuple_SET_ITEM(__pyx_t_7, 0+__pyx_t_6, __pyx_t_2);
             __Pyx_GIVEREF(__pyx_t_5);
             PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_t_5);
+            __pyx_t_2 = 0;
             __pyx_t_5 = 0;
-            __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 467, __pyx_L7_error)
+            __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 527, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_1);
             __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
           }
-          __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-          __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 467, __pyx_L7_error)
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 527, __pyx_L7_error)
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
           __pyx_v_out = __pyx_t_8;
           __pyx_t_8.memview = NULL;
           __pyx_t_8.data = NULL;
         }
 
-        /* "Toolbox/infcy.pyx":464
+        /* "Toolbox/infcy.pyx":522
  *         double[::1] out
  * 
  *     with gil: # TODO possible without GIL?             # <<<<<<<<<<<<<<
- *         neighbors = model.neighborsAtDist(node, dist)
- *         n = neighbors.shape[0]
+ *         #neighbors = model.neighborsAtDist(node, dist)
+ *         #neighbours = allNeighbours[dist]
  */
         /*finally:*/ {
           /*normal exit:*/{
@@ -8244,182 +9186,51 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
         }
     }
 
-    /* "Toolbox/infcy.pyx":470
+    /* "Toolbox/infcy.pyx":530
  *         #print("num neighbors: {}".format(n))
  * 
  *     if n > 0:             # <<<<<<<<<<<<<<
- *         MI = vector[double](n, 0)
- * 
+ *         #MI = vector[double](n, -1)
+ *         #MI = vector[double](model._nNodes, -1)
  */
     __pyx_t_9 = ((__pyx_v_n > 0) != 0);
     if (__pyx_t_9) {
 
-      /* "Toolbox/infcy.pyx":471
- * 
- *     if n > 0:
- *         MI = vector[double](n, 0)             # <<<<<<<<<<<<<<
- * 
- *         for idx in range(n):
- */
-      try {
-        __pyx_t_10 = std::vector<double> (__pyx_v_n, 0.0);
-      } catch(...) {
-        #ifdef WITH_THREAD
-        PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-        #endif
-        __Pyx_CppExn2PyErr();
-        #ifdef WITH_THREAD
-        __Pyx_PyGILState_Release(__pyx_gilstate_save);
-        #endif
-        __PYX_ERR(0, 471, __pyx_L4_error)
-      }
-      __pyx_v_MI = __pyx_t_10;
-
-      /* "Toolbox/infcy.pyx":473
- *         MI = vector[double](n, 0)
+      /* "Toolbox/infcy.pyx":534
+ *         #MI = vector[double](model._nNodes, -1)
  * 
  *         for idx in range(n):             # <<<<<<<<<<<<<<
- *             MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
- * 
+ *             #MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
+ *             out[idx] = mutualInformationIDL(snapshots, entropies, node, neighbours[idx])
  */
       __pyx_t_6 = __pyx_v_n;
-      __pyx_t_11 = __pyx_t_6;
-      for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
-        __pyx_v_idx = __pyx_t_12;
+      __pyx_t_10 = __pyx_t_6;
+      for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+        __pyx_v_idx = __pyx_t_11;
 
-        /* "Toolbox/infcy.pyx":474
- * 
+        /* "Toolbox/infcy.pyx":536
  *         for idx in range(n):
- *             MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])             # <<<<<<<<<<<<<<
+ *             #MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
+ *             out[idx] = mutualInformationIDL(snapshots, entropies, node, neighbours[idx])             # <<<<<<<<<<<<<<
  * 
- *         with gil:
+ *         #with gil:
  */
-        __pyx_t_13 = __pyx_v_idx;
-        if (__pyx_t_13 < 0) __pyx_t_13 += __pyx_v_neighbors.shape[0];
-        (__pyx_v_MI[__pyx_v_idx]) = __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__pyx_v_snapshots, __pyx_v_entropies, __pyx_v_node, (*((int *) ( /* dim=0 */ ((char *) (((int *) __pyx_v_neighbors.data) + __pyx_t_13)) ))), 0);
+        __pyx_t_12 = __pyx_v_idx;
+        if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_out.shape[0];
+        *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_out.data) + __pyx_t_12)) )) = __pyx_f_7Toolbox_5infcy_mutualInformationIDL(__pyx_v_snapshots, __pyx_v_entropies, __pyx_v_node, (__pyx_v_neighbours[__pyx_v_idx]), 0);
       }
 
-      /* "Toolbox/infcy.pyx":476
- *             MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
- * 
- *         with gil:             # <<<<<<<<<<<<<<
- *             out[0] = np.mean(MI)
- *             out[1] = np.std(MI)
- */
-      {
-          #ifdef WITH_THREAD
-          PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-          #endif
-          /*try:*/ {
-
-            /* "Toolbox/infcy.pyx":477
- * 
- *         with gil:
- *             out[0] = np.mean(MI)             # <<<<<<<<<<<<<<
- *             out[1] = np.std(MI)
- * 
- */
-            __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 477, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_4);
-            __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_mean); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 477, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_7);
-            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-            __pyx_t_4 = __pyx_convert_vector_to_py_double(__pyx_v_MI); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 477, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_4);
-            __pyx_t_5 = NULL;
-            if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
-              __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_7);
-              if (likely(__pyx_t_5)) {
-                PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-                __Pyx_INCREF(__pyx_t_5);
-                __Pyx_INCREF(function);
-                __Pyx_DECREF_SET(__pyx_t_7, function);
-              }
-            }
-            __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_4);
-            __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 477, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_1);
-            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-            __pyx_t_14 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_14 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 477, __pyx_L13_error)
-            __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-            __pyx_t_15 = 0;
-            if (__pyx_t_15 < 0) __pyx_t_15 += __pyx_v_out.shape[0];
-            *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_out.data) + __pyx_t_15)) )) = __pyx_t_14;
-
-            /* "Toolbox/infcy.pyx":478
- *         with gil:
- *             out[0] = np.mean(MI)
- *             out[1] = np.std(MI)             # <<<<<<<<<<<<<<
- * 
- *     return out
- */
-            __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 478, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_7);
-            __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_std); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 478, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_4);
-            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-            __pyx_t_7 = __pyx_convert_vector_to_py_double(__pyx_v_MI); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 478, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_7);
-            __pyx_t_5 = NULL;
-            if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
-              __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
-              if (likely(__pyx_t_5)) {
-                PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
-                __Pyx_INCREF(__pyx_t_5);
-                __Pyx_INCREF(function);
-                __Pyx_DECREF_SET(__pyx_t_4, function);
-              }
-            }
-            __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_7);
-            __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-            __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-            if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 478, __pyx_L13_error)
-            __Pyx_GOTREF(__pyx_t_1);
-            __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-            __pyx_t_14 = __pyx_PyFloat_AsDouble(__pyx_t_1); if (unlikely((__pyx_t_14 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 478, __pyx_L13_error)
-            __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-            __pyx_t_16 = 1;
-            if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_out.shape[0];
-            *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_out.data) + __pyx_t_16)) )) = __pyx_t_14;
-          }
-
-          /* "Toolbox/infcy.pyx":476
- *             MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
- * 
- *         with gil:             # <<<<<<<<<<<<<<
- *             out[0] = np.mean(MI)
- *             out[1] = np.std(MI)
- */
-          /*finally:*/ {
-            /*normal exit:*/{
-              #ifdef WITH_THREAD
-              __Pyx_PyGILState_Release(__pyx_gilstate_save);
-              #endif
-              goto __pyx_L14;
-            }
-            __pyx_L13_error: {
-              #ifdef WITH_THREAD
-              __Pyx_PyGILState_Release(__pyx_gilstate_save);
-              #endif
-              goto __pyx_L4_error;
-            }
-            __pyx_L14:;
-          }
-      }
-
-      /* "Toolbox/infcy.pyx":470
+      /* "Toolbox/infcy.pyx":530
  *         #print("num neighbors: {}".format(n))
  * 
  *     if n > 0:             # <<<<<<<<<<<<<<
- *         MI = vector[double](n, 0)
- * 
+ *         #MI = vector[double](n, -1)
+ *         #MI = vector[double](model._nNodes, -1)
  */
     }
 
-    /* "Toolbox/infcy.pyx":480
- *             out[1] = np.std(MI)
+    /* "Toolbox/infcy.pyx":543
+ *         #    out[2] = np.sum(MI)
  * 
  *     return out             # <<<<<<<<<<<<<<
  *     #return np.mean(MI_array), np.std(MI_array)
@@ -8430,12 +9241,12 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
     goto __pyx_L3_return;
   }
 
-  /* "Toolbox/infcy.pyx":458
- * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, int dist) nogil:
+  /* "Toolbox/infcy.pyx":515
+ * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, vector[int] neighbours) nogil:
  * 
  *     cdef:             # <<<<<<<<<<<<<<
- *         int[::1] neighbors
- *         int idx, n
+ *         #int[::1] neighbours
+ *         #vector[int] neighbours
  */
   /*finally:*/ {
     __pyx_L3_return: {
@@ -8452,10 +9263,10 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
     }
   }
 
-  /* "Toolbox/infcy.pyx":456
+  /* "Toolbox/infcy.pyx":513
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, int dist) nogil:             # <<<<<<<<<<<<<<
+ * cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, double[::1] entropies, int node, vector[int] neighbours) nogil:             # <<<<<<<<<<<<<<
  * 
  *     cdef:
  */
@@ -8465,7 +9276,7 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
   goto __pyx_L0;
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_2, 0);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
@@ -8480,7 +9291,6 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
     PyErr_SetString(PyExc_TypeError, "Memoryview return value is not initialized");
   }
   __pyx_L2:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_neighbors, 0);
   __PYX_XDEC_MEMVIEW(&__pyx_v_out, 0);
   #ifdef WITH_THREAD
   __Pyx_PyGILState_Release(__pyx_gilstate_save);
@@ -8489,18 +9299,18 @@ static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy_MIAtDist(struct __pyx_obj_6Mod
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_19MIAtDist(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_7Toolbox_5infcy_19MIAtDist(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_21MIAtDist(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_21MIAtDist(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
   __Pyx_memviewslice __pyx_v_snapshots = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_entropies = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_node;
-  int __pyx_v_dist;
+  std::vector<int>  __pyx_v_neighbours;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("MIAtDist (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_snapshots,&__pyx_n_s_entropies,&__pyx_n_s_node,&__pyx_n_s_dist,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_snapshots,&__pyx_n_s_entropies,&__pyx_n_s_node,&__pyx_n_s_neighbours,0};
     PyObject* values[5] = {0,0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
@@ -8528,29 +9338,29 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19MIAtDist(PyObject *__pyx_self, PyObj
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_snapshots)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 1); __PYX_ERR(0, 456, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 1); __PYX_ERR(0, 513, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_entropies)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 2); __PYX_ERR(0, 456, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 2); __PYX_ERR(0, 513, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_node)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 3); __PYX_ERR(0, 456, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 3); __PYX_ERR(0, 513, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_dist)) != 0)) kw_args--;
+        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_neighbours)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 4); __PYX_ERR(0, 456, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, 4); __PYX_ERR(0, 513, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "MIAtDist") < 0)) __PYX_ERR(0, 456, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "MIAtDist") < 0)) __PYX_ERR(0, 513, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
       goto __pyx_L5_argtuple_error;
@@ -8562,21 +9372,21 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19MIAtDist(PyObject *__pyx_self, PyObj
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
     }
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
-    __pyx_v_snapshots = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_snapshots.memview)) __PYX_ERR(0, 456, __pyx_L3_error)
-    __pyx_v_entropies = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_entropies.memview)) __PYX_ERR(0, 456, __pyx_L3_error)
-    __pyx_v_node = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_node == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 456, __pyx_L3_error)
-    __pyx_v_dist = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_dist == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 456, __pyx_L3_error)
+    __pyx_v_snapshots = __Pyx_PyObject_to_MemoryviewSlice_d_dc_long(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_snapshots.memview)) __PYX_ERR(0, 513, __pyx_L3_error)
+    __pyx_v_entropies = __Pyx_PyObject_to_MemoryviewSlice_dc_double(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_entropies.memview)) __PYX_ERR(0, 513, __pyx_L3_error)
+    __pyx_v_node = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_node == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 513, __pyx_L3_error)
+    __pyx_v_neighbours = __pyx_convert_vector_from_py_int(values[4]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 513, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 456, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("MIAtDist", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 513, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.MIAtDist", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 456, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_18MIAtDist(__pyx_self, __pyx_v_model, __pyx_v_snapshots, __pyx_v_entropies, __pyx_v_node, __pyx_v_dist);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 513, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_20MIAtDist(__pyx_self, __pyx_v_model, __pyx_v_snapshots, __pyx_v_entropies, __pyx_v_node, __pyx_v_neighbours);
 
   /* function exit code */
   goto __pyx_L0;
@@ -8587,15 +9397,15 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19MIAtDist(PyObject *__pyx_self, PyObj
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_18MIAtDist(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_entropies, int __pyx_v_node, int __pyx_v_dist) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_20MIAtDist(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_snapshots, __Pyx_memviewslice __pyx_v_entropies, int __pyx_v_node, std::vector<int>  __pyx_v_neighbours) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("MIAtDist", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_MIAtDist(__pyx_v_model, __pyx_v_snapshots, __pyx_v_entropies, __pyx_v_node, __pyx_v_dist, 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 456, __pyx_L1_error)
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 456, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_MIAtDist(__pyx_v_model, __pyx_v_snapshots, __pyx_v_entropies, __pyx_v_node, __pyx_v_neighbours, 0); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 513, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 513, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
   __pyx_t_1.memview = NULL;
@@ -8618,16 +9428,361 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_18MIAtDist(CYTHON_UNUSED PyObject *__p
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":488
+/* "Toolbox/infcy.pyx":552
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cpdef np.ndarray runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax):             # <<<<<<<<<<<<<<
+ * cpdef np.ndarray magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):             # <<<<<<<<<<<<<<
+ * 
+ *     return _magTimeSeries(model, burninSamples, nSamples, abs).base
+ */
+
+static PyObject *__pyx_pw_7Toolbox_5infcy_23magTimeSeries(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyArrayObject *__pyx_f_7Toolbox_5infcy_magTimeSeries(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_burninSamples, int __pyx_v_nSamples, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_magTimeSeries *__pyx_optional_args) {
+  int __pyx_v_abs = ((int)0);
+  PyArrayObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  struct __pyx_opt_args_7Toolbox_5infcy__magTimeSeries __pyx_t_2;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __Pyx_RefNannySetupContext("magTimeSeries", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_abs = __pyx_optional_args->abs;
+    }
+  }
+
+  /* "Toolbox/infcy.pyx":554
+ * cpdef np.ndarray magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):
+ * 
+ *     return _magTimeSeries(model, burninSamples, nSamples, abs).base             # <<<<<<<<<<<<<<
+ * 
+ * @cython.boundscheck(False)
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __pyx_t_2.__pyx_n = 1;
+  __pyx_t_2.abs = __pyx_v_abs;
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy__magTimeSeries(__pyx_v_model, __pyx_v_burninSamples, __pyx_v_nSamples, &__pyx_t_2); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 554, __pyx_L1_error)
+  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_t_1, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 554, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
+  __pyx_t_1.memview = NULL;
+  __pyx_t_1.data = NULL;
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_base); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 554, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 554, __pyx_L1_error)
+  __pyx_r = ((PyArrayObject *)__pyx_t_4);
+  __pyx_t_4 = 0;
+  goto __pyx_L0;
+
+  /* "Toolbox/infcy.pyx":552
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef np.ndarray magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):             # <<<<<<<<<<<<<<
+ * 
+ *     return _magTimeSeries(model, burninSamples, nSamples, abs).base
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_AddTraceback("Toolbox.infcy.magTimeSeries", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF((PyObject *)__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7Toolbox_5infcy_23magTimeSeries(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_23magTimeSeries(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
+  int __pyx_v_burninSamples;
+  int __pyx_v_nSamples;
+  int __pyx_v_abs;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("magTimeSeries (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_burninSamples,&__pyx_n_s_nSamples,&__pyx_n_s_abs,0};
+    PyObject* values[4] = {0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_model)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_burninSamples)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("magTimeSeries", 0, 3, 4, 1); __PYX_ERR(0, 552, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("magTimeSeries", 0, 3, 4, 2); __PYX_ERR(0, 552, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_abs);
+          if (value) { values[3] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "magTimeSeries") < 0)) __PYX_ERR(0, 552, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
+    __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L3_error)
+    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L3_error)
+    if (values[3]) {
+      __pyx_v_abs = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_abs == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 552, __pyx_L3_error)
+    } else {
+      __pyx_v_abs = ((int)0);
+    }
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("magTimeSeries", 0, 3, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 552, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("Toolbox.infcy.magTimeSeries", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 552, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_22magTimeSeries(__pyx_self, __pyx_v_model, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_abs);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7Toolbox_5infcy_22magTimeSeries(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_abs) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  struct __pyx_opt_args_7Toolbox_5infcy_magTimeSeries __pyx_t_2;
+  __Pyx_RefNannySetupContext("magTimeSeries", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2.__pyx_n = 1;
+  __pyx_t_2.abs = __pyx_v_abs;
+  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_magTimeSeries(__pyx_v_model, __pyx_v_burninSamples, __pyx_v_nSamples, 0, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 552, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("Toolbox.infcy.magTimeSeries", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "Toolbox/infcy.pyx":561
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cdef double[::1] _magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
+ */
+
+static __Pyx_memviewslice __pyx_f_7Toolbox_5infcy__magTimeSeries(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_burninSamples, int __pyx_v_nSamples, struct __pyx_opt_args_7Toolbox_5infcy__magTimeSeries *__pyx_optional_args) {
+  int __pyx_v_abs = ((int)0);
+  __Pyx_memviewslice __pyx_v_mags = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_v_sample;
+  __Pyx_memviewslice __pyx_r = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  __Pyx_memviewslice __pyx_t_5 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_7;
+  int __pyx_t_8;
+  int __pyx_t_9;
+  double __pyx_t_10;
+  struct __pyx_opt_args_7Toolbox_5infcy_mean __pyx_t_11;
+  Py_ssize_t __pyx_t_12;
+  __Pyx_RefNannySetupContext("_magTimeSeries", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_abs = __pyx_optional_args->abs;
+    }
+  }
+
+  /* "Toolbox/infcy.pyx":564
+ * 
+ *     cdef:
+ *         double[::1] mags = np.zeros(nSamples)             # <<<<<<<<<<<<<<
+ *         int sample
+ * 
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_nSamples); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_1, PyBUF_WRITABLE); if (unlikely(!__pyx_t_5.memview)) __PYX_ERR(0, 564, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_mags = __pyx_t_5;
+  __pyx_t_5.memview = NULL;
+  __pyx_t_5.data = NULL;
+
+  /* "Toolbox/infcy.pyx":568
+ * 
+ *     #model.reset()
+ *     model.simulateNSteps(burninSamples)             # <<<<<<<<<<<<<<
+ * 
+ *     for sample in range(nSamples):
+ */
+  __pyx_t_6 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->simulateNSteps(__pyx_v_model, __pyx_v_burninSamples); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 568, __pyx_L1_error)
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
+
+  /* "Toolbox/infcy.pyx":570
+ *     model.simulateNSteps(burninSamples)
+ * 
+ *     for sample in range(nSamples):             # <<<<<<<<<<<<<<
+ *         mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs)
+ * 
+ */
+  __pyx_t_7 = __pyx_v_nSamples;
+  __pyx_t_8 = __pyx_t_7;
+  for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
+    __pyx_v_sample = __pyx_t_9;
+
+    /* "Toolbox/infcy.pyx":571
+ * 
+ *     for sample in range(nSamples):
+ *         mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs)             # <<<<<<<<<<<<<<
+ * 
+ *     return mags
+ */
+    __pyx_t_6 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->simulateNSteps(__pyx_v_model, 1); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 571, __pyx_L1_error)
+    __pyx_t_11.__pyx_n = 1;
+    __pyx_t_11.abs = __pyx_v_abs;
+    __pyx_t_10 = __pyx_f_7Toolbox_5infcy_mean(__pyx_t_6, __pyx_v_model->_nNodes, &__pyx_t_11); 
+    __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+    __pyx_t_6.memview = NULL;
+    __pyx_t_6.data = NULL;
+    __pyx_t_12 = __pyx_v_sample;
+    if (__pyx_t_12 < 0) __pyx_t_12 += __pyx_v_mags.shape[0];
+    *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_mags.data) + __pyx_t_12)) )) = __pyx_t_10;
+  }
+
+  /* "Toolbox/infcy.pyx":573
+ *         mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs)
+ * 
+ *     return mags             # <<<<<<<<<<<<<<
+ * 
+ * @cython.boundscheck(False)
+ */
+  __PYX_INC_MEMVIEW(&__pyx_v_mags, 0);
+  __pyx_r = __pyx_v_mags;
+  goto __pyx_L0;
+
+  /* "Toolbox/infcy.pyx":561
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cdef double[::1] _magTimeSeries(Model model, int burninSamples, int nSamples, int abs=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_5, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __pyx_r.data = NULL;
+  __pyx_r.memview = NULL;
+  __Pyx_AddTraceback("Toolbox.infcy._magTimeSeries", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  goto __pyx_L2;
+  __pyx_L0:;
+  if (unlikely(!__pyx_r.memview)) {
+    PyErr_SetString(PyExc_TypeError, "Memoryview return value is not initialized");
+  }
+  __pyx_L2:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_mags, 1);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "Toolbox/infcy.pyx":580
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef tuple runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax, double magThreshold=0, str targetDirectory=None):             # <<<<<<<<<<<<<<
  *     #states = model._states
  *     #code = encodeState(states)
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_21runMI(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, PyArrayObject *__pyx_v_nodes, int __pyx_v_distMax, CYTHON_UNUSED int __pyx_skip_dispatch) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_25runMI(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, PyArrayObject *__pyx_v_nodes, int __pyx_v_distMax, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_runMI *__pyx_optional_args) {
+  double __pyx_v_magThreshold = ((double)0.0);
+  PyObject *__pyx_v_targetDirectory = ((PyObject*)Py_None);
   __Pyx_memviewslice __pyx_v_cv_nodes = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_snapshots = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_entropies = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -8636,12 +9791,13 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6mo
   int __pyx_v_nNodes;
   __Pyx_memviewslice __pyx_v_MI = { 0, 0, { 0 }, { 0 }, { 0 } };
   CYTHON_UNUSED int __pyx_v_nThreads;
-  PyObject *__pyx_v_start = NULL;
-  PyObject *__pyx_v_stop = NULL;
-  PyArrayObject *__pyx_r = NULL;
+  std::unordered_map<int,std::vector<int> >  __pyx_v_allNeighbours;
+  PyObject *__pyx_v_degrees = NULL;
+  int __pyx_8genexpr3__pyx_v_n;
+  PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_memviewslice __pyx_t_1 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_t_2 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_t_2 = NULL;
   PyObject *__pyx_t_3 = NULL;
   PyObject *__pyx_t_4 = NULL;
   PyObject *__pyx_t_5 = NULL;
@@ -8649,235 +9805,392 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6mo
   PyObject *__pyx_t_7 = NULL;
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_t_9;
-  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  int __pyx_t_11;
-  int __pyx_t_12;
-  int __pyx_t_13;
+  int __pyx_t_10;
+  __Pyx_memviewslice __pyx_t_11 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  struct __pyx_opt_args_7Toolbox_5infcy_collectSnapshotsMagThreshold __pyx_t_12;
+  double __pyx_t_13;
   int __pyx_t_14;
-  int __pyx_t_15;
-  Py_ssize_t __pyx_t_16;
+  Py_ssize_t __pyx_t_15;
+  Py_UCS4 __pyx_t_16;
   __Pyx_memviewslice __pyx_t_17 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_t_18;
+  int __pyx_t_19;
+  int __pyx_t_20;
+  int __pyx_t_21;
+  int __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
+  __Pyx_memviewslice __pyx_t_24 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *(*__pyx_t_25)(PyObject *);
   __Pyx_RefNannySetupContext("runMI", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_magThreshold = __pyx_optional_args->magThreshold;
+      if (__pyx_optional_args->__pyx_n > 1) {
+        __pyx_v_targetDirectory = __pyx_optional_args->targetDirectory;
+      }
+    }
+  }
 
-  /* "Toolbox/infcy.pyx":498
+  /* "Toolbox/infcy.pyx":590
  * 
  *     cdef:
  *         int[::1] cv_nodes = nodes             # <<<<<<<<<<<<<<
- *         long[:,::1] snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+ *         long[:,::1] snapshots #= collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
  *         double[::1] entropies #= binaryEntropies(snapshots, model._nNodes)
  */
-  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dc_int(((PyObject *)__pyx_v_nodes), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 498, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dc_int(((PyObject *)__pyx_v_nodes), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 590, __pyx_L1_error)
   __pyx_v_cv_nodes = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "Toolbox/infcy.pyx":499
- *     cdef:
- *         int[::1] cv_nodes = nodes
- *         long[:,::1] snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)             # <<<<<<<<<<<<<<
- *         double[::1] entropies #= binaryEntropies(snapshots, model._nNodes)
- *         int n, d, nNodes = nodes.shape[0]
- */
-  __pyx_t_2 = __pyx_f_7Toolbox_5infcy_collectSnapshots(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0); if (unlikely(!__pyx_t_2.memview)) __PYX_ERR(0, 499, __pyx_L1_error)
-  __pyx_v_snapshots = __pyx_t_2;
-  __pyx_t_2.memview = NULL;
-  __pyx_t_2.data = NULL;
-
-  /* "Toolbox/infcy.pyx":501
- *         long[:,::1] snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+  /* "Toolbox/infcy.pyx":593
+ *         long[:,::1] snapshots #= collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
  *         double[::1] entropies #= binaryEntropies(snapshots, model._nNodes)
  *         int n, d, nNodes = nodes.shape[0]             # <<<<<<<<<<<<<<
- *         double[:,:,::1] MI = np.zeros((nNodes, distMax, 2))
+ *         double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
  *         int nThreads = mp.cpu_count()
  */
   __pyx_v_nNodes = (__pyx_v_nodes->dimensions[0]);
 
-  /* "Toolbox/infcy.pyx":502
+  /* "Toolbox/infcy.pyx":594
  *         double[::1] entropies #= binaryEntropies(snapshots, model._nNodes)
  *         int n, d, nNodes = nodes.shape[0]
- *         double[:,:,::1] MI = np.zeros((nNodes, distMax, 2))             # <<<<<<<<<<<<<<
+ *         double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))             # <<<<<<<<<<<<<<
  *         int nThreads = mp.cpu_count()
- * 
+ *         unordered_map[int, vector[int]] allNeighbours
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 502, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 594, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 502, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_nNodes); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_distMax); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 594, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_nNodes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 502, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_distMax); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 502, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 594, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = PyTuple_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 502, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 594, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_GIVEREF(__pyx_t_4);
-  PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_3);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_6);
-  PyTuple_SET_ITEM(__pyx_t_7, 1, __pyx_t_6);
-  __Pyx_INCREF(__pyx_int_2);
-  __Pyx_GIVEREF(__pyx_int_2);
-  PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_int_2);
-  __pyx_t_4 = 0;
+  PyTuple_SET_ITEM(__pyx_t_7, 2, __pyx_t_6);
+  __pyx_t_3 = 0;
+  __pyx_t_5 = 0;
   __pyx_t_6 = 0;
   __pyx_t_6 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
-    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_4);
     if (likely(__pyx_t_6)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
       __Pyx_INCREF(__pyx_t_6);
       __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_5, function);
+      __Pyx_DECREF_SET(__pyx_t_4, function);
     }
   }
-  __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_7);
+  __pyx_t_2 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_6, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_7);
   __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 502, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_double(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 502, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_8 = __Pyx_PyObject_to_MemoryviewSlice_d_d_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_8.memview)) __PYX_ERR(0, 594, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_MI = __pyx_t_8;
   __pyx_t_8.memview = NULL;
   __pyx_t_8.data = NULL;
 
-  /* "Toolbox/infcy.pyx":503
+  /* "Toolbox/infcy.pyx":595
  *         int n, d, nNodes = nodes.shape[0]
- *         double[:,:,::1] MI = np.zeros((nNodes, distMax, 2))
+ *         double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
  *         int nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
- * 
- *     start = time.process_time()
+ *         unordered_map[int, vector[int]] allNeighbours
+ *         int[::1] neighbours
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_mp); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 503, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 503, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_mp); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 595, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 595, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = NULL;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_7);
-    if (likely(__pyx_t_5)) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_7);
+    if (likely(__pyx_t_4)) {
       PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_4);
       __Pyx_INCREF(function);
       __Pyx_DECREF_SET(__pyx_t_7, function);
     }
   }
-  __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 503, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 595, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 503, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 595, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_nThreads = __pyx_t_9;
 
-  /* "Toolbox/infcy.pyx":505
- *         int nThreads = mp.cpu_count()
+  /* "Toolbox/infcy.pyx":599
+ *         int[::1] neighbours
  * 
- *     start = time.process_time()             # <<<<<<<<<<<<<<
- *     entropies = binaryEntropies(snapshots)
- *     #print(np.where(entropies.base==0))
+ *     if magThreshold == 0:             # <<<<<<<<<<<<<<
+ *         snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+ *     elif magThreshold > 0:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_time); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 505, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_process_time); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 505, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
-    __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_5);
-    if (likely(__pyx_t_7)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
-      __Pyx_INCREF(__pyx_t_7);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_5, function);
-    }
-  }
-  __pyx_t_3 = (__pyx_t_7) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_7) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 505, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_v_start = __pyx_t_3;
-  __pyx_t_3 = 0;
+  __pyx_t_10 = ((__pyx_v_magThreshold == 0.0) != 0);
+  if (__pyx_t_10) {
 
-  /* "Toolbox/infcy.pyx":506
+    /* "Toolbox/infcy.pyx":600
  * 
- *     start = time.process_time()
+ *     if magThreshold == 0:
+ *         snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)             # <<<<<<<<<<<<<<
+ *     elif magThreshold > 0:
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=0, threshold=magThreshold)
+ */
+    __pyx_t_11 = __pyx_f_7Toolbox_5infcy_collectSnapshots(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 600, __pyx_L1_error)
+    __pyx_v_snapshots = __pyx_t_11;
+    __pyx_t_11.memview = NULL;
+    __pyx_t_11.data = NULL;
+
+    /* "Toolbox/infcy.pyx":599
+ *         int[::1] neighbours
+ * 
+ *     if magThreshold == 0:             # <<<<<<<<<<<<<<
+ *         snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+ *     elif magThreshold > 0:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "Toolbox/infcy.pyx":601
+ *     if magThreshold == 0:
+ *         snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+ *     elif magThreshold > 0:             # <<<<<<<<<<<<<<
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=0, threshold=magThreshold)
+ *     else:
+ */
+  __pyx_t_10 = ((__pyx_v_magThreshold > 0.0) != 0);
+  if (__pyx_t_10) {
+
+    /* "Toolbox/infcy.pyx":602
+ *         snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+ *     elif magThreshold > 0:
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=0, threshold=magThreshold)             # <<<<<<<<<<<<<<
+ *     else:
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=1, threshold=np.abs(magThreshold))
+ */
+    __pyx_t_12.__pyx_n = 2;
+    __pyx_t_12.__pyx_switch = 0;
+    __pyx_t_12.threshold = __pyx_v_magThreshold;
+    __pyx_t_11 = __pyx_f_7Toolbox_5infcy_collectSnapshotsMagThreshold(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0, &__pyx_t_12); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 602, __pyx_L1_error)
+    __pyx_v_snapshots = __pyx_t_11;
+    __pyx_t_11.memview = NULL;
+    __pyx_t_11.data = NULL;
+
+    /* "Toolbox/infcy.pyx":601
+ *     if magThreshold == 0:
+ *         snapshots = collectSnapshots(model, repeats, burninSamples, nSamples, distSamples)
+ *     elif magThreshold > 0:             # <<<<<<<<<<<<<<
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=0, threshold=magThreshold)
+ *     else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "Toolbox/infcy.pyx":604
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=0, threshold=magThreshold)
+ *     else:
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=1, threshold=np.abs(magThreshold))             # <<<<<<<<<<<<<<
+ * 
+ *     if targetDirectory is not None: np.save(f'{targetDirectory}/snapshots_T={model.t}_{time.time()}.npy', snapshots)
+ */
+  /*else*/ {
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 604, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_abs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 604, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __pyx_t_7 = PyFloat_FromDouble(__pyx_v_magThreshold); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 604, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __pyx_t_6 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_6);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_4, function);
+      }
+    }
+    __pyx_t_2 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_6, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_7);
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 604, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_13 = __pyx_PyFloat_AsDouble(__pyx_t_2); if (unlikely((__pyx_t_13 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 604, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_12.__pyx_n = 2;
+    __pyx_t_12.__pyx_switch = 1;
+    __pyx_t_12.threshold = __pyx_t_13;
+    __pyx_t_11 = __pyx_f_7Toolbox_5infcy_collectSnapshotsMagThreshold(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, 0, &__pyx_t_12); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 604, __pyx_L1_error)
+    __pyx_v_snapshots = __pyx_t_11;
+    __pyx_t_11.memview = NULL;
+    __pyx_t_11.data = NULL;
+  }
+  __pyx_L3:;
+
+  /* "Toolbox/infcy.pyx":606
+ *         snapshots = collectSnapshotsMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=1, threshold=np.abs(magThreshold))
+ * 
+ *     if targetDirectory is not None: np.save(f'{targetDirectory}/snapshots_T={model.t}_{time.time()}.npy', snapshots)             # <<<<<<<<<<<<<<
+ * 
+ *     entropies = binaryEntropies(snapshots)
+ */
+  __pyx_t_10 = (__pyx_v_targetDirectory != ((PyObject*)Py_None));
+  __pyx_t_14 = (__pyx_t_10 != 0);
+  if (__pyx_t_14) {
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_save); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = PyTuple_New(6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_15 = 0;
+    __pyx_t_16 = 127;
+    __pyx_t_6 = __Pyx_PyUnicode_Unicode(__pyx_v_targetDirectory); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_16 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) > __pyx_t_16) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) : __pyx_t_16;
+    __pyx_t_15 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6);
+    __Pyx_GIVEREF(__pyx_t_6);
+    PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6);
+    __pyx_t_6 = 0;
+    __Pyx_INCREF(__pyx_kp_u_snapshots_T);
+    __pyx_t_15 += 13;
+    __Pyx_GIVEREF(__pyx_kp_u_snapshots_T);
+    PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_kp_u_snapshots_T);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_t); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_5 = __Pyx_PyObject_FormatSimple(__pyx_t_6, __pyx_empty_unicode); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_16 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_5) > __pyx_t_16) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_5) : __pyx_t_16;
+    __pyx_t_15 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_5);
+    __Pyx_GIVEREF(__pyx_t_5);
+    PyTuple_SET_ITEM(__pyx_t_4, 2, __pyx_t_5);
+    __pyx_t_5 = 0;
+    __Pyx_INCREF(__pyx_n_u__5);
+    __pyx_t_15 += 1;
+    __Pyx_GIVEREF(__pyx_n_u__5);
+    PyTuple_SET_ITEM(__pyx_t_4, 3, __pyx_n_u__5);
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_time); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    __pyx_t_6 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_6)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_6);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_3, function);
+      }
+    }
+    __pyx_t_5 = (__pyx_t_6) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_6) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
+    __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
+    if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = __Pyx_PyObject_FormatSimple(__pyx_t_5, __pyx_empty_unicode); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_16 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_3) > __pyx_t_16) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_3) : __pyx_t_16;
+    __pyx_t_15 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_3);
+    PyTuple_SET_ITEM(__pyx_t_4, 4, __pyx_t_3);
+    __pyx_t_3 = 0;
+    __Pyx_INCREF(__pyx_kp_u_npy);
+    __pyx_t_15 += 4;
+    __Pyx_GIVEREF(__pyx_kp_u_npy);
+    PyTuple_SET_ITEM(__pyx_t_4, 5, __pyx_kp_u_npy);
+    __pyx_t_3 = __Pyx_PyUnicode_Join(__pyx_t_4, 6, __pyx_t_15, __pyx_t_16); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_snapshots, 2, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 606, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = NULL;
+    __pyx_t_9 = 0;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_7);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_7, function);
+        __pyx_t_9 = 1;
+      }
+    }
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_7)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_3, __pyx_t_4};
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 606, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_7)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_3, __pyx_t_4};
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_7, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 606, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    } else
+    #endif
+    {
+      __pyx_t_6 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 606, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      if (__pyx_t_5) {
+        __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
+      }
+      __Pyx_GIVEREF(__pyx_t_3);
+      PyTuple_SET_ITEM(__pyx_t_6, 0+__pyx_t_9, __pyx_t_3);
+      __Pyx_GIVEREF(__pyx_t_4);
+      PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_9, __pyx_t_4);
+      __pyx_t_3 = 0;
+      __pyx_t_4 = 0;
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 606, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  }
+
+  /* "Toolbox/infcy.pyx":608
+ *     if targetDirectory is not None: np.save(f'{targetDirectory}/snapshots_T={model.t}_{time.time()}.npy', snapshots)
+ * 
  *     entropies = binaryEntropies(snapshots)             # <<<<<<<<<<<<<<
- *     #print(np.where(entropies.base==0))
- *     stop = time.process_time()
- */
-  __pyx_t_10 = __pyx_f_7Toolbox_5infcy_binaryEntropies(__pyx_v_snapshots, 0); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 506, __pyx_L1_error)
-  __pyx_v_entropies = __pyx_t_10;
-  __pyx_t_10.memview = NULL;
-  __pyx_t_10.data = NULL;
-
-  /* "Toolbox/infcy.pyx":508
- *     entropies = binaryEntropies(snapshots)
- *     #print(np.where(entropies.base==0))
- *     stop = time.process_time()             # <<<<<<<<<<<<<<
- *     print("time: {}".format(stop-start))
- * 
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_time); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 508, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_process_time); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 508, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
-    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_7);
-    if (likely(__pyx_t_5)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-      __Pyx_INCREF(__pyx_t_5);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_7, function);
-    }
-  }
-  __pyx_t_3 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_7);
-  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 508, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_v_stop = __pyx_t_3;
-  __pyx_t_3 = 0;
-
-  /* "Toolbox/infcy.pyx":509
- *     #print(np.where(entropies.base==0))
- *     stop = time.process_time()
- *     print("time: {}".format(stop-start))             # <<<<<<<<<<<<<<
  * 
  *     for n in prange(nNodes, nogil = True, \
  */
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_kp_u_time_2, __pyx_n_s_format); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 509, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_5 = PyNumber_Subtract(__pyx_v_stop, __pyx_v_start); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 509, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = NULL;
-  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
-    __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_7);
-    if (likely(__pyx_t_6)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
-      __Pyx_INCREF(__pyx_t_6);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_7, function);
-    }
-  }
-  __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_6, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_t_5);
-  __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 509, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 509, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_17 = __pyx_f_7Toolbox_5infcy_binaryEntropies(__pyx_v_snapshots, 0); if (unlikely(!__pyx_t_17.memview)) __PYX_ERR(0, 608, __pyx_L1_error)
+  __pyx_v_entropies = __pyx_t_17;
+  __pyx_t_17.memview = NULL;
+  __pyx_t_17.data = NULL;
 
-  /* "Toolbox/infcy.pyx":511
- *     print("time: {}".format(stop-start))
+  /* "Toolbox/infcy.pyx":610
+ *     entropies = binaryEntropies(snapshots)
  * 
  *     for n in prange(nNodes, nogil = True, \             # <<<<<<<<<<<<<<
  *                          schedule = 'dynamic', num_threads = nThreads):
@@ -8893,8 +10206,9 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6mo
         __pyx_t_9 = __pyx_v_nNodes;
         if (1 == 0) abort();
         {
-            int __pyx_parallel_temp0 = ((int)0xbad0bad0);
+            std::unordered_map<int,std::vector<int> >  __pyx_parallel_temp0;
             int __pyx_parallel_temp1 = ((int)0xbad0bad0);
+            int __pyx_parallel_temp2 = ((int)0xbad0bad0);
             const char *__pyx_parallel_filename = NULL; int __pyx_parallel_lineno = 0, __pyx_parallel_clineno = 0;
             PyObject *__pyx_parallel_exc_type = NULL, *__pyx_parallel_exc_value = NULL, *__pyx_parallel_exc_tb = NULL;
             int __pyx_parallel_why;
@@ -8905,11 +10219,11 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6mo
                 #define likely(x)   (x)
                 #define unlikely(x) (x)
             #endif
-            __pyx_t_12 = (__pyx_t_9 - 0 + 1 - 1/abs(1)) / 1;
-            if (__pyx_t_12 > 0)
+            __pyx_t_19 = (__pyx_t_9 - 0 + 1 - 1/abs(1)) / 1;
+            if (__pyx_t_19 > 0)
             {
                 #ifdef _OPENMP
-                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_13, __pyx_t_14, __pyx_t_15, __pyx_t_16) firstprivate(__pyx_t_10, __pyx_t_17) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
+                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_20, __pyx_t_21, __pyx_t_22, __pyx_t_23) firstprivate(__pyx_t_17, __pyx_t_24) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
                 #endif /* _OPENMP */
                 {
                     #ifdef _OPENMP
@@ -8919,48 +10233,73 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6mo
                     Py_BEGIN_ALLOW_THREADS
                     #endif /* _OPENMP */
                     #ifdef _OPENMP
-                    #pragma omp for lastprivate(__pyx_v_d) firstprivate(__pyx_v_n) lastprivate(__pyx_v_n) schedule(dynamic)
+                    #pragma omp for lastprivate(__pyx_v_allNeighbours) lastprivate(__pyx_v_d) firstprivate(__pyx_v_n) lastprivate(__pyx_v_n) schedule(dynamic)
                     #endif /* _OPENMP */
-                    for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_12; __pyx_t_11++){
+                    for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_19; __pyx_t_18++){
                         if (__pyx_parallel_why < 2)
                         {
-                            __pyx_v_n = (int)(0 + 1 * __pyx_t_11);
+                            __pyx_v_n = (int)(0 + 1 * __pyx_t_18);
                             /* Initialize private variables to invalid values */
                             __pyx_v_d = ((int)0xbad0bad0);
 
-                            /* "Toolbox/infcy.pyx":514
+                            /* "Toolbox/infcy.pyx":613
  *                          schedule = 'dynamic', num_threads = nThreads):
  * 
- *         for d in range(distMax):             # <<<<<<<<<<<<<<
- *             MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], d+1)
- * 
- */
-                            __pyx_t_13 = __pyx_v_distMax;
-                            __pyx_t_14 = __pyx_t_13;
-                            for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
-                              __pyx_v_d = __pyx_t_15;
-
-                              /* "Toolbox/infcy.pyx":515
+ *         with gil: allNeighbours = model.neighboursAtDist(n, distMax)             # <<<<<<<<<<<<<<
  * 
  *         for d in range(distMax):
- *             MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], d+1)             # <<<<<<<<<<<<<<
- * 
- *     return MI.base
  */
-                              __pyx_t_16 = __pyx_v_n;
-                              if (__pyx_t_16 < 0) __pyx_t_16 += __pyx_v_cv_nodes.shape[0];
-                              __pyx_t_10 = __pyx_f_7Toolbox_5infcy_MIAtDist(__pyx_v_model, __pyx_v_snapshots, __pyx_v_entropies, (*((int *) ( /* dim=0 */ ((char *) (((int *) __pyx_v_cv_nodes.data) + __pyx_t_16)) ))), (__pyx_v_d + 1), 0); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 515, __pyx_L8_error)
-                              __pyx_t_17.data = __pyx_v_MI.data;
-                              __pyx_t_17.memview = __pyx_v_MI.memview;
-                              __PYX_INC_MEMVIEW(&__pyx_t_17, 0);
+                            {
+                                #ifdef WITH_THREAD
+                                PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+                                #endif
+                                /*try:*/ {
+                                  __pyx_v_allNeighbours = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->neighboursAtDist(__pyx_v_model, __pyx_v_n, __pyx_v_distMax, 0);
+                                }
+                                /*finally:*/ {
+                                  /*normal exit:*/{
+                                    #ifdef WITH_THREAD
+                                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+                                    #endif
+                                    goto __pyx_L16;
+                                  }
+                                  __pyx_L16:;
+                                }
+                            }
+
+                            /* "Toolbox/infcy.pyx":615
+ *         with gil: allNeighbours = model.neighboursAtDist(n, distMax)
+ * 
+ *         for d in range(distMax):             # <<<<<<<<<<<<<<
+ *             #with gil: neighbours = allNeighbours[d+1]
+ *             MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], allNeighbours[d+1])
+ */
+                            __pyx_t_20 = __pyx_v_distMax;
+                            __pyx_t_21 = __pyx_t_20;
+                            for (__pyx_t_22 = 0; __pyx_t_22 < __pyx_t_21; __pyx_t_22+=1) {
+                              __pyx_v_d = __pyx_t_22;
+
+                              /* "Toolbox/infcy.pyx":617
+ *         for d in range(distMax):
+ *             #with gil: neighbours = allNeighbours[d+1]
+ *             MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], allNeighbours[d+1])             # <<<<<<<<<<<<<<
+ * 
+ *     degrees = [model.graph.degree(model.rmapping[n]) for n in nodes]
+ */
+                              __pyx_t_23 = __pyx_v_n;
+                              if (__pyx_t_23 < 0) __pyx_t_23 += __pyx_v_cv_nodes.shape[0];
+                              __pyx_t_17 = __pyx_f_7Toolbox_5infcy_MIAtDist(__pyx_v_model, __pyx_v_snapshots, __pyx_v_entropies, (*((int *) ( /* dim=0 */ ((char *) (((int *) __pyx_v_cv_nodes.data) + __pyx_t_23)) ))), (__pyx_v_allNeighbours[(__pyx_v_d + 1)]), 0); if (unlikely(!__pyx_t_17.memview)) __PYX_ERR(0, 617, __pyx_L10_error)
+                              __pyx_t_24.data = __pyx_v_MI.data;
+                              __pyx_t_24.memview = __pyx_v_MI.memview;
+                              __PYX_INC_MEMVIEW(&__pyx_t_24, 0);
                               {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_n;
         Py_ssize_t __pyx_tmp_shape = __pyx_v_MI.shape[0];
     Py_ssize_t __pyx_tmp_stride = __pyx_v_MI.strides[0];
         if (__pyx_tmp_idx < 0)
             __pyx_tmp_idx += __pyx_tmp_shape;
-        if ((0)) __PYX_ERR(0, 515, __pyx_L8_error)
-        __pyx_t_17.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        if ((0)) __PYX_ERR(0, 617, __pyx_L10_error)
+        __pyx_t_24.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
 {
@@ -8969,24 +10308,24 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_runMI(struct __pyx_obj_6Models_6mo
     Py_ssize_t __pyx_tmp_stride = __pyx_v_MI.strides[1];
         if (__pyx_tmp_idx < 0)
             __pyx_tmp_idx += __pyx_tmp_shape;
-        if ((0)) __PYX_ERR(0, 515, __pyx_L8_error)
-        __pyx_t_17.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        if ((0)) __PYX_ERR(0, 617, __pyx_L10_error)
+        __pyx_t_24.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_17.shape[0] = __pyx_v_MI.shape[2];
-__pyx_t_17.strides[0] = __pyx_v_MI.strides[2];
-    __pyx_t_17.suboffsets[0] = -1;
+__pyx_t_24.shape[0] = __pyx_v_MI.shape[2];
+__pyx_t_24.strides[0] = __pyx_v_MI.strides[2];
+    __pyx_t_24.suboffsets[0] = -1;
 
-if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0)) __PYX_ERR(0, 515, __pyx_L8_error)
+if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_17, __pyx_t_24, 1, 1, 0) < 0)) __PYX_ERR(0, 617, __pyx_L10_error)
+                              __PYX_XDEC_MEMVIEW(&__pyx_t_24, 0);
+                              __pyx_t_24.memview = NULL;
+                              __pyx_t_24.data = NULL;
                               __PYX_XDEC_MEMVIEW(&__pyx_t_17, 0);
                               __pyx_t_17.memview = NULL;
                               __pyx_t_17.data = NULL;
-                              __PYX_XDEC_MEMVIEW(&__pyx_t_10, 0);
-                              __pyx_t_10.memview = NULL;
-                              __pyx_t_10.data = NULL;
                             }
-                            goto __pyx_L13;
-                            __pyx_L8_error:;
+                            goto __pyx_L20;
+                            __pyx_L10_error:;
                             {
                                 #ifdef WITH_THREAD
                                 PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
@@ -9004,16 +10343,17 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
                                 #endif
                             }
                             __pyx_parallel_why = 4;
-                            goto __pyx_L12;
-                            __pyx_L12:;
+                            goto __pyx_L19;
+                            __pyx_L19:;
                             #ifdef _OPENMP
-                            #pragma omp critical(__pyx_parallel_lastprivates3)
+                            #pragma omp critical(__pyx_parallel_lastprivates4)
                             #endif /* _OPENMP */
                             {
-                                __pyx_parallel_temp0 = __pyx_v_d;
-                                __pyx_parallel_temp1 = __pyx_v_n;
+                                __pyx_parallel_temp0 = __pyx_v_allNeighbours;
+                                __pyx_parallel_temp1 = __pyx_v_d;
+                                __pyx_parallel_temp2 = __pyx_v_n;
                             }
-                            __pyx_L13:;
+                            __pyx_L20:;
                             #ifdef _OPENMP
                             #pragma omp flush(__pyx_parallel_why)
                             #endif /* _OPENMP */
@@ -9028,8 +10368,8 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
                     #endif
                     #endif /* _OPENMP */
                     /* Clean up any temporaries */
-                    __PYX_XDEC_MEMVIEW(&__pyx_t_10, 0);
                     __PYX_XDEC_MEMVIEW(&__pyx_t_17, 0);
+                    __PYX_XDEC_MEMVIEW(&__pyx_t_24, 0);
                     #ifdef WITH_THREAD
                     __Pyx_PyGILState_Release(__pyx_gilstate_save);
                     #endif
@@ -9043,8 +10383,9 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
               __pyx_parallel_why = 4;
             }
             if (__pyx_parallel_why) {
-              __pyx_v_d = __pyx_parallel_temp0;
-              __pyx_v_n = __pyx_parallel_temp1;
+              __pyx_v_allNeighbours = __pyx_parallel_temp0;
+              __pyx_v_d = __pyx_parallel_temp1;
+              __pyx_v_n = __pyx_parallel_temp2;
               switch (__pyx_parallel_why) {
                     case 4:
                 {
@@ -9058,7 +10399,7 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
                     __Pyx_PyGILState_Release(__pyx_gilstate_save);
                     #endif
                 }
-                goto __pyx_L4_error;
+                goto __pyx_L6_error;
               }
             }
         }
@@ -9070,8 +10411,8 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
         #endif
       }
 
-      /* "Toolbox/infcy.pyx":511
- *     print("time: {}".format(stop-start))
+      /* "Toolbox/infcy.pyx":610
+ *     entropies = binaryEntropies(snapshots)
  * 
  *     for n in prange(nNodes, nogil = True, \             # <<<<<<<<<<<<<<
  *                          schedule = 'dynamic', num_threads = nThreads):
@@ -9083,41 +10424,134 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
-          goto __pyx_L5;
+          goto __pyx_L7;
         }
-        __pyx_L4_error: {
+        __pyx_L6_error: {
           #ifdef WITH_THREAD
           __Pyx_FastGIL_Forget();
           Py_BLOCK_THREADS
           #endif
           goto __pyx_L1_error;
         }
-        __pyx_L5:;
+        __pyx_L7:;
       }
   }
 
-  /* "Toolbox/infcy.pyx":517
- *             MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], d+1)
+  /* "Toolbox/infcy.pyx":619
+ *             MI[n][d] = MIAtDist(model, snapshots, entropies, cv_nodes[n], allNeighbours[d+1])
  * 
- *     return MI.base             # <<<<<<<<<<<<<<
+ *     degrees = [model.graph.degree(model.rmapping[n]) for n in nodes]             # <<<<<<<<<<<<<<
+ * 
+ *     return MI.base, degrees
+ */
+  { /* enter inner scope */
+    __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 619, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    if (likely(PyList_CheckExact(((PyObject *)__pyx_v_nodes))) || PyTuple_CheckExact(((PyObject *)__pyx_v_nodes))) {
+      __pyx_t_7 = ((PyObject *)__pyx_v_nodes); __Pyx_INCREF(__pyx_t_7); __pyx_t_15 = 0;
+      __pyx_t_25 = NULL;
+    } else {
+      __pyx_t_15 = -1; __pyx_t_7 = PyObject_GetIter(((PyObject *)__pyx_v_nodes)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_7);
+      __pyx_t_25 = Py_TYPE(__pyx_t_7)->tp_iternext; if (unlikely(!__pyx_t_25)) __PYX_ERR(0, 619, __pyx_L1_error)
+    }
+    for (;;) {
+      if (likely(!__pyx_t_25)) {
+        if (likely(PyList_CheckExact(__pyx_t_7))) {
+          if (__pyx_t_15 >= PyList_GET_SIZE(__pyx_t_7)) break;
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_6 = PyList_GET_ITEM(__pyx_t_7, __pyx_t_15); __Pyx_INCREF(__pyx_t_6); __pyx_t_15++; if (unlikely(0 < 0)) __PYX_ERR(0, 619, __pyx_L1_error)
+          #else
+          __pyx_t_6 = PySequence_ITEM(__pyx_t_7, __pyx_t_15); __pyx_t_15++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 619, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_6);
+          #endif
+        } else {
+          if (__pyx_t_15 >= PyTuple_GET_SIZE(__pyx_t_7)) break;
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_7, __pyx_t_15); __Pyx_INCREF(__pyx_t_6); __pyx_t_15++; if (unlikely(0 < 0)) __PYX_ERR(0, 619, __pyx_L1_error)
+          #else
+          __pyx_t_6 = PySequence_ITEM(__pyx_t_7, __pyx_t_15); __pyx_t_15++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 619, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_6);
+          #endif
+        }
+      } else {
+        __pyx_t_6 = __pyx_t_25(__pyx_t_7);
+        if (unlikely(!__pyx_t_6)) {
+          PyObject* exc_type = PyErr_Occurred();
+          if (exc_type) {
+            if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
+            else __PYX_ERR(0, 619, __pyx_L1_error)
+          }
+          break;
+        }
+        __Pyx_GOTREF(__pyx_t_6);
+      }
+      __pyx_t_19 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_19 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __pyx_8genexpr3__pyx_v_n = __pyx_t_19;
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_graph); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_degree); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_rmapping); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_4, __pyx_8genexpr3__pyx_v_n, int, 1, __Pyx_PyInt_From_int, 0, 1, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_4 = NULL;
+      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+        __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+        if (likely(__pyx_t_4)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+          __Pyx_INCREF(__pyx_t_4);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_3, function);
+        }
+      }
+      __pyx_t_6 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_5);
+      __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_2, (PyObject*)__pyx_t_6))) __PYX_ERR(0, 619, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  } /* exit inner scope */
+  __pyx_v_degrees = ((PyObject*)__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":621
+ *     degrees = [model.graph.degree(model.rmapping[n]) for n in nodes]
+ * 
+ *     return MI.base, degrees             # <<<<<<<<<<<<<<
  * 
  * @cython.boundscheck(False)
  */
-  __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_7 = __pyx_memoryview_fromslice(__pyx_v_MI, 3, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 517, __pyx_L1_error)
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_MI, 3, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 621, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_base); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 621, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_base); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 517, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 517, __pyx_L1_error)
-  __pyx_r = ((PyArrayObject *)__pyx_t_3);
-  __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 621, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_7);
+  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_7);
+  __Pyx_INCREF(__pyx_v_degrees);
+  __Pyx_GIVEREF(__pyx_v_degrees);
+  PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_v_degrees);
+  __pyx_t_7 = 0;
+  __pyx_r = ((PyObject*)__pyx_t_2);
+  __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":488
+  /* "Toolbox/infcy.pyx":580
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cpdef np.ndarray runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax):             # <<<<<<<<<<<<<<
+ * cpdef tuple runMI(Model model, int repeats, int burninSamples, int nSamples, int distSamples, np.ndarray nodes, int distMax, double magThreshold=0, str targetDirectory=None):             # <<<<<<<<<<<<<<
  *     #states = model._states
  *     #code = encodeState(states)
  */
@@ -9125,15 +10559,16 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
   /* function exit code */
   __pyx_L1_error:;
   __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_2, 1);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_7);
   __PYX_XDEC_MEMVIEW(&__pyx_t_8, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_17, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_24, 1);
   __Pyx_AddTraceback("Toolbox.infcy.runMI", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
@@ -9141,16 +10576,15 @@ if (unlikely(__pyx_memoryview_copy_contents(__pyx_t_10, __pyx_t_17, 1, 1, 0) < 0
   __PYX_XDEC_MEMVIEW(&__pyx_v_snapshots, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_entropies, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_MI, 1);
-  __Pyx_XDECREF(__pyx_v_start);
-  __Pyx_XDECREF(__pyx_v_stop);
-  __Pyx_XGIVEREF((PyObject *)__pyx_r);
+  __Pyx_XDECREF(__pyx_v_degrees);
+  __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_21runMI(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_pw_7Toolbox_5infcy_21runMI(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_25runMI(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_25runMI(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
   int __pyx_v_repeats;
   int __pyx_v_burninSamples;
@@ -9158,16 +10592,23 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_21runMI(PyObject *__pyx_self, PyObject
   int __pyx_v_distSamples;
   PyArrayObject *__pyx_v_nodes = 0;
   int __pyx_v_distMax;
+  double __pyx_v_magThreshold;
+  PyObject *__pyx_v_targetDirectory = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("runMI (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_repeats,&__pyx_n_s_burninSamples,&__pyx_n_s_nSamples,&__pyx_n_s_distSamples,&__pyx_n_s_nodes,&__pyx_n_s_distMax,0};
-    PyObject* values[7] = {0,0,0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_repeats,&__pyx_n_s_burninSamples,&__pyx_n_s_nSamples,&__pyx_n_s_distSamples,&__pyx_n_s_nodes,&__pyx_n_s_distMax,&__pyx_n_s_magThreshold,&__pyx_n_s_targetDirectory,0};
+    PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
+    values[8] = ((PyObject*)Py_None);
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
+        CYTHON_FALLTHROUGH;
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
         case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
         CYTHON_FALLTHROUGH;
         case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
@@ -9194,72 +10635,97 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_21runMI(PyObject *__pyx_self, PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_repeats)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, 1); __PYX_ERR(0, 488, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, 1); __PYX_ERR(0, 580, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_burninSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, 2); __PYX_ERR(0, 488, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, 2); __PYX_ERR(0, 580, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, 3); __PYX_ERR(0, 488, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, 3); __PYX_ERR(0, 580, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_distSamples)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, 4); __PYX_ERR(0, 488, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, 4); __PYX_ERR(0, 580, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nodes)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, 5); __PYX_ERR(0, 488, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, 5); __PYX_ERR(0, 580, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  6:
         if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_distMax)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, 6); __PYX_ERR(0, 488, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, 6); __PYX_ERR(0, 580, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  7:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_magThreshold);
+          if (value) { values[7] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  8:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_targetDirectory);
+          if (value) { values[8] = value; kw_args--; }
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "runMI") < 0)) __PYX_ERR(0, 488, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "runMI") < 0)) __PYX_ERR(0, 580, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 7) {
-      goto __pyx_L5_argtuple_error;
     } else {
-      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
-      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
+        CYTHON_FALLTHROUGH;
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
     }
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
-    __pyx_v_repeats = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 488, __pyx_L3_error)
-    __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 488, __pyx_L3_error)
-    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 488, __pyx_L3_error)
-    __pyx_v_distSamples = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_distSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 488, __pyx_L3_error)
+    __pyx_v_repeats = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 580, __pyx_L3_error)
+    __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 580, __pyx_L3_error)
+    __pyx_v_nSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_nSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 580, __pyx_L3_error)
+    __pyx_v_distSamples = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_distSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 580, __pyx_L3_error)
     __pyx_v_nodes = ((PyArrayObject *)values[5]);
-    __pyx_v_distMax = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_distMax == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 488, __pyx_L3_error)
+    __pyx_v_distMax = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_distMax == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 580, __pyx_L3_error)
+    if (values[7]) {
+      __pyx_v_magThreshold = __pyx_PyFloat_AsDouble(values[7]); if (unlikely((__pyx_v_magThreshold == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 580, __pyx_L3_error)
+    } else {
+      __pyx_v_magThreshold = ((double)0.0);
+    }
+    __pyx_v_targetDirectory = ((PyObject*)values[8]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("runMI", 1, 7, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 488, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("runMI", 0, 7, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 580, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.runMI", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 488, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_nodes), __pyx_ptype_5numpy_ndarray, 1, "nodes", 0))) __PYX_ERR(0, 488, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_20runMI(__pyx_self, __pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, __pyx_v_nodes, __pyx_v_distMax);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 580, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_nodes), __pyx_ptype_5numpy_ndarray, 1, "nodes", 0))) __PYX_ERR(0, 580, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_targetDirectory), (&PyUnicode_Type), 1, "targetDirectory", 1))) __PYX_ERR(0, 580, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_24runMI(__pyx_self, __pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, __pyx_v_nodes, __pyx_v_distMax, __pyx_v_magThreshold, __pyx_v_targetDirectory);
 
   /* function exit code */
   goto __pyx_L0;
@@ -9270,13 +10736,17 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_21runMI(PyObject *__pyx_self, PyObject
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_20runMI(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, PyArrayObject *__pyx_v_nodes, int __pyx_v_distMax) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_24runMI(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_repeats, int __pyx_v_burninSamples, int __pyx_v_nSamples, int __pyx_v_distSamples, PyArrayObject *__pyx_v_nodes, int __pyx_v_distMax, double __pyx_v_magThreshold, PyObject *__pyx_v_targetDirectory) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
+  struct __pyx_opt_args_7Toolbox_5infcy_runMI __pyx_t_2;
   __Pyx_RefNannySetupContext("runMI", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_runMI(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, __pyx_v_nodes, __pyx_v_distMax, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
+  __pyx_t_2.__pyx_n = 2;
+  __pyx_t_2.magThreshold = __pyx_v_magThreshold;
+  __pyx_t_2.targetDirectory = __pyx_v_targetDirectory;
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_runMI(__pyx_v_model, __pyx_v_repeats, __pyx_v_burninSamples, __pyx_v_nSamples, __pyx_v_distSamples, __pyx_v_nodes, __pyx_v_distMax, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 580, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9293,15 +10763,16 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_20runMI(CYTHON_UNUSED PyObject *__pyx_
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":525
+/* "Toolbox/infcy.pyx":629
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cdef double mean(long[::1] arr, long len) nogil:             # <<<<<<<<<<<<<<
+ * cdef double mean(long[::1] arr, long len, int abs=0) nogil:             # <<<<<<<<<<<<<<
  *     cdef:
  *         double mu = 0
  */
 
-static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long __pyx_v_len) {
+static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long __pyx_v_len, struct __pyx_opt_args_7Toolbox_5infcy_mean *__pyx_optional_args) {
+  int __pyx_v_abs = ((int)0);
   double __pyx_v_mu;
   long __pyx_v_i;
   double __pyx_r;
@@ -9309,9 +10780,16 @@ static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long 
   long __pyx_t_2;
   long __pyx_t_3;
   Py_ssize_t __pyx_t_4;
+  int __pyx_t_5;
+  int __pyx_t_6;
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_abs = __pyx_optional_args->abs;
+    }
+  }
 
-  /* "Toolbox/infcy.pyx":527
- * cdef double mean(long[::1] arr, long len) nogil:
+  /* "Toolbox/infcy.pyx":631
+ * cdef double mean(long[::1] arr, long len, int abs=0) nogil:
  *     cdef:
  *         double mu = 0             # <<<<<<<<<<<<<<
  *         long i
@@ -9319,7 +10797,7 @@ static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long 
  */
   __pyx_v_mu = 0.0;
 
-  /* "Toolbox/infcy.pyx":529
+  /* "Toolbox/infcy.pyx":633
  *         double mu = 0
  *         long i
  *     for i in range(len):             # <<<<<<<<<<<<<<
@@ -9331,40 +10809,79 @@ static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long 
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "Toolbox/infcy.pyx":530
+    /* "Toolbox/infcy.pyx":634
  *         long i
  *     for i in range(len):
  *         mu = mu + arr[i]             # <<<<<<<<<<<<<<
  *     mu = mu / len
- *     return mu
+ * 
  */
     __pyx_t_4 = __pyx_v_i;
     __pyx_v_mu = (__pyx_v_mu + (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_arr.data) + __pyx_t_4)) ))));
   }
 
-  /* "Toolbox/infcy.pyx":531
+  /* "Toolbox/infcy.pyx":635
  *     for i in range(len):
  *         mu = mu + arr[i]
  *     mu = mu / len             # <<<<<<<<<<<<<<
- *     return mu
  * 
+ *     if abs and mu < 0:
  */
   __pyx_v_mu = (__pyx_v_mu / ((double)__pyx_v_len));
 
-  /* "Toolbox/infcy.pyx":532
- *         mu = mu + arr[i]
+  /* "Toolbox/infcy.pyx":637
  *     mu = mu / len
- *     return mu             # <<<<<<<<<<<<<<
+ * 
+ *     if abs and mu < 0:             # <<<<<<<<<<<<<<
+ *         return -mu
+ *     else:
+ */
+  __pyx_t_6 = (__pyx_v_abs != 0);
+  if (__pyx_t_6) {
+  } else {
+    __pyx_t_5 = __pyx_t_6;
+    goto __pyx_L6_bool_binop_done;
+  }
+  __pyx_t_6 = ((__pyx_v_mu < 0.0) != 0);
+  __pyx_t_5 = __pyx_t_6;
+  __pyx_L6_bool_binop_done:;
+  if (__pyx_t_5) {
+
+    /* "Toolbox/infcy.pyx":638
+ * 
+ *     if abs and mu < 0:
+ *         return -mu             # <<<<<<<<<<<<<<
+ *     else:
+ *         return mu
+ */
+    __pyx_r = (-__pyx_v_mu);
+    goto __pyx_L0;
+
+    /* "Toolbox/infcy.pyx":637
+ *     mu = mu / len
+ * 
+ *     if abs and mu < 0:             # <<<<<<<<<<<<<<
+ *         return -mu
+ *     else:
+ */
+  }
+
+  /* "Toolbox/infcy.pyx":640
+ *         return -mu
+ *     else:
+ *         return mu             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_r = __pyx_v_mu;
-  goto __pyx_L0;
+  /*else*/ {
+    __pyx_r = __pyx_v_mu;
+    goto __pyx_L0;
+  }
 
-  /* "Toolbox/infcy.pyx":525
+  /* "Toolbox/infcy.pyx":629
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
- * cdef double mean(long[::1] arr, long len) nogil:             # <<<<<<<<<<<<<<
+ * cdef double mean(long[::1] arr, long len, int abs=0) nogil:             # <<<<<<<<<<<<<<
  *     cdef:
  *         double mu = 0
  */
@@ -9374,7 +10891,7 @@ static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long 
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":541
+/* "Toolbox/infcy.pyx":649
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef np.ndarray magnetizationParallel(Model model,\             # <<<<<<<<<<<<<<
@@ -9382,7 +10899,7 @@ static double __pyx_f_7Toolbox_5infcy_mean(__Pyx_memviewslice __pyx_v_arr, long 
  *                       int n             = int(1e3),\
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_23magnetizationParallel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_27magnetizationParallel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_magnetizationParallel *__pyx_optional_args) {
   PyArrayObject *__pyx_v_temps = __pyx_k__6;
   int __pyx_v_n = __pyx_k__7;
@@ -9404,7 +10921,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   PyArrayObject *__pyx_v_results = 0;
   __Pyx_memviewslice __pyx_v_cview_results = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_v_pbar = NULL;
-  int __pyx_8genexpr3__pyx_v_t;
+  int __pyx_8genexpr4__pyx_v_t;
   PyArrayObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -9426,15 +10943,14 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   PyObject *__pyx_t_17;
   struct __pyx_obj_6Models_6models_Model *__pyx_t_18 = NULL;
   __Pyx_memviewslice __pyx_t_19 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  struct __pyx_opt_args_7Toolbox_5infcy_simulate __pyx_t_20;
-  std::vector<double>  __pyx_t_21;
-  struct __pyx_opt_args_7Toolbox_5infcy_simulateGetMeanMag __pyx_t_22;
-  double __pyx_t_23;
+  std::vector<double>  __pyx_t_20;
+  struct __pyx_opt_args_7Toolbox_5infcy_simulateGetMeanMag __pyx_t_21;
+  double __pyx_t_22;
+  Py_ssize_t __pyx_t_23;
   Py_ssize_t __pyx_t_24;
   Py_ssize_t __pyx_t_25;
   Py_ssize_t __pyx_t_26;
   Py_ssize_t __pyx_t_27;
-  Py_ssize_t __pyx_t_28;
   __Pyx_RefNannySetupContext("magnetizationParallel", 0);
   if (__pyx_optional_args) {
     if (__pyx_optional_args->__pyx_n > 0) {
@@ -9448,29 +10964,29 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
     }
   }
 
-  /* "Toolbox/infcy.pyx":559
+  /* "Toolbox/infcy.pyx":667
  * 
  *     # if workload is small, use serial implementation
- *     if n <= 1e4:             # <<<<<<<<<<<<<<
+ *     if n < 1e4:             # <<<<<<<<<<<<<<
  *         return model.matchMagnetization(temps, n, burninSamples)
  * 
  */
-  __pyx_t_1 = ((__pyx_v_n <= 1e4) != 0);
+  __pyx_t_1 = ((__pyx_v_n < 1e4) != 0);
   if (__pyx_t_1) {
 
-    /* "Toolbox/infcy.pyx":560
+    /* "Toolbox/infcy.pyx":668
  *     # if workload is small, use serial implementation
- *     if n <= 1e4:
+ *     if n < 1e4:
  *         return model.matchMagnetization(temps, n, burninSamples)             # <<<<<<<<<<<<<<
  * 
  *     # otherwise parallel is faster
  */
     __Pyx_XDECREF(((PyObject *)__pyx_r));
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_matchMagnetization); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 560, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_matchMagnetization); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 668, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 560, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_n); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 668, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_burninSamples); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 560, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_burninSamples); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 668, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_6 = NULL;
     __pyx_t_7 = 0;
@@ -9487,7 +11003,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[4] = {__pyx_t_6, ((PyObject *)__pyx_v_temps), __pyx_t_4, __pyx_t_5};
-      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 560, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 668, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -9497,7 +11013,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
       PyObject *__pyx_temp[4] = {__pyx_t_6, ((PyObject *)__pyx_v_temps), __pyx_t_4, __pyx_t_5};
-      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 560, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 668, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -9505,7 +11021,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
     } else
     #endif
     {
-      __pyx_t_8 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 560, __pyx_L1_error)
+      __pyx_t_8 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 668, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
       if (__pyx_t_6) {
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -9519,26 +11035,26 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
       PyTuple_SET_ITEM(__pyx_t_8, 2+__pyx_t_7, __pyx_t_5);
       __pyx_t_4 = 0;
       __pyx_t_5 = 0;
-      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 560, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 668, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 560, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 668, __pyx_L1_error)
     __pyx_r = ((PyArrayObject *)__pyx_t_2);
     __pyx_t_2 = 0;
     goto __pyx_L0;
 
-    /* "Toolbox/infcy.pyx":559
+    /* "Toolbox/infcy.pyx":667
  * 
  *     # if workload is small, use serial implementation
- *     if n <= 1e4:             # <<<<<<<<<<<<<<
+ *     if n < 1e4:             # <<<<<<<<<<<<<<
  *         return model.matchMagnetization(temps, n, burninSamples)
  * 
  */
   }
 
-  /* "Toolbox/infcy.pyx":567
+  /* "Toolbox/infcy.pyx":675
  *         vector[PyObjectHolder] models_
  *         Model tmp
  *         long idx, nNodes = model._nNodes             # <<<<<<<<<<<<<<
@@ -9548,16 +11064,16 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   __pyx_t_7 = __pyx_v_model->_nNodes;
   __pyx_v_nNodes = __pyx_t_7;
 
-  /* "Toolbox/infcy.pyx":569
+  /* "Toolbox/infcy.pyx":677
  *         long idx, nNodes = model._nNodes
  *         int t, step, start, tid
  *         int nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
  *         int nTemps = temps.shape[0]
  *         int totalSteps = n + burninSamples
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_mp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 569, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_mp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 677, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 569, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 677, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -9572,14 +11088,14 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   }
   __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 569, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 677, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 569, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 677, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_nThreads = __pyx_t_7;
 
-  /* "Toolbox/infcy.pyx":570
+  /* "Toolbox/infcy.pyx":678
  *         int t, step, start, tid
  *         int nThreads = mp.cpu_count()
  *         int nTemps = temps.shape[0]             # <<<<<<<<<<<<<<
@@ -9588,7 +11104,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  */
   __pyx_v_nTemps = (__pyx_v_temps->dimensions[0]);
 
-  /* "Toolbox/infcy.pyx":571
+  /* "Toolbox/infcy.pyx":679
  *         int nThreads = mp.cpu_count()
  *         int nTemps = temps.shape[0]
  *         int totalSteps = n + burninSamples             # <<<<<<<<<<<<<<
@@ -9597,45 +11113,45 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  */
   __pyx_v_totalSteps = (__pyx_v_n + __pyx_v_burninSamples);
 
-  /* "Toolbox/infcy.pyx":574
+  /* "Toolbox/infcy.pyx":682
  *         double sum, sum_square, m
  *         vector[double] mag_sum
  *         np.ndarray betas = np.array([1 / t if t != 0 else np.inf for t in temps])             # <<<<<<<<<<<<<<
  *         double[::1] cview_betas = betas
  *         np.ndarray results = np.zeros((2, nTemps))
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 574, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 682, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 574, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 682, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   { /* enter inner scope */
-    __pyx_t_8 = PyList_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 574, __pyx_L1_error)
+    __pyx_t_8 = PyList_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 682, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     if (likely(PyList_CheckExact(((PyObject *)__pyx_v_temps))) || PyTuple_CheckExact(((PyObject *)__pyx_v_temps))) {
       __pyx_t_5 = ((PyObject *)__pyx_v_temps); __Pyx_INCREF(__pyx_t_5); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_5 = PyObject_GetIter(((PyObject *)__pyx_v_temps)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 574, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_5 = PyObject_GetIter(((PyObject *)__pyx_v_temps)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 682, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_10 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 574, __pyx_L1_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 682, __pyx_L1_error)
     }
     for (;;) {
       if (likely(!__pyx_t_10)) {
         if (likely(PyList_CheckExact(__pyx_t_5))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_5)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_4 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_9); __Pyx_INCREF(__pyx_t_4); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 574, __pyx_L1_error)
+          __pyx_t_4 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_9); __Pyx_INCREF(__pyx_t_4); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 682, __pyx_L1_error)
           #else
-          __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 574, __pyx_L1_error)
+          __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 682, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_4);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_5)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_9); __Pyx_INCREF(__pyx_t_4); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 574, __pyx_L1_error)
+          __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_9); __Pyx_INCREF(__pyx_t_4); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 682, __pyx_L1_error)
           #else
-          __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 574, __pyx_L1_error)
+          __pyx_t_4 = PySequence_ITEM(__pyx_t_5, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 682, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_4);
           #endif
         }
@@ -9645,30 +11161,30 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 574, __pyx_L1_error)
+            else __PYX_ERR(0, 682, __pyx_L1_error)
           }
           break;
         }
         __Pyx_GOTREF(__pyx_t_4);
       }
-      __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 574, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 682, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_8genexpr3__pyx_v_t = __pyx_t_7;
-      if (((__pyx_8genexpr3__pyx_v_t != 0) != 0)) {
-        __pyx_t_6 = __Pyx_PyInt_From_long((1 / ((long)__pyx_8genexpr3__pyx_v_t))); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 574, __pyx_L1_error)
+      __pyx_8genexpr4__pyx_v_t = __pyx_t_7;
+      if (((__pyx_8genexpr4__pyx_v_t != 0) != 0)) {
+        __pyx_t_6 = __Pyx_PyInt_From_long((1 / ((long)__pyx_8genexpr4__pyx_v_t))); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 682, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __pyx_t_4 = __pyx_t_6;
         __pyx_t_6 = 0;
       } else {
-        __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 574, __pyx_L1_error)
+        __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 682, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_inf); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 574, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_inf); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 682, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __pyx_t_4 = __pyx_t_11;
         __pyx_t_11 = 0;
       }
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_8, (PyObject*)__pyx_t_4))) __PYX_ERR(0, 574, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_8, (PyObject*)__pyx_t_4))) __PYX_ERR(0, 682, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -9686,40 +11202,40 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_8) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_8);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 574, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 682, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 574, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 682, __pyx_L1_error)
   __pyx_v_betas = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":575
+  /* "Toolbox/infcy.pyx":683
  *         vector[double] mag_sum
  *         np.ndarray betas = np.array([1 / t if t != 0 else np.inf for t in temps])
  *         double[::1] cview_betas = betas             # <<<<<<<<<<<<<<
  *         np.ndarray results = np.zeros((2, nTemps))
  *         double[:,::1] cview_results = results
  */
-  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_v_betas), PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 575, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(((PyObject *)__pyx_v_betas), PyBUF_WRITABLE); if (unlikely(!__pyx_t_12.memview)) __PYX_ERR(0, 683, __pyx_L1_error)
   __pyx_v_cview_betas = __pyx_t_12;
   __pyx_t_12.memview = NULL;
   __pyx_t_12.data = NULL;
 
-  /* "Toolbox/infcy.pyx":576
+  /* "Toolbox/infcy.pyx":684
  *         np.ndarray betas = np.array([1 / t if t != 0 else np.inf for t in temps])
  *         double[::1] cview_betas = betas
  *         np.ndarray results = np.zeros((2, nTemps))             # <<<<<<<<<<<<<<
  *         double[:,::1] cview_results = results
  *         #long[:, ::1] r = model.sampleNodes( n * nTemps) # TODO sample in smaller blocks to avoid memory error!
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 576, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 684, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 576, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 684, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_nTemps); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 576, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_nTemps); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 684, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 576, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 684, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
@@ -9740,26 +11256,26 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_3, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 576, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 684, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 576, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 684, __pyx_L1_error)
   __pyx_v_results = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":577
+  /* "Toolbox/infcy.pyx":685
  *         double[::1] cview_betas = betas
  *         np.ndarray results = np.zeros((2, nTemps))
  *         double[:,::1] cview_results = results             # <<<<<<<<<<<<<<
  *         #long[:, ::1] r = model.sampleNodes( n * nTemps) # TODO sample in smaller blocks to avoid memory error!
  * 
  */
-  __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_v_results), PyBUF_WRITABLE); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 577, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_to_MemoryviewSlice_d_dc_double(((PyObject *)__pyx_v_results), PyBUF_WRITABLE); if (unlikely(!__pyx_t_13.memview)) __PYX_ERR(0, 685, __pyx_L1_error)
   __pyx_v_cview_results = __pyx_t_13;
   __pyx_t_13.memview = NULL;
   __pyx_t_13.data = NULL;
 
-  /* "Toolbox/infcy.pyx":583
+  /* "Toolbox/infcy.pyx":691
  * 
  *     # threadsafe model access
  *     for t in range(nThreads):             # <<<<<<<<<<<<<<
@@ -9771,16 +11287,16 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_14; __pyx_t_15+=1) {
     __pyx_v_t = __pyx_t_15;
 
-    /* "Toolbox/infcy.pyx":584
+    /* "Toolbox/infcy.pyx":692
  *     # threadsafe model access
  *     for t in range(nThreads):
  *         tmp = copy.deepcopy(model)             # <<<<<<<<<<<<<<
  *         #tmp.reset()
  *         #tmp.seed += t # enforce different seeds
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_copy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 584, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_copy); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 692, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 584, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 692, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __pyx_t_8 = NULL;
@@ -9795,14 +11311,14 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
     }
     __pyx_t_2 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_8, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_5, ((PyObject *)__pyx_v_model));
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 584, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 692, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 584, __pyx_L1_error)
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 692, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_tmp, ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_2));
     __pyx_t_2 = 0;
 
-    /* "Toolbox/infcy.pyx":589
+    /* "Toolbox/infcy.pyx":697
  *         #tmp.t = temps[t]
  *         #modelsPy.append(tmp)
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))             # <<<<<<<<<<<<<<
@@ -9813,33 +11329,33 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
       __pyx_v_models_.push_back(PyObjectHolder(((PyObject *)__pyx_v_tmp)));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 589, __pyx_L1_error)
+      __PYX_ERR(0, 697, __pyx_L1_error)
     }
   }
 
-  /* "Toolbox/infcy.pyx":593
+  /* "Toolbox/infcy.pyx":701
  * 
  *     #tid = threadid()
  *     pbar = tqdm(total = nTemps)             # <<<<<<<<<<<<<<
  *     for t in prange(nTemps, nogil = True, \
  *                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 701, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 701, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_nTemps); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_nTemps); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 701, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_total, __pyx_t_8) < 0) __PYX_ERR(0, 593, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_total, __pyx_t_8) < 0) __PYX_ERR(0, 701, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 593, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 701, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_v_pbar = __pyx_t_8;
   __pyx_t_8 = 0;
 
-  /* "Toolbox/infcy.pyx":594
+  /* "Toolbox/infcy.pyx":702
  *     #tid = threadid()
  *     pbar = tqdm(total = nTemps)
  *     for t in prange(nTemps, nogil = True, \             # <<<<<<<<<<<<<<
@@ -9876,7 +11392,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
             if (__pyx_t_15 > 0)
             {
                 #ifdef _OPENMP
-                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_16, __pyx_t_17, __pyx_t_20, __pyx_t_21, __pyx_t_22, __pyx_t_23, __pyx_t_24, __pyx_t_25, __pyx_t_26, __pyx_t_27, __pyx_t_28) firstprivate(__pyx_t_18, __pyx_t_19, __pyx_t_2, __pyx_t_5, __pyx_t_8) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
+                #pragma omp parallel num_threads(__pyx_v_nThreads) private(__pyx_t_16, __pyx_t_17, __pyx_t_20, __pyx_t_21, __pyx_t_22, __pyx_t_23, __pyx_t_24, __pyx_t_25, __pyx_t_26, __pyx_t_27) firstprivate(__pyx_t_18, __pyx_t_19, __pyx_t_2, __pyx_t_5, __pyx_t_8) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
                 #endif /* _OPENMP */
                 {
                     #ifdef _OPENMP
@@ -9898,7 +11414,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                             __pyx_v_sum_square = ((double)__PYX_NAN());
                             __pyx_v_tid = ((int)0xbad0bad0);
 
-                            /* "Toolbox/infcy.pyx":596
+                            /* "Toolbox/infcy.pyx":704
  *     for t in prange(nTemps, nogil = True, \
  *                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
  *         tid = threadid()             # <<<<<<<<<<<<<<
@@ -9912,7 +11428,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                             #endif
                             __pyx_v_tid = __pyx_t_16;
 
-                            /* "Toolbox/infcy.pyx":597
+                            /* "Toolbox/infcy.pyx":705
  *                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
  *         tid = threadid()
  *         with gil:             # <<<<<<<<<<<<<<
@@ -9925,7 +11441,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                                 #endif
                                 /*try:*/ {
 
-                                  /* "Toolbox/infcy.pyx":598
+                                  /* "Toolbox/infcy.pyx":706
  *         tid = threadid()
  *         with gil:
  *             (<Model>models_[tid].ptr).reset()             # <<<<<<<<<<<<<<
@@ -9935,7 +11451,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                                   __pyx_t_17 = (__pyx_v_models_[__pyx_v_tid]).ptr;
                                   ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17)->__pyx_vtab)->reset(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17), 0);
 
-                                  /* "Toolbox/infcy.pyx":599
+                                  /* "Toolbox/infcy.pyx":707
  *         with gil:
  *             (<Model>models_[tid].ptr).reset()
  *             (<Model>models_[tid].ptr).seed += t             # <<<<<<<<<<<<<<
@@ -9945,33 +11461,33 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                                   __pyx_t_17 = (__pyx_v_models_[__pyx_v_tid]).ptr;
                                   __Pyx_INCREF(((PyObject *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17)));
                                   __pyx_t_18 = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17);
-                                  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 599, __pyx_L18_error)
+                                  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 707, __pyx_L18_error)
                                   __Pyx_GOTREF(__pyx_t_8);
-                                  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_t); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 599, __pyx_L18_error)
+                                  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_t); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 707, __pyx_L18_error)
                                   __Pyx_GOTREF(__pyx_t_5);
-                                  __pyx_t_2 = PyNumber_InPlaceAdd(__pyx_t_8, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 599, __pyx_L18_error)
+                                  __pyx_t_2 = PyNumber_InPlaceAdd(__pyx_t_8, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 707, __pyx_L18_error)
                                   __Pyx_GOTREF(__pyx_t_2);
                                   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
                                   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed, __pyx_t_2) < 0) __PYX_ERR(0, 599, __pyx_L18_error)
+                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed, __pyx_t_2) < 0) __PYX_ERR(0, 707, __pyx_L18_error)
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                   __Pyx_DECREF(((PyObject *)__pyx_t_18)); __pyx_t_18 = 0;
 
-                                  /* "Toolbox/infcy.pyx":600
+                                  /* "Toolbox/infcy.pyx":708
  *             (<Model>models_[tid].ptr).reset()
  *             (<Model>models_[tid].ptr).seed += t
  *             (<Model>models_[tid].ptr).t = temps[t]             # <<<<<<<<<<<<<<
  *         # simulate until equilibrium reached
  *         #start = t * totalSteps
  */
-                                  __pyx_t_2 = __Pyx_GetItemInt(((PyObject *)__pyx_v_temps), __pyx_v_t, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 600, __pyx_L18_error)
+                                  __pyx_t_2 = __Pyx_GetItemInt(((PyObject *)__pyx_v_temps), __pyx_v_t, int, 1, __Pyx_PyInt_From_int, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 708, __pyx_L18_error)
                                   __Pyx_GOTREF(__pyx_t_2);
                                   __pyx_t_17 = (__pyx_v_models_[__pyx_v_tid]).ptr;
-                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_17), __pyx_n_s_t, __pyx_t_2) < 0) __PYX_ERR(0, 600, __pyx_L18_error)
+                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_17), __pyx_n_s_t, __pyx_t_2) < 0) __PYX_ERR(0, 708, __pyx_L18_error)
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                 }
 
-                                /* "Toolbox/infcy.pyx":597
+                                /* "Toolbox/infcy.pyx":705
  *                          schedule = 'static', num_threads = nThreads): # simulate with different temps in parallel
  *         tid = threadid()
  *         with gil:             # <<<<<<<<<<<<<<
@@ -9995,23 +11511,21 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                                 }
                             }
 
-                            /* "Toolbox/infcy.pyx":606
+                            /* "Toolbox/infcy.pyx":714
  *         #    idx = start + step
  *         #    (<Model>models_[t].ptr)._updateState(r[idx])
- *         simulate((<Model>models_[tid].ptr), burninSamples)             # <<<<<<<<<<<<<<
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)             # <<<<<<<<<<<<<<
  * 
  *         sum = 0
  */
                             __pyx_t_17 = (__pyx_v_models_[__pyx_v_tid]).ptr;
-                            __pyx_t_20.__pyx_n = 1;
-                            __pyx_t_20.nSamples = __pyx_v_burninSamples;
-                            __pyx_t_19 = __pyx_f_7Toolbox_5infcy_simulate(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17), &__pyx_t_20); if (unlikely(!__pyx_t_19.memview)) __PYX_ERR(0, 606, __pyx_L13_error)
+                            __pyx_t_19 = ((struct __pyx_vtabstruct_6Models_6models_Model *)((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17)->__pyx_vtab)->simulateNSteps(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17), __pyx_v_burninSamples); if (unlikely(!__pyx_t_19.memview)) __PYX_ERR(0, 714, __pyx_L13_error)
                             __PYX_XDEC_MEMVIEW(&__pyx_t_19, 0);
                             __pyx_t_19.memview = NULL;
                             __pyx_t_19.data = NULL;
 
-                            /* "Toolbox/infcy.pyx":608
- *         simulate((<Model>models_[tid].ptr), burninSamples)
+                            /* "Toolbox/infcy.pyx":716
+ *         (<Model>models_[tid].ptr).simulateNSteps(burninSamples)
  * 
  *         sum = 0             # <<<<<<<<<<<<<<
  *         sum_square = 0
@@ -10019,7 +11533,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  */
                             __pyx_v_sum = 0.0;
 
-                            /* "Toolbox/infcy.pyx":609
+                            /* "Toolbox/infcy.pyx":717
  * 
  *         sum = 0
  *         sum_square = 0             # <<<<<<<<<<<<<<
@@ -10028,7 +11542,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  */
                             __pyx_v_sum_square = 0.0;
 
-                            /* "Toolbox/infcy.pyx":617
+                            /* "Toolbox/infcy.pyx":725
  *         #    sum_square = sum_square + (m*m)
  * 
  *         mag_sum = simulateGetMeanMag((<Model>models_[tid].ptr), n)             # <<<<<<<<<<<<<<
@@ -10036,12 +11550,12 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  *         m = mag_sum[0] / n
  */
                             __pyx_t_17 = (__pyx_v_models_[__pyx_v_tid]).ptr;
-                            __pyx_t_22.__pyx_n = 1;
-                            __pyx_t_22.nSamples = __pyx_v_n;
-                            __pyx_t_21 = __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17), &__pyx_t_22); 
-                            __pyx_v_mag_sum = __pyx_t_21;
+                            __pyx_t_21.__pyx_n = 1;
+                            __pyx_t_21.nSamples = __pyx_v_n;
+                            __pyx_t_20 = __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(((struct __pyx_obj_6Models_6models_Model *)__pyx_t_17), &__pyx_t_21); 
+                            __pyx_v_mag_sum = __pyx_t_20;
 
-                            /* "Toolbox/infcy.pyx":619
+                            /* "Toolbox/infcy.pyx":727
  *         mag_sum = simulateGetMeanMag((<Model>models_[tid].ptr), n)
  * 
  *         m = mag_sum[0] / n             # <<<<<<<<<<<<<<
@@ -10050,7 +11564,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  */
                             __pyx_v_m = (((double)(__pyx_v_mag_sum[0])) / ((double)__pyx_v_n));
 
-                            /* "Toolbox/infcy.pyx":620
+                            /* "Toolbox/infcy.pyx":728
  * 
  *         m = mag_sum[0] / n
  *         cview_results[0][t] = m if m > 0 else -m             # <<<<<<<<<<<<<<
@@ -10058,27 +11572,27 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
  * 
  */
                             if (((__pyx_v_m > 0.0) != 0)) {
-                              __pyx_t_23 = __pyx_v_m;
+                              __pyx_t_22 = __pyx_v_m;
                             } else {
-                              __pyx_t_23 = (-__pyx_v_m);
+                              __pyx_t_22 = (-__pyx_v_m);
                             }
-                            __pyx_t_24 = 0;
-                            __pyx_t_25 = __pyx_v_t;
-                            *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_cview_results.data + __pyx_t_24 * __pyx_v_cview_results.strides[0]) )) + __pyx_t_25)) )) = __pyx_t_23;
+                            __pyx_t_23 = 0;
+                            __pyx_t_24 = __pyx_v_t;
+                            *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_cview_results.data + __pyx_t_23 * __pyx_v_cview_results.strides[0]) )) + __pyx_t_24)) )) = __pyx_t_22;
 
-                            /* "Toolbox/infcy.pyx":621
+                            /* "Toolbox/infcy.pyx":729
  *         m = mag_sum[0] / n
  *         cview_results[0][t] = m if m > 0 else -m
  *         cview_results[1][t] = ((mag_sum[1] / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta             # <<<<<<<<<<<<<<
  * 
  *         with gil:
  */
-                            __pyx_t_26 = __pyx_v_t;
-                            __pyx_t_27 = 1;
-                            __pyx_t_28 = __pyx_v_t;
-                            *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_cview_results.data + __pyx_t_27 * __pyx_v_cview_results.strides[0]) )) + __pyx_t_28)) )) = (((((double)(__pyx_v_mag_sum[1])) / ((double)__pyx_v_n)) - (__pyx_v_m * __pyx_v_m)) * (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_cview_betas.data) + __pyx_t_26)) ))));
+                            __pyx_t_25 = __pyx_v_t;
+                            __pyx_t_26 = 1;
+                            __pyx_t_27 = __pyx_v_t;
+                            *((double *) ( /* dim=1 */ ((char *) (((double *) ( /* dim=0 */ (__pyx_v_cview_results.data + __pyx_t_26 * __pyx_v_cview_results.strides[0]) )) + __pyx_t_27)) )) = (((((double)(__pyx_v_mag_sum[1])) / ((double)__pyx_v_n)) - (__pyx_v_m * __pyx_v_m)) * (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_cview_betas.data) + __pyx_t_25)) ))));
 
-                            /* "Toolbox/infcy.pyx":623
+                            /* "Toolbox/infcy.pyx":731
  *         cview_results[1][t] = ((mag_sum[1] / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta
  * 
  *         with gil:             # <<<<<<<<<<<<<<
@@ -10091,14 +11605,14 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                                 #endif
                                 /*try:*/ {
 
-                                  /* "Toolbox/infcy.pyx":624
+                                  /* "Toolbox/infcy.pyx":732
  * 
  *         with gil:
  *             pbar.update(1)             # <<<<<<<<<<<<<<
  * 
  *     return results
  */
-                                  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 624, __pyx_L23_error)
+                                  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_pbar, __pyx_n_s_update); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 732, __pyx_L23_error)
                                   __Pyx_GOTREF(__pyx_t_5);
                                   __pyx_t_8 = NULL;
                                   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
@@ -10112,13 +11626,13 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                                   }
                                   __pyx_t_2 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_8, __pyx_int_1) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_int_1);
                                   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-                                  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 624, __pyx_L23_error)
+                                  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 732, __pyx_L23_error)
                                   __Pyx_GOTREF(__pyx_t_2);
                                   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
                                   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
                                 }
 
-                                /* "Toolbox/infcy.pyx":623
+                                /* "Toolbox/infcy.pyx":731
  *         cview_results[1][t] = ((mag_sum[1] / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta
  * 
  *         with gil:             # <<<<<<<<<<<<<<
@@ -10163,7 +11677,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
                             goto __pyx_L25;
                             __pyx_L25:;
                             #ifdef _OPENMP
-                            #pragma omp critical(__pyx_parallel_lastprivates4)
+                            #pragma omp critical(__pyx_parallel_lastprivates5)
                             #endif /* _OPENMP */
                             {
                                 __pyx_parallel_temp0 = __pyx_v_m;
@@ -10241,7 +11755,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
         #endif
       }
 
-      /* "Toolbox/infcy.pyx":594
+      /* "Toolbox/infcy.pyx":702
  *     #tid = threadid()
  *     pbar = tqdm(total = nTemps)
  *     for t in prange(nTemps, nogil = True, \             # <<<<<<<<<<<<<<
@@ -10267,7 +11781,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
       }
   }
 
-  /* "Toolbox/infcy.pyx":626
+  /* "Toolbox/infcy.pyx":734
  *             pbar.update(1)
  * 
  *     return results             # <<<<<<<<<<<<<<
@@ -10279,7 +11793,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
   __pyx_r = __pyx_v_results;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":541
+  /* "Toolbox/infcy.pyx":649
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cpdef np.ndarray magnetizationParallel(Model model,\             # <<<<<<<<<<<<<<
@@ -10315,9 +11829,9 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_magnetizationParallel(struct __pyx
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_23magnetizationParallel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_7Toolbox_5infcy_22magnetizationParallel[] = "\n    Computes the magnetization as a function of temperatures\n    Input:\n          :model: the model to use for simulations\n          :temps: a range of temperatures\n          :n:     number of samples to simulate for\n          :burninSamples: number of samples to throw away before sampling\n    Returns:\n          :temps: the temperature range as input\n          :mag:  the magnetization for t in temps\n          :sus:  the magnetic susceptibility\n    ";
-static PyObject *__pyx_pw_7Toolbox_5infcy_23magnetizationParallel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_27magnetizationParallel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7Toolbox_5infcy_26magnetizationParallel[] = "\n    Computes the magnetization as a function of temperatures\n    Input:\n          :model: the model to use for simulations\n          :temps: a range of temperatures\n          :n:     number of samples to simulate for\n          :burninSamples: number of samples to throw away before sampling\n    Returns:\n          :temps: the temperature range as input\n          :mag:  the magnetization for t in temps\n          :sus:  the magnetic susceptibility\n    ";
+static PyObject *__pyx_pw_7Toolbox_5infcy_27magnetizationParallel(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
   PyArrayObject *__pyx_v_temps = 0;
   int __pyx_v_n;
@@ -10369,7 +11883,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_23magnetizationParallel(PyObject *__py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "magnetizationParallel") < 0)) __PYX_ERR(0, 541, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "magnetizationParallel") < 0)) __PYX_ERR(0, 649, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -10387,27 +11901,27 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_23magnetizationParallel(PyObject *__py
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
     __pyx_v_temps = ((PyArrayObject *)values[1]);
     if (values[2]) {
-      __pyx_v_n = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_n == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 543, __pyx_L3_error)
+      __pyx_v_n = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_n == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 651, __pyx_L3_error)
     } else {
       __pyx_v_n = __pyx_k__7;
     }
     if (values[3]) {
-      __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 544, __pyx_L3_error)
+      __pyx_v_burninSamples = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_burninSamples == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 652, __pyx_L3_error)
     } else {
       __pyx_v_burninSamples = ((int)0x64);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("magnetizationParallel", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 541, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("magnetizationParallel", 0, 1, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 649, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.magnetizationParallel", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 541, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_temps), __pyx_ptype_5numpy_ndarray, 1, "temps", 0))) __PYX_ERR(0, 542, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_22magnetizationParallel(__pyx_self, __pyx_v_model, __pyx_v_temps, __pyx_v_n, __pyx_v_burninSamples);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 649, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_temps), __pyx_ptype_5numpy_ndarray, 1, "temps", 0))) __PYX_ERR(0, 650, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_26magnetizationParallel(__pyx_self, __pyx_v_model, __pyx_v_temps, __pyx_v_n, __pyx_v_burninSamples);
 
   /* function exit code */
   goto __pyx_L0;
@@ -10418,7 +11932,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_23magnetizationParallel(PyObject *__py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_22magnetizationParallel(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyArrayObject *__pyx_v_temps, int __pyx_v_n, int __pyx_v_burninSamples) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_26magnetizationParallel(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyArrayObject *__pyx_v_temps, int __pyx_v_n, int __pyx_v_burninSamples) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10429,7 +11943,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_22magnetizationParallel(CYTHON_UNUSED 
   __pyx_t_2.temps = __pyx_v_temps;
   __pyx_t_2.n = __pyx_v_n;
   __pyx_t_2.burninSamples = __pyx_v_burninSamples;
-  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_magnetizationParallel(__pyx_v_model, 0, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 541, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_magnetizationParallel(__pyx_v_model, 0, &__pyx_t_2)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 649, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -10446,7 +11960,1027 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_22magnetizationParallel(CYTHON_UNUSED 
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":634
+/* "Toolbox/infcy.pyx":742
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef np.ndarray autocorrelation(np.ndarray timeSeries):             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         int padding = 1
+ */
+
+static PyObject *__pyx_pw_7Toolbox_5infcy_29autocorrelation(PyObject *__pyx_self, PyObject *__pyx_v_timeSeries); /*proto*/
+static PyArrayObject *__pyx_f_7Toolbox_5infcy_autocorrelation(PyArrayObject *__pyx_v_timeSeries, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  int __pyx_v_padding;
+  PyArrayObject *__pyx_v_autocorr = 0;
+  PyArrayObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  int __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  __Pyx_RefNannySetupContext("autocorrelation", 0);
+
+  /* "Toolbox/infcy.pyx":744
+ * cpdef np.ndarray autocorrelation(np.ndarray timeSeries):
+ *     cdef:
+ *         int padding = 1             # <<<<<<<<<<<<<<
+ *         np.ndarray autocorr
+ *         double corrTime
+ */
+  __pyx_v_padding = 1;
+
+  /* "Toolbox/infcy.pyx":749
+ * 
+ *     # get next power of two for padding
+ *     while padding < timeSeries.size:             # <<<<<<<<<<<<<<
+ *         padding = padding << 1
+ * 
+ */
+  while (1) {
+    __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_padding); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 749, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_timeSeries), __pyx_n_s_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 749, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = PyObject_RichCompare(__pyx_t_1, __pyx_t_2, Py_LT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 749, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 749, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (!__pyx_t_4) break;
+
+    /* "Toolbox/infcy.pyx":750
+ *     # get next power of two for padding
+ *     while padding < timeSeries.size:
+ *         padding = padding << 1             # <<<<<<<<<<<<<<
+ * 
+ *     # use discrete fourier transform for faster computation of autocorrelation
+ */
+    __pyx_v_padding = (__pyx_v_padding << 1);
+  }
+
+  /* "Toolbox/infcy.pyx":753
+ * 
+ *     # use discrete fourier transform for faster computation of autocorrelation
+ *     autocorr = np.fft.fft(timeSeries - np.mean(timeSeries), n=2*padding)             # <<<<<<<<<<<<<<
+ *     autocorr = np.fft.ifft(autocorr * np.conjugate(autocorr)).real
+ *     autocorr /= autocorr[0] # normalize
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_fft); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_fft); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_mean); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
+    __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_5);
+    if (likely(__pyx_t_1)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_1);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_5, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_1, ((PyObject *)__pyx_v_timeSeries)) : __Pyx_PyObject_CallOneArg(__pyx_t_5, ((PyObject *)__pyx_v_timeSeries));
+  __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = PyNumber_Subtract(((PyObject *)__pyx_v_timeSeries), __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_5);
+  PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_5);
+  __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_1 = __Pyx_PyInt_From_long((2 * __pyx_v_padding)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_n, __pyx_t_1) < 0) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_2, __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 753, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 753, __pyx_L1_error)
+  __pyx_v_autocorr = ((PyArrayObject *)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "Toolbox/infcy.pyx":754
+ *     # use discrete fourier transform for faster computation of autocorrelation
+ *     autocorr = np.fft.fft(timeSeries - np.mean(timeSeries), n=2*padding)
+ *     autocorr = np.fft.ifft(autocorr * np.conjugate(autocorr)).real             # <<<<<<<<<<<<<<
+ *     autocorr /= autocorr[0] # normalize
+ *     autocorr = autocorr[:timeSeries.size]
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_fft); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_ifft); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_conjugate); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_6);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_6);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_6, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_3, ((PyObject *)__pyx_v_autocorr)) : __Pyx_PyObject_CallOneArg(__pyx_t_6, ((PyObject *)__pyx_v_autocorr));
+  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  __pyx_t_6 = PyNumber_Multiply(((PyObject *)__pyx_v_autocorr), __pyx_t_2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_6);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = NULL;
+  if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
+    __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_5);
+    if (likely(__pyx_t_2)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+      __Pyx_INCREF(__pyx_t_2);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_5, function);
+    }
+  }
+  __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_2, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_real); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 754, __pyx_L1_error)
+  __Pyx_DECREF_SET(__pyx_v_autocorr, ((PyArrayObject *)__pyx_t_5));
+  __pyx_t_5 = 0;
+
+  /* "Toolbox/infcy.pyx":755
+ *     autocorr = np.fft.fft(timeSeries - np.mean(timeSeries), n=2*padding)
+ *     autocorr = np.fft.ifft(autocorr * np.conjugate(autocorr)).real
+ *     autocorr /= autocorr[0] # normalize             # <<<<<<<<<<<<<<
+ *     autocorr = autocorr[:timeSeries.size]
+ * 
+ */
+  __pyx_t_5 = __Pyx_GetItemInt(((PyObject *)__pyx_v_autocorr), 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 755, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_1 = __Pyx_PyNumber_InPlaceDivide(((PyObject *)__pyx_v_autocorr), __pyx_t_5); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 755, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 755, __pyx_L1_error)
+  __Pyx_DECREF_SET(__pyx_v_autocorr, ((PyArrayObject *)__pyx_t_1));
+  __pyx_t_1 = 0;
+
+  /* "Toolbox/infcy.pyx":756
+ *     autocorr = np.fft.ifft(autocorr * np.conjugate(autocorr)).real
+ *     autocorr /= autocorr[0] # normalize
+ *     autocorr = autocorr[:timeSeries.size]             # <<<<<<<<<<<<<<
+ * 
+ *     return autocorr
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_timeSeries), __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 756, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_5 = __Pyx_PyObject_GetSlice(((PyObject *)__pyx_v_autocorr), 0, 0, NULL, &__pyx_t_1, NULL, 0, 0, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 756, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 756, __pyx_L1_error)
+  __Pyx_DECREF_SET(__pyx_v_autocorr, ((PyArrayObject *)__pyx_t_5));
+  __pyx_t_5 = 0;
+
+  /* "Toolbox/infcy.pyx":758
+ *     autocorr = autocorr[:timeSeries.size]
+ * 
+ *     return autocorr             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(((PyObject *)__pyx_r));
+  __Pyx_INCREF(((PyObject *)__pyx_v_autocorr));
+  __pyx_r = __pyx_v_autocorr;
+  goto __pyx_L0;
+
+  /* "Toolbox/infcy.pyx":742
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef np.ndarray autocorrelation(np.ndarray timeSeries):             # <<<<<<<<<<<<<<
+ *     cdef:
+ *         int padding = 1
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_AddTraceback("Toolbox.infcy.autocorrelation", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_autocorr);
+  __Pyx_XGIVEREF((PyObject *)__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7Toolbox_5infcy_29autocorrelation(PyObject *__pyx_self, PyObject *__pyx_v_timeSeries); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_29autocorrelation(PyObject *__pyx_self, PyObject *__pyx_v_timeSeries) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("autocorrelation (wrapper)", 0);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_timeSeries), __pyx_ptype_5numpy_ndarray, 1, "timeSeries", 0))) __PYX_ERR(0, 742, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_28autocorrelation(__pyx_self, ((PyArrayObject *)__pyx_v_timeSeries));
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7Toolbox_5infcy_28autocorrelation(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_timeSeries) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  __Pyx_RefNannySetupContext("autocorrelation", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_autocorrelation(__pyx_v_timeSeries, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 742, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("Toolbox.infcy.autocorrelation", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "Toolbox/infcy.pyx":767
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef tuple determineMixingTime(Model model,\             # <<<<<<<<<<<<<<
+ *                       int stepSizeBurnin = 100,\
+ *                       int nStepsRegress = int(1e3),\
+ */
+
+static PyObject *__pyx_pw_7Toolbox_5infcy_31determineMixingTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_7Toolbox_5infcy_determineMixingTime(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_determineMixingTime *__pyx_optional_args) {
+  int __pyx_v_stepSizeBurnin = ((int)0x64);
+  int __pyx_v_nStepsRegress = __pyx_k__8;
+  double __pyx_v_threshold = ((double)0.05);
+  int __pyx_v_nStepsCorr = __pyx_k__9;
+  int __pyx_v_nNodes;
+  CYTHON_UNUSED int __pyx_v_nThreads;
+  __Pyx_memviewslice __pyx_v_mags = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyArrayObject *__pyx_v_allMags = 0;
+  int __pyx_v_counter;
+  PyArrayObject *__pyx_v_magSeries = 0;
+  PyArrayObject *__pyx_v_autocorr = 0;
+  PyArrayObject *__pyx_v_x = 0;
+  CYTHON_UNUSED double __pyx_v_slope;
+  CYTHON_UNUSED double __pyx_v_intercept;
+  CYTHON_UNUSED double __pyx_v_r_value;
+  double __pyx_v_p_value;
+  CYTHON_UNUSED double __pyx_v_std_err;
+  double __pyx_v_mixingTime;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_7 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  double __pyx_t_8;
+  struct __pyx_opt_args_7Toolbox_5infcy_mean __pyx_t_9;
+  struct __pyx_opt_args_7Toolbox_5infcy__magTimeSeries __pyx_t_10;
+  int __pyx_t_11;
+  PyObject *__pyx_t_12 = NULL;
+  PyObject *__pyx_t_13 = NULL;
+  PyObject *__pyx_t_14 = NULL;
+  PyObject *(*__pyx_t_15)(PyObject *);
+  double __pyx_t_16;
+  double __pyx_t_17;
+  double __pyx_t_18;
+  double __pyx_t_19;
+  __Pyx_RefNannySetupContext("determineMixingTime", 0);
+  if (__pyx_optional_args) {
+    if (__pyx_optional_args->__pyx_n > 0) {
+      __pyx_v_stepSizeBurnin = __pyx_optional_args->stepSizeBurnin;
+      if (__pyx_optional_args->__pyx_n > 1) {
+        __pyx_v_nStepsRegress = __pyx_optional_args->nStepsRegress;
+        if (__pyx_optional_args->__pyx_n > 2) {
+          __pyx_v_threshold = __pyx_optional_args->threshold;
+          if (__pyx_optional_args->__pyx_n > 3) {
+            __pyx_v_nStepsCorr = __pyx_optional_args->nStepsCorr;
+          }
+        }
+      }
+    }
+  }
+
+  /* "Toolbox/infcy.pyx":776
+ *         vector[PyObjectHolder] models_
+ *         Model tmp
+ *         int s, tid, nNodes = model._nNodes             # <<<<<<<<<<<<<<
+ *         int nThreads = mp.cpu_count()
+ *         #vector[double] mag_sum
+ */
+  __pyx_t_1 = __pyx_v_model->_nNodes;
+  __pyx_v_nNodes = __pyx_t_1;
+
+  /* "Toolbox/infcy.pyx":777
+ *         Model tmp
+ *         int s, tid, nNodes = model._nNodes
+ *         int nThreads = mp.cpu_count()             # <<<<<<<<<<<<<<
+ *         #vector[double] mag_sum
+ * 
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_mp); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 777, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_cpu_count); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 777, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+    __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_4);
+    if (likely(__pyx_t_3)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_3);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_4, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_3) ? __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallNoArg(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 777, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 777, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_nThreads = __pyx_t_1;
+
+  /* "Toolbox/infcy.pyx":780
+ *         #vector[double] mag_sum
+ * 
+ *         double[::1] mags = np.zeros(stepSizeBurnin)             # <<<<<<<<<<<<<<
+ *         np.ndarray allMags  # for regression
+ *         int lag, h, counter # tmp var and counter
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_stepSizeBurnin); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_6 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 780, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_mags = __pyx_t_6;
+  __pyx_t_6.memview = NULL;
+  __pyx_t_6.data = NULL;
+
+  /* "Toolbox/infcy.pyx":784
+ *         int lag, h, counter # tmp var and counter
+ *         double beta        # slope value
+ *         np.ndarray magSeries, autocorr, x = np.arange(nStepsRegress)# for regression             # <<<<<<<<<<<<<<
+ *         double slope, intercept, r_value, p_value, std_err, mixingTime, corrTime
+ * 
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 784, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_arange); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 784, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_nStepsRegress); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 784, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_4, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 784, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 784, __pyx_L1_error)
+  __pyx_v_x = ((PyArrayObject *)__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":787
+ *         double slope, intercept, r_value, p_value, std_err, mixingTime, corrTime
+ * 
+ *     counter = 0             # <<<<<<<<<<<<<<
+ *     allMags = np.array(mean(model.states, nNodes, abs=1))
+ *     #initial_conf = model.states
+ */
+  __pyx_v_counter = 0;
+
+  /* "Toolbox/infcy.pyx":788
+ * 
+ *     counter = 0
+ *     allMags = np.array(mean(model.states, nNodes, abs=1))             # <<<<<<<<<<<<<<
+ *     #initial_conf = model.states
+ * 
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_states_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_t_4, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_9.__pyx_n = 1;
+  __pyx_t_9.abs = 1;
+  __pyx_t_8 = __pyx_f_7Toolbox_5infcy_mean(__pyx_t_7, __pyx_v_nNodes, &__pyx_t_9); 
+  __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+  __pyx_t_7.memview = NULL;
+  __pyx_t_7.data = NULL;
+  __pyx_t_4 = PyFloat_FromDouble(__pyx_t_8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_5 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_5)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_5);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
+    }
+  }
+  __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 788, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 788, __pyx_L1_error)
+  __pyx_v_allMags = ((PyArrayObject *)__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":793
+ *     # simulate until mag has stabilized
+ *     # remember mixing time needed
+ *     while True: #counter < maxStepsBurnin:             # <<<<<<<<<<<<<<
+ *         #for sample in range(stepSizeBurnin):
+ *         #    mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs=1)
+ */
+  while (1) {
+
+    /* "Toolbox/infcy.pyx":797
+ *         #    mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs=1)
+ * 
+ *         mags = _magTimeSeries(model, 0, stepSizeBurnin, abs=1)             # <<<<<<<<<<<<<<
+ * 
+ *         allMags = np.hstack((allMags, mags.base))
+ */
+    __pyx_t_10.__pyx_n = 1;
+    __pyx_t_10.abs = 1;
+    __pyx_t_6 = __pyx_f_7Toolbox_5infcy__magTimeSeries(__pyx_v_model, 0, __pyx_v_stepSizeBurnin, &__pyx_t_10); if (unlikely(!__pyx_t_6.memview)) __PYX_ERR(0, 797, __pyx_L1_error)
+    __PYX_XDEC_MEMVIEW(&__pyx_v_mags, 1);
+    __pyx_v_mags = __pyx_t_6;
+    __pyx_t_6.memview = NULL;
+    __pyx_t_6.data = NULL;
+
+    /* "Toolbox/infcy.pyx":799
+ *         mags = _magTimeSeries(model, 0, stepSizeBurnin, abs=1)
+ * 
+ *         allMags = np.hstack((allMags, mags.base))             # <<<<<<<<<<<<<<
+ *         if counter >= nStepsRegress :
+ *             # do linear regression
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_hstack); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_mags, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_base); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_INCREF(((PyObject *)__pyx_v_allMags));
+    __Pyx_GIVEREF(((PyObject *)__pyx_v_allMags));
+    PyTuple_SET_ITEM(__pyx_t_3, 0, ((PyObject *)__pyx_v_allMags));
+    __Pyx_GIVEREF(__pyx_t_5);
+    PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_5);
+    __pyx_t_5 = 0;
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_4, function);
+      }
+    }
+    __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 799, __pyx_L1_error)
+    __Pyx_DECREF_SET(__pyx_v_allMags, ((PyArrayObject *)__pyx_t_2));
+    __pyx_t_2 = 0;
+
+    /* "Toolbox/infcy.pyx":800
+ * 
+ *         allMags = np.hstack((allMags, mags.base))
+ *         if counter >= nStepsRegress :             # <<<<<<<<<<<<<<
+ *             # do linear regression
+ *             slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])
+ */
+    __pyx_t_11 = ((__pyx_v_counter >= __pyx_v_nStepsRegress) != 0);
+    if (__pyx_t_11) {
+
+      /* "Toolbox/infcy.pyx":802
+ *         if counter >= nStepsRegress :
+ *             # do linear regression
+ *             slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])             # <<<<<<<<<<<<<<
+ *             if 1 - p_value < threshold: # p-value of test for slope=0
+ *                 #print(slope, intercept, p_value, std_err)
+ */
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_linregress); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_3 = __Pyx_PyObject_GetSlice(((PyObject *)__pyx_v_allMags), (-__pyx_v_nStepsRegress), 0, NULL, NULL, NULL, 1, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __pyx_t_5 = NULL;
+      __pyx_t_1 = 0;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
+        __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_4);
+        if (likely(__pyx_t_5)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_4);
+          __Pyx_INCREF(__pyx_t_5);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_4, function);
+          __pyx_t_1 = 1;
+        }
+      }
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_4)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_5, ((PyObject *)__pyx_v_x), __pyx_t_3};
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 802, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_5, ((PyObject *)__pyx_v_x), __pyx_t_3};
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 802, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_12 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 802, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_12);
+        if (__pyx_t_5) {
+          __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_5); __pyx_t_5 = NULL;
+        }
+        __Pyx_INCREF(((PyObject *)__pyx_v_x));
+        __Pyx_GIVEREF(((PyObject *)__pyx_v_x));
+        PyTuple_SET_ITEM(__pyx_t_12, 0+__pyx_t_1, ((PyObject *)__pyx_v_x));
+        __Pyx_GIVEREF(__pyx_t_3);
+        PyTuple_SET_ITEM(__pyx_t_12, 1+__pyx_t_1, __pyx_t_3);
+        __pyx_t_3 = 0;
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 802, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+      }
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      if ((likely(PyTuple_CheckExact(__pyx_t_2))) || (PyList_CheckExact(__pyx_t_2))) {
+        PyObject* sequence = __pyx_t_2;
+        Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
+        if (unlikely(size != 5)) {
+          if (size > 5) __Pyx_RaiseTooManyValuesError(5);
+          else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
+          __PYX_ERR(0, 802, __pyx_L1_error)
+        }
+        #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+        if (likely(PyTuple_CheckExact(sequence))) {
+          __pyx_t_4 = PyTuple_GET_ITEM(sequence, 0); 
+          __pyx_t_12 = PyTuple_GET_ITEM(sequence, 1); 
+          __pyx_t_3 = PyTuple_GET_ITEM(sequence, 2); 
+          __pyx_t_5 = PyTuple_GET_ITEM(sequence, 3); 
+          __pyx_t_13 = PyTuple_GET_ITEM(sequence, 4); 
+        } else {
+          __pyx_t_4 = PyList_GET_ITEM(sequence, 0); 
+          __pyx_t_12 = PyList_GET_ITEM(sequence, 1); 
+          __pyx_t_3 = PyList_GET_ITEM(sequence, 2); 
+          __pyx_t_5 = PyList_GET_ITEM(sequence, 3); 
+          __pyx_t_13 = PyList_GET_ITEM(sequence, 4); 
+        }
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_12);
+        __Pyx_INCREF(__pyx_t_3);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(__pyx_t_13);
+        #else
+        {
+          Py_ssize_t i;
+          PyObject** temps[5] = {&__pyx_t_4,&__pyx_t_12,&__pyx_t_3,&__pyx_t_5,&__pyx_t_13};
+          for (i=0; i < 5; i++) {
+            PyObject* item = PySequence_ITEM(sequence, i); if (unlikely(!item)) __PYX_ERR(0, 802, __pyx_L1_error)
+            __Pyx_GOTREF(item);
+            *(temps[i]) = item;
+          }
+        }
+        #endif
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      } else {
+        Py_ssize_t index = -1;
+        PyObject** temps[5] = {&__pyx_t_4,&__pyx_t_12,&__pyx_t_3,&__pyx_t_5,&__pyx_t_13};
+        __pyx_t_14 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 802, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_14);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_15 = Py_TYPE(__pyx_t_14)->tp_iternext;
+        for (index=0; index < 5; index++) {
+          PyObject* item = __pyx_t_15(__pyx_t_14); if (unlikely(!item)) goto __pyx_L6_unpacking_failed;
+          __Pyx_GOTREF(item);
+          *(temps[index]) = item;
+        }
+        if (__Pyx_IternextUnpackEndCheck(__pyx_t_15(__pyx_t_14), 5) < 0) __PYX_ERR(0, 802, __pyx_L1_error)
+        __pyx_t_15 = NULL;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        goto __pyx_L7_unpacking_done;
+        __pyx_L6_unpacking_failed:;
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+        __pyx_t_15 = NULL;
+        if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
+        __PYX_ERR(0, 802, __pyx_L1_error)
+        __pyx_L7_unpacking_done:;
+      }
+      __pyx_t_8 = __pyx_PyFloat_AsDouble(__pyx_t_4); if (unlikely((__pyx_t_8 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_t_16 = __pyx_PyFloat_AsDouble(__pyx_t_12); if (unlikely((__pyx_t_16 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+      __pyx_t_17 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_17 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_18 = __pyx_PyFloat_AsDouble(__pyx_t_5); if (unlikely((__pyx_t_18 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_19 = __pyx_PyFloat_AsDouble(__pyx_t_13); if (unlikely((__pyx_t_19 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 802, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __pyx_v_slope = __pyx_t_8;
+      __pyx_v_intercept = __pyx_t_16;
+      __pyx_v_r_value = __pyx_t_17;
+      __pyx_v_p_value = __pyx_t_18;
+      __pyx_v_std_err = __pyx_t_19;
+
+      /* "Toolbox/infcy.pyx":803
+ *             # do linear regression
+ *             slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])
+ *             if 1 - p_value < threshold: # p-value of test for slope=0             # <<<<<<<<<<<<<<
+ *                 #print(slope, intercept, p_value, std_err)
+ *                 break
+ */
+      __pyx_t_11 = (((1.0 - __pyx_v_p_value) < __pyx_v_threshold) != 0);
+      if (__pyx_t_11) {
+
+        /* "Toolbox/infcy.pyx":805
+ *             if 1 - p_value < threshold: # p-value of test for slope=0
+ *                 #print(slope, intercept, p_value, std_err)
+ *                 break             # <<<<<<<<<<<<<<
+ *         counter = counter + stepSizeBurnin
+ *     #else:
+ */
+        goto __pyx_L4_break;
+
+        /* "Toolbox/infcy.pyx":803
+ *             # do linear regression
+ *             slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])
+ *             if 1 - p_value < threshold: # p-value of test for slope=0             # <<<<<<<<<<<<<<
+ *                 #print(slope, intercept, p_value, std_err)
+ *                 break
+ */
+      }
+
+      /* "Toolbox/infcy.pyx":800
+ * 
+ *         allMags = np.hstack((allMags, mags.base))
+ *         if counter >= nStepsRegress :             # <<<<<<<<<<<<<<
+ *             # do linear regression
+ *             slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])
+ */
+    }
+
+    /* "Toolbox/infcy.pyx":806
+ *                 #print(slope, intercept, p_value, std_err)
+ *                 break
+ *         counter = counter + stepSizeBurnin             # <<<<<<<<<<<<<<
+ *     #else:
+ *     mixingTime = counter - nStepsRegress
+ */
+    __pyx_v_counter = (__pyx_v_counter + __pyx_v_stepSizeBurnin);
+  }
+  __pyx_L4_break:;
+
+  /* "Toolbox/infcy.pyx":808
+ *         counter = counter + stepSizeBurnin
+ *     #else:
+ *     mixingTime = counter - nStepsRegress             # <<<<<<<<<<<<<<
+ *     #print('Number of bunin samples needed {0}\n\n'.format(mixingTime))
+ *     #print(f'absolute mean magnetization last sample {y[-1]}')
+ */
+  __pyx_v_mixingTime = (__pyx_v_counter - __pyx_v_nStepsRegress);
+
+  /* "Toolbox/infcy.pyx":814
+ *     # measure correlation time (autocorrelation for varying lags)
+ *     #model.states = initial_conf
+ *     magSeries = magTimeSeries(model, 0, nStepsCorr)             # <<<<<<<<<<<<<<
+ * 
+ *     autocorr = autocorrelation(magSeries)
+ */
+  __pyx_t_2 = ((PyObject *)__pyx_f_7Toolbox_5infcy_magTimeSeries(__pyx_v_model, 0, __pyx_v_nStepsCorr, 0, NULL)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 814, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_v_magSeries = ((PyArrayObject *)__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":816
+ *     magSeries = magTimeSeries(model, 0, nStepsCorr)
+ * 
+ *     autocorr = autocorrelation(magSeries)             # <<<<<<<<<<<<<<
+ * 
+ *     return allMags, mixingTime, autocorr
+ */
+  __pyx_t_2 = ((PyObject *)__pyx_f_7Toolbox_5infcy_autocorrelation(__pyx_v_magSeries, 0)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 816, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_v_autocorr = ((PyArrayObject *)__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":818
+ *     autocorr = autocorrelation(magSeries)
+ * 
+ *     return allMags, mixingTime, autocorr             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = PyFloat_FromDouble(__pyx_v_mixingTime); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_13 = PyTuple_New(3); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 818, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_13);
+  __Pyx_INCREF(((PyObject *)__pyx_v_allMags));
+  __Pyx_GIVEREF(((PyObject *)__pyx_v_allMags));
+  PyTuple_SET_ITEM(__pyx_t_13, 0, ((PyObject *)__pyx_v_allMags));
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_13, 1, __pyx_t_2);
+  __Pyx_INCREF(((PyObject *)__pyx_v_autocorr));
+  __Pyx_GIVEREF(((PyObject *)__pyx_v_autocorr));
+  PyTuple_SET_ITEM(__pyx_t_13, 2, ((PyObject *)__pyx_v_autocorr));
+  __pyx_t_2 = 0;
+  __pyx_r = ((PyObject*)__pyx_t_13);
+  __pyx_t_13 = 0;
+  goto __pyx_L0;
+
+  /* "Toolbox/infcy.pyx":767
+ * @cython.initializedcheck(False)
+ * @cython.overflowcheck(False)
+ * cpdef tuple determineMixingTime(Model model,\             # <<<<<<<<<<<<<<
+ *                       int stepSizeBurnin = 100,\
+ *                       int nStepsRegress = int(1e3),\
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_7, 1);
+  __Pyx_XDECREF(__pyx_t_12);
+  __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_XDECREF(__pyx_t_14);
+  __Pyx_AddTraceback("Toolbox.infcy.determineMixingTime", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_mags, 1);
+  __Pyx_XDECREF((PyObject *)__pyx_v_allMags);
+  __Pyx_XDECREF((PyObject *)__pyx_v_magSeries);
+  __Pyx_XDECREF((PyObject *)__pyx_v_autocorr);
+  __Pyx_XDECREF((PyObject *)__pyx_v_x);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7Toolbox_5infcy_31determineMixingTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_31determineMixingTime(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
+  int __pyx_v_stepSizeBurnin;
+  int __pyx_v_nStepsRegress;
+  double __pyx_v_threshold;
+  int __pyx_v_nStepsCorr;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("determineMixingTime (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_stepSizeBurnin,&__pyx_n_s_nStepsRegress,&__pyx_n_s_threshold,&__pyx_n_s_nStepsCorr,0};
+    PyObject* values[5] = {0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_model)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_stepSizeBurnin);
+          if (value) { values[1] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nStepsRegress);
+          if (value) { values[2] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_threshold);
+          if (value) { values[3] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  4:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nStepsCorr);
+          if (value) { values[4] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "determineMixingTime") < 0)) __PYX_ERR(0, 767, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
+    if (values[1]) {
+      __pyx_v_stepSizeBurnin = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_stepSizeBurnin == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 768, __pyx_L3_error)
+    } else {
+      __pyx_v_stepSizeBurnin = ((int)0x64);
+    }
+    if (values[2]) {
+      __pyx_v_nStepsRegress = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_nStepsRegress == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 769, __pyx_L3_error)
+    } else {
+      __pyx_v_nStepsRegress = __pyx_k__8;
+    }
+    if (values[3]) {
+      __pyx_v_threshold = __pyx_PyFloat_AsDouble(values[3]); if (unlikely((__pyx_v_threshold == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 770, __pyx_L3_error)
+    } else {
+      __pyx_v_threshold = ((double)0.05);
+    }
+    if (values[4]) {
+      __pyx_v_nStepsCorr = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_nStepsCorr == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 771, __pyx_L3_error)
+    } else {
+      __pyx_v_nStepsCorr = __pyx_k__9;
+    }
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("determineMixingTime", 0, 1, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 767, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("Toolbox.infcy.determineMixingTime", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 767, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_30determineMixingTime(__pyx_self, __pyx_v_model, __pyx_v_stepSizeBurnin, __pyx_v_nStepsRegress, __pyx_v_threshold, __pyx_v_nStepsCorr);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7Toolbox_5infcy_30determineMixingTime(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, int __pyx_v_stepSizeBurnin, int __pyx_v_nStepsRegress, double __pyx_v_threshold, int __pyx_v_nStepsCorr) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  struct __pyx_opt_args_7Toolbox_5infcy_determineMixingTime __pyx_t_2;
+  __Pyx_RefNannySetupContext("determineMixingTime", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2.__pyx_n = 4;
+  __pyx_t_2.stepSizeBurnin = __pyx_v_stepSizeBurnin;
+  __pyx_t_2.nStepsRegress = __pyx_v_nStepsRegress;
+  __pyx_t_2.threshold = __pyx_v_threshold;
+  __pyx_t_2.nStepsCorr = __pyx_v_nStepsCorr;
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_determineMixingTime(__pyx_v_model, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 767, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("Toolbox.infcy.determineMixingTime", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "Toolbox/infcy.pyx":828
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
@@ -10455,7 +12989,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_22magnetizationParallel(CYTHON_UNUSED 
  */
 
 static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, struct __pyx_opt_args_7Toolbox_5infcy_simulateGetMeanMag *__pyx_optional_args) {
-  int __pyx_v_nSamples = __pyx_k__8;
+  int __pyx_v_nSamples = __pyx_k__10;
   __Pyx_memviewslice __pyx_v_r = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_step;
   double __pyx_v_sum;
@@ -10476,19 +13010,19 @@ static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __
     }
   }
 
-  /* "Toolbox/infcy.pyx":636
+  /* "Toolbox/infcy.pyx":830
  * cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:
  *     cdef:
  *         long[:, ::1] r = model.sampleNodes(nSamples)             # <<<<<<<<<<<<<<
  *         int step
  *         double sum, sum_square
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, __pyx_v_nSamples); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 636, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, __pyx_v_nSamples); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 830, __pyx_L1_error)
   __pyx_v_r = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "Toolbox/infcy.pyx":639
+  /* "Toolbox/infcy.pyx":833
  *         int step
  *         double sum, sum_square
  *         vector[double] out = vector[double](2, 0)             # <<<<<<<<<<<<<<
@@ -10505,11 +13039,11 @@ static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __
     #ifdef WITH_THREAD
     __Pyx_PyGILState_Release(__pyx_gilstate_save);
     #endif
-    __PYX_ERR(0, 639, __pyx_L1_error)
+    __PYX_ERR(0, 833, __pyx_L1_error)
   }
   __pyx_v_out = __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":641
+  /* "Toolbox/infcy.pyx":835
  *         vector[double] out = vector[double](2, 0)
  * 
  *     sum = 0             # <<<<<<<<<<<<<<
@@ -10518,7 +13052,7 @@ static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __
  */
   __pyx_v_sum = 0.0;
 
-  /* "Toolbox/infcy.pyx":642
+  /* "Toolbox/infcy.pyx":836
  * 
  *     sum = 0
  *     sum_square = 0             # <<<<<<<<<<<<<<
@@ -10527,7 +13061,7 @@ static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __
  */
   __pyx_v_sum_square = 0.0;
 
-  /* "Toolbox/infcy.pyx":644
+  /* "Toolbox/infcy.pyx":838
  *     sum_square = 0
  *     # collect magnetizations
  *     for step in range(nSamples):             # <<<<<<<<<<<<<<
@@ -10539,7 +13073,7 @@ static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __
   for (__pyx_t_5 = 0; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
     __pyx_v_step = __pyx_t_5;
 
-    /* "Toolbox/infcy.pyx":645
+    /* "Toolbox/infcy.pyx":839
  *     # collect magnetizations
  *     for step in range(nSamples):
  *         m = mean(model._updateState(r[step]), model._nNodes)             # <<<<<<<<<<<<<<
@@ -10552,7 +13086,7 @@ static std::vector<double>  __pyx_f_7Toolbox_5infcy_simulateGetMeanMag(struct __
     {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_step;
     Py_ssize_t __pyx_tmp_stride = __pyx_v_r.strides[0];
-        if ((0)) __PYX_ERR(0, 645, __pyx_L1_error)
+        if ((0)) __PYX_ERR(0, 839, __pyx_L1_error)
         __pyx_t_6.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
@@ -10560,16 +13094,16 @@ __pyx_t_6.shape[0] = __pyx_v_r.shape[1];
 __pyx_t_6.strides[0] = __pyx_v_r.strides[1];
     __pyx_t_6.suboffsets[0] = -1;
 
-__pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->_updateState(__pyx_v_model, __pyx_t_6); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 645, __pyx_L1_error)
+__pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->_updateState(__pyx_v_model, __pyx_t_6); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 839, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_t_6, 0);
     __pyx_t_6.memview = NULL;
     __pyx_t_6.data = NULL;
-    __pyx_v_m = __pyx_f_7Toolbox_5infcy_mean(__pyx_t_7, __pyx_v_model->_nNodes);
+    __pyx_v_m = __pyx_f_7Toolbox_5infcy_mean(__pyx_t_7, __pyx_v_model->_nNodes, NULL);
     __PYX_XDEC_MEMVIEW(&__pyx_t_7, 0);
     __pyx_t_7.memview = NULL;
     __pyx_t_7.data = NULL;
 
-    /* "Toolbox/infcy.pyx":646
+    /* "Toolbox/infcy.pyx":840
  *     for step in range(nSamples):
  *         m = mean(model._updateState(r[step]), model._nNodes)
  *         sum = sum + m             # <<<<<<<<<<<<<<
@@ -10578,7 +13112,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
  */
     __pyx_v_sum = (__pyx_v_sum + __pyx_v_m);
 
-    /* "Toolbox/infcy.pyx":647
+    /* "Toolbox/infcy.pyx":841
  *         m = mean(model._updateState(r[step]), model._nNodes)
  *         sum = sum + m
  *         sum_square = sum_square + (m*m)             # <<<<<<<<<<<<<<
@@ -10588,7 +13122,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
     __pyx_v_sum_square = (__pyx_v_sum_square + (__pyx_v_m * __pyx_v_m));
   }
 
-  /* "Toolbox/infcy.pyx":649
+  /* "Toolbox/infcy.pyx":843
  *         sum_square = sum_square + (m*m)
  * 
  *     out[0] = sum             # <<<<<<<<<<<<<<
@@ -10597,7 +13131,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
  */
   (__pyx_v_out[0]) = __pyx_v_sum;
 
-  /* "Toolbox/infcy.pyx":650
+  /* "Toolbox/infcy.pyx":844
  * 
  *     out[0] = sum
  *     out[1] = sum_square             # <<<<<<<<<<<<<<
@@ -10606,7 +13140,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
  */
   (__pyx_v_out[1]) = __pyx_v_sum_square;
 
-  /* "Toolbox/infcy.pyx":652
+  /* "Toolbox/infcy.pyx":846
  *     out[1] = sum_square
  * 
  *     return out             # <<<<<<<<<<<<<<
@@ -10616,7 +13150,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":634
+  /* "Toolbox/infcy.pyx":828
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
@@ -10636,7 +13170,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":656
+/* "Toolbox/infcy.pyx":850
  * @cython.boundscheck(False) # compiler directive
  * @cython.wraparound(False) # compiler directive
  * cpdef mutualInformation(dict conditional, int deltas, \             # <<<<<<<<<<<<<<
@@ -10644,7 +13178,7 @@ __pyx_t_7 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__p
  *     '''
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_25mutualInformation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_33mutualInformation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_conditional, int __pyx_v_deltas, PyObject *__pyx_v_snapshots, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PyArrayObject *__pyx_v_px = 0;
   PyArrayObject *__pyx_v_H = 0;
@@ -10664,25 +13198,25 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   int __pyx_t_10;
   __Pyx_RefNannySetupContext("mutualInformation", 0);
 
-  /* "Toolbox/infcy.pyx":661
+  /* "Toolbox/infcy.pyx":855
  *     Returns the node distribution and the mutual information decay
  *     '''
  *     cdef  np.ndarray px = np.zeros((deltas, model._nNodes, model._nStates))             # <<<<<<<<<<<<<<
  *     cdef  np.ndarray H  = np.zeros((deltas, model._nNodes))
  *     for key, p in conditional.items():
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 661, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 661, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_deltas); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 661, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_deltas); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 661, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_model->_nStates); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 661, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_model->_nStates); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_6 = PyTuple_New(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 661, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_2);
@@ -10706,30 +13240,30 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_5, __pyx_t_6) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_6);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 661, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 855, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 661, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 855, __pyx_L1_error)
   __pyx_v_px = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":662
+  /* "Toolbox/infcy.pyx":856
  *     '''
  *     cdef  np.ndarray px = np.zeros((deltas, model._nNodes, model._nStates))
  *     cdef  np.ndarray H  = np.zeros((deltas, model._nNodes))             # <<<<<<<<<<<<<<
  *     for key, p in conditional.items():
  *         # p    = np.asarray(p)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 662, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 662, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_zeros); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_deltas); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 662, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_deltas); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 662, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 662, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
@@ -10750,14 +13284,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 662, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 856, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 662, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 856, __pyx_L1_error)
   __pyx_v_H = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":663
+  /* "Toolbox/infcy.pyx":857
  *     cdef  np.ndarray px = np.zeros((deltas, model._nNodes, model._nStates))
  *     cdef  np.ndarray H  = np.zeros((deltas, model._nNodes))
  *     for key, p in conditional.items():             # <<<<<<<<<<<<<<
@@ -10767,9 +13301,9 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   __pyx_t_7 = 0;
   if (unlikely(__pyx_v_conditional == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "items");
-    __PYX_ERR(0, 663, __pyx_L1_error)
+    __PYX_ERR(0, 857, __pyx_L1_error)
   }
-  __pyx_t_6 = __Pyx_dict_iterator(__pyx_v_conditional, 1, __pyx_n_s_items, (&__pyx_t_8), (&__pyx_t_9)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 663, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_dict_iterator(__pyx_v_conditional, 1, __pyx_n_s_items, (&__pyx_t_8), (&__pyx_t_9)); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 857, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_1);
   __pyx_t_1 = __pyx_t_6;
@@ -10777,7 +13311,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   while (1) {
     __pyx_t_10 = __Pyx_dict_iter_next(__pyx_t_1, __pyx_t_8, &__pyx_t_7, &__pyx_t_6, &__pyx_t_4, NULL, __pyx_t_9);
     if (unlikely(__pyx_t_10 == 0)) break;
-    if (unlikely(__pyx_t_10 == -1)) __PYX_ERR(0, 663, __pyx_L1_error)
+    if (unlikely(__pyx_t_10 == -1)) __PYX_ERR(0, 857, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_XDECREF_SET(__pyx_v_key, __pyx_t_6);
@@ -10785,21 +13319,21 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
     __Pyx_XDECREF_SET(__pyx_v_p, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "Toolbox/infcy.pyx":665
+    /* "Toolbox/infcy.pyx":859
  *     for key, p in conditional.items():
  *         # p    = np.asarray(p)
  *         H   -= np.nansum(p * np.log2(p), -1) * snapshots[key]             # <<<<<<<<<<<<<<
  *         px  += p  * snapshots[key] # update node distribution
  *     H += np.nansum(px *  np.log2(px), -1)
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_np); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_nansum); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_nansum); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_log2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_log2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_3 = NULL;
@@ -10814,10 +13348,10 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
     }
     __pyx_t_6 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_p) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_p);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 665, __pyx_L1_error)
+    if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyNumber_Multiply(__pyx_v_p, __pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __pyx_t_2 = PyNumber_Multiply(__pyx_v_p, __pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_6 = NULL;
@@ -10835,7 +13369,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_2, __pyx_int_neg_1};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 665, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 859, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -10844,14 +13378,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
       PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_2, __pyx_int_neg_1};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 665, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_10, 2+__pyx_t_10); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 859, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_3 = PyTuple_New(2+__pyx_t_10); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 665, __pyx_L1_error)
+      __pyx_t_3 = PyTuple_New(2+__pyx_t_10); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 859, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       if (__pyx_t_6) {
         __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -10862,29 +13396,29 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
       __Pyx_GIVEREF(__pyx_int_neg_1);
       PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_10, __pyx_int_neg_1);
       __pyx_t_2 = 0;
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 665, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 859, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (unlikely(__pyx_v_snapshots == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 665, __pyx_L1_error)
+      __PYX_ERR(0, 859, __pyx_L1_error)
     }
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_snapshots, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_snapshots, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_3 = PyNumber_Multiply(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyNumber_InPlaceSubtract(((PyObject *)__pyx_v_H), __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 665, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceSubtract(((PyObject *)__pyx_v_H), __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 665, __pyx_L1_error)
+    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 859, __pyx_L1_error)
     __Pyx_DECREF_SET(__pyx_v_H, ((PyArrayObject *)__pyx_t_5));
     __pyx_t_5 = 0;
 
-    /* "Toolbox/infcy.pyx":666
+    /* "Toolbox/infcy.pyx":860
  *         # p    = np.asarray(p)
  *         H   -= np.nansum(p * np.log2(p), -1) * snapshots[key]
  *         px  += p  * snapshots[key] # update node distribution             # <<<<<<<<<<<<<<
@@ -10893,37 +13427,37 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
  */
     if (unlikely(__pyx_v_snapshots == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 666, __pyx_L1_error)
+      __PYX_ERR(0, 860, __pyx_L1_error)
     }
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_snapshots, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 666, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_snapshots, __pyx_v_key); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_3 = PyNumber_Multiply(__pyx_v_p, __pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 666, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_v_p, __pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_px), __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 666, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_px), __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 666, __pyx_L1_error)
+    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 860, __pyx_L1_error)
     __Pyx_DECREF_SET(__pyx_v_px, ((PyArrayObject *)__pyx_t_5));
     __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":667
+  /* "Toolbox/infcy.pyx":861
  *         H   -= np.nansum(p * np.log2(p), -1) * snapshots[key]
  *         px  += p  * snapshots[key] # update node distribution
  *     H += np.nansum(px *  np.log2(px), -1)             # <<<<<<<<<<<<<<
  *     return px, -H
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 667, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_nansum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 667, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_nansum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 667, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_log2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 667, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_log2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -10938,10 +13472,10 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   }
   __pyx_t_5 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, ((PyObject *)__pyx_v_px)) : __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_px));
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 667, __pyx_L1_error)
+  if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Multiply(((PyObject *)__pyx_v_px), __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 667, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Multiply(((PyObject *)__pyx_v_px), __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -10959,7 +13493,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_2, __pyx_int_neg_1};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 667, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 861, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -10968,14 +13502,14 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_2, __pyx_int_neg_1};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 667, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_9, 2+__pyx_t_9); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 861, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else
   #endif
   {
-    __pyx_t_4 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 667, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2+__pyx_t_9); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 861, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -10986,19 +13520,19 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
     __Pyx_GIVEREF(__pyx_int_neg_1);
     PyTuple_SET_ITEM(__pyx_t_4, 1+__pyx_t_9, __pyx_int_neg_1);
     __pyx_t_2 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 667, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 861, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_H), __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 667, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_InPlaceAdd(((PyObject *)__pyx_v_H), __pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 667, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 861, __pyx_L1_error)
   __Pyx_DECREF_SET(__pyx_v_H, ((PyArrayObject *)__pyx_t_3));
   __pyx_t_3 = 0;
 
-  /* "Toolbox/infcy.pyx":668
+  /* "Toolbox/infcy.pyx":862
  *         px  += p  * snapshots[key] # update node distribution
  *     H += np.nansum(px *  np.log2(px), -1)
  *     return px, -H             # <<<<<<<<<<<<<<
@@ -11006,9 +13540,9 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
  * cpdef runMC(Model model, dict snapshots, int deltas, int repeats):
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = PyNumber_Negative(((PyObject *)__pyx_v_H)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 668, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Negative(((PyObject *)__pyx_v_H)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 862, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 668, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 862, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(((PyObject *)__pyx_v_px));
   __Pyx_GIVEREF(((PyObject *)__pyx_v_px));
@@ -11020,7 +13554,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":656
+  /* "Toolbox/infcy.pyx":850
  * @cython.boundscheck(False) # compiler directive
  * @cython.wraparound(False) # compiler directive
  * cpdef mutualInformation(dict conditional, int deltas, \             # <<<<<<<<<<<<<<
@@ -11049,9 +13583,9 @@ static PyObject *__pyx_f_7Toolbox_5infcy_mutualInformation(PyObject *__pyx_v_con
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_25mutualInformation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_7Toolbox_5infcy_24mutualInformation[] = "\n    Returns the node distribution and the mutual information decay\n    ";
-static PyObject *__pyx_pw_7Toolbox_5infcy_25mutualInformation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_33mutualInformation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7Toolbox_5infcy_32mutualInformation[] = "\n    Returns the node distribution and the mutual information decay\n    ";
+static PyObject *__pyx_pw_7Toolbox_5infcy_33mutualInformation(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_conditional = 0;
   int __pyx_v_deltas;
   PyObject *__pyx_v_snapshots = 0;
@@ -11086,23 +13620,23 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_25mutualInformation(PyObject *__pyx_se
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_deltas)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, 1); __PYX_ERR(0, 656, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, 1); __PYX_ERR(0, 850, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_snapshots)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, 2); __PYX_ERR(0, 656, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, 2); __PYX_ERR(0, 850, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_model)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, 3); __PYX_ERR(0, 656, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, 3); __PYX_ERR(0, 850, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "mutualInformation") < 0)) __PYX_ERR(0, 656, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "mutualInformation") < 0)) __PYX_ERR(0, 850, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -11113,22 +13647,22 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_25mutualInformation(PyObject *__pyx_se
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
     __pyx_v_conditional = ((PyObject*)values[0]);
-    __pyx_v_deltas = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_deltas == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 656, __pyx_L3_error)
+    __pyx_v_deltas = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_deltas == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 850, __pyx_L3_error)
     __pyx_v_snapshots = ((PyObject*)values[2]);
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[3]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 656, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("mutualInformation", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 850, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.mutualInformation", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_conditional), (&PyDict_Type), 1, "conditional", 1))) __PYX_ERR(0, 656, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_snapshots), (&PyDict_Type), 1, "snapshots", 1))) __PYX_ERR(0, 657, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 657, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_24mutualInformation(__pyx_self, __pyx_v_conditional, __pyx_v_deltas, __pyx_v_snapshots, __pyx_v_model);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_conditional), (&PyDict_Type), 1, "conditional", 1))) __PYX_ERR(0, 850, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_snapshots), (&PyDict_Type), 1, "snapshots", 1))) __PYX_ERR(0, 851, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 851, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_32mutualInformation(__pyx_self, __pyx_v_conditional, __pyx_v_deltas, __pyx_v_snapshots, __pyx_v_model);
 
   /* function exit code */
   goto __pyx_L0;
@@ -11139,13 +13673,13 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_25mutualInformation(PyObject *__pyx_se
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_24mutualInformation(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_conditional, int __pyx_v_deltas, PyObject *__pyx_v_snapshots, struct __pyx_obj_6Models_6models_Model *__pyx_v_model) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_32mutualInformation(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_conditional, int __pyx_v_deltas, PyObject *__pyx_v_snapshots, struct __pyx_obj_6Models_6models_Model *__pyx_v_model) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("mutualInformation", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_mutualInformation(__pyx_v_conditional, __pyx_v_deltas, __pyx_v_snapshots, __pyx_v_model, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 656, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_mutualInformation(__pyx_v_conditional, __pyx_v_deltas, __pyx_v_snapshots, __pyx_v_model, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 850, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11162,7 +13696,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_24mutualInformation(CYTHON_UNUSED PyOb
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":670
+/* "Toolbox/infcy.pyx":864
  *     return px, -H
  * 
  * cpdef runMC(Model model, dict snapshots, int deltas, int repeats):             # <<<<<<<<<<<<<<
@@ -11170,7 +13704,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_24mutualInformation(CYTHON_UNUSED PyOb
  *     cdef:
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_27runMC(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_35runMC(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyObject *__pyx_v_snapshots, int __pyx_v_deltas, int __pyx_v_repeats, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PyObject *__pyx_v_conditional = 0;
   PyArrayObject *__pyx_v_px = 0;
@@ -11185,7 +13719,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
   PyObject *(*__pyx_t_6)(PyObject *);
   __Pyx_RefNannySetupContext("runMC", 0);
 
-  /* "Toolbox/infcy.pyx":673
+  /* "Toolbox/infcy.pyx":867
  *     """ wrapper to perform MC and MI"""
  *     cdef:
  *         dict conditional = monteCarlo(model = model, snapshots = snapshots,\             # <<<<<<<<<<<<<<
@@ -11195,19 +13729,19 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
   __pyx_t_2.__pyx_n = 2;
   __pyx_t_2.deltas = __pyx_v_deltas;
   __pyx_t_2.repeats = __pyx_v_repeats;
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_monteCarlo(__pyx_v_model, __pyx_v_snapshots, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 673, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_monteCarlo(__pyx_v_model, __pyx_v_snapshots, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 867, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_conditional = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":677
+  /* "Toolbox/infcy.pyx":871
  *                         )
  *         np.ndarray px, mi
  *     px, mi = mutualInformation(conditional, deltas, snapshots, model)             # <<<<<<<<<<<<<<
  *     return conditional, px, mi
  *     # @cython.boundscheck(False) # compiler directive
  */
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_mutualInformation(__pyx_v_conditional, __pyx_v_deltas, __pyx_v_snapshots, __pyx_v_model, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 677, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_mutualInformation(__pyx_v_conditional, __pyx_v_deltas, __pyx_v_snapshots, __pyx_v_model, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 871, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if ((likely(PyTuple_CheckExact(__pyx_t_1))) || (PyList_CheckExact(__pyx_t_1))) {
     PyObject* sequence = __pyx_t_1;
@@ -11215,7 +13749,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 677, __pyx_L1_error)
+      __PYX_ERR(0, 871, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -11228,15 +13762,15 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
     __Pyx_INCREF(__pyx_t_3);
     __Pyx_INCREF(__pyx_t_4);
     #else
-    __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 677, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 871, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 677, __pyx_L1_error)
+    __pyx_t_4 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 871, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     #endif
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_5 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 677, __pyx_L1_error)
+    __pyx_t_5 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 871, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_6 = Py_TYPE(__pyx_t_5)->tp_iternext;
@@ -11244,7 +13778,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
     __Pyx_GOTREF(__pyx_t_3);
     index = 1; __pyx_t_4 = __pyx_t_6(__pyx_t_5); if (unlikely(!__pyx_t_4)) goto __pyx_L3_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_4);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_6(__pyx_t_5), 2) < 0) __PYX_ERR(0, 677, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_6(__pyx_t_5), 2) < 0) __PYX_ERR(0, 871, __pyx_L1_error)
     __pyx_t_6 = NULL;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     goto __pyx_L4_unpacking_done;
@@ -11252,17 +13786,17 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_6 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 677, __pyx_L1_error)
+    __PYX_ERR(0, 871, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 677, __pyx_L1_error)
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 677, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 871, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 871, __pyx_L1_error)
   __pyx_v_px = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
   __pyx_v_mi = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "Toolbox/infcy.pyx":678
+  /* "Toolbox/infcy.pyx":872
  *         np.ndarray px, mi
  *     px, mi = mutualInformation(conditional, deltas, snapshots, model)
  *     return conditional, px, mi             # <<<<<<<<<<<<<<
@@ -11270,7 +13804,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
  *     # @cython.wraparound(False) # compiler directive
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 678, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 872, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_conditional);
   __Pyx_GIVEREF(__pyx_v_conditional);
@@ -11285,7 +13819,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":670
+  /* "Toolbox/infcy.pyx":864
  *     return px, -H
  * 
  * cpdef runMC(Model model, dict snapshots, int deltas, int repeats):             # <<<<<<<<<<<<<<
@@ -11311,9 +13845,9 @@ static PyObject *__pyx_f_7Toolbox_5infcy_runMC(struct __pyx_obj_6Models_6models_
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_27runMC(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_7Toolbox_5infcy_26runMC[] = " wrapper to perform MC and MI";
-static PyObject *__pyx_pw_7Toolbox_5infcy_27runMC(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_35runMC(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_7Toolbox_5infcy_34runMC[] = " wrapper to perform MC and MI";
+static PyObject *__pyx_pw_7Toolbox_5infcy_35runMC(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
   PyObject *__pyx_v_snapshots = 0;
   int __pyx_v_deltas;
@@ -11348,23 +13882,23 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_27runMC(PyObject *__pyx_self, PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_snapshots)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, 1); __PYX_ERR(0, 670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, 1); __PYX_ERR(0, 864, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_deltas)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, 2); __PYX_ERR(0, 670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, 2); __PYX_ERR(0, 864, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_repeats)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, 3); __PYX_ERR(0, 670, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, 3); __PYX_ERR(0, 864, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "runMC") < 0)) __PYX_ERR(0, 670, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "runMC") < 0)) __PYX_ERR(0, 864, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -11376,20 +13910,20 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_27runMC(PyObject *__pyx_self, PyObject
     }
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
     __pyx_v_snapshots = ((PyObject*)values[1]);
-    __pyx_v_deltas = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_deltas == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 670, __pyx_L3_error)
-    __pyx_v_repeats = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 670, __pyx_L3_error)
+    __pyx_v_deltas = __Pyx_PyInt_As_int(values[2]); if (unlikely((__pyx_v_deltas == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 864, __pyx_L3_error)
+    __pyx_v_repeats = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_repeats == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 864, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 670, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("runMC", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 864, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.runMC", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 670, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_snapshots), (&PyDict_Type), 1, "snapshots", 1))) __PYX_ERR(0, 670, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_26runMC(__pyx_self, __pyx_v_model, __pyx_v_snapshots, __pyx_v_deltas, __pyx_v_repeats);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 864, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_snapshots), (&PyDict_Type), 1, "snapshots", 1))) __PYX_ERR(0, 864, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_34runMC(__pyx_self, __pyx_v_model, __pyx_v_snapshots, __pyx_v_deltas, __pyx_v_repeats);
 
   /* function exit code */
   goto __pyx_L0;
@@ -11400,13 +13934,13 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_27runMC(PyObject *__pyx_self, PyObject
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_26runMC(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyObject *__pyx_v_snapshots, int __pyx_v_deltas, int __pyx_v_repeats) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_34runMC(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, PyObject *__pyx_v_snapshots, int __pyx_v_deltas, int __pyx_v_repeats) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("runMC", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_runMC(__pyx_v_model, __pyx_v_snapshots, __pyx_v_deltas, __pyx_v_repeats, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 670, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_runMC(__pyx_v_model, __pyx_v_snapshots, __pyx_v_deltas, __pyx_v_repeats, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 864, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11423,7 +13957,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_26runMC(CYTHON_UNUSED PyObject *__pyx_
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":834
+/* "Toolbox/infcy.pyx":1028
  * 
  * 
  * cpdef np.ndarray f(Worker x):             # <<<<<<<<<<<<<<
@@ -11431,14 +13965,14 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_26runMC(CYTHON_UNUSED PyObject *__pyx_
  *     return x.parallWrap()
  */
 
-static PyObject *__pyx_pw_7Toolbox_5infcy_29f(PyObject *__pyx_self, PyObject *__pyx_v_x); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_37f(PyObject *__pyx_self, PyObject *__pyx_v_x); /*proto*/
 static PyArrayObject *__pyx_f_7Toolbox_5infcy_f(struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_x, CYTHON_UNUSED int __pyx_skip_dispatch) {
   PyArrayObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("f", 0);
 
-  /* "Toolbox/infcy.pyx":836
+  /* "Toolbox/infcy.pyx":1030
  * cpdef np.ndarray f(Worker x):
  *     # print('id', id(x))
  *     return x.parallWrap()             # <<<<<<<<<<<<<<
@@ -11446,13 +13980,13 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_f(struct __pyx_obj_7Toolbox_5infcy
  * 
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_7Toolbox_5infcy_Worker *)__pyx_v_x->__pyx_vtab)->parallWrap(__pyx_v_x)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 836, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)((struct __pyx_vtabstruct_7Toolbox_5infcy_Worker *)__pyx_v_x->__pyx_vtab)->parallWrap(__pyx_v_x)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1030, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":834
+  /* "Toolbox/infcy.pyx":1028
  * 
  * 
  * cpdef np.ndarray f(Worker x):             # <<<<<<<<<<<<<<
@@ -11472,13 +14006,13 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_f(struct __pyx_obj_7Toolbox_5infcy
 }
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_29f(PyObject *__pyx_self, PyObject *__pyx_v_x); /*proto*/
-static PyObject *__pyx_pw_7Toolbox_5infcy_29f(PyObject *__pyx_self, PyObject *__pyx_v_x) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_37f(PyObject *__pyx_self, PyObject *__pyx_v_x); /*proto*/
+static PyObject *__pyx_pw_7Toolbox_5infcy_37f(PyObject *__pyx_self, PyObject *__pyx_v_x) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("f (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_x), __pyx_ptype_7Toolbox_5infcy_Worker, 1, "x", 0))) __PYX_ERR(0, 834, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_28f(__pyx_self, ((struct __pyx_obj_7Toolbox_5infcy_Worker *)__pyx_v_x));
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_x), __pyx_ptype_7Toolbox_5infcy_Worker, 1, "x", 0))) __PYX_ERR(0, 1028, __pyx_L1_error)
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_36f(__pyx_self, ((struct __pyx_obj_7Toolbox_5infcy_Worker *)__pyx_v_x));
 
   /* function exit code */
   goto __pyx_L0;
@@ -11489,13 +14023,13 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_29f(PyObject *__pyx_self, PyObject *__
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_28f(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_x) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_36f(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_7Toolbox_5infcy_Worker *__pyx_v_x) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("f", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_f(__pyx_v_x, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 834, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_7Toolbox_5infcy_f(__pyx_v_x, 0)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1028, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -11512,7 +14046,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_28f(CYTHON_UNUSED PyObject *__pyx_self
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":853
+/* "Toolbox/infcy.pyx":1047
  *     cdef Model model
  *     # cdef dict __dict__
  *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -11549,78 +14083,78 @@ static int __pyx_pf_7Toolbox_5infcy_6Worker___init__(struct __pyx_obj_7Toolbox_5
   int __pyx_t_2;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "Toolbox/infcy.pyx":857
+  /* "Toolbox/infcy.pyx":1051
  *         #     setattr(self, k, v)
  * 
  *         self.deltas     = kwargs['deltas']             # <<<<<<<<<<<<<<
  *         self.model      = kwargs['model']
  *         self.repeats    = kwargs['repeats']
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_deltas); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 857, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_deltas); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1051, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 857, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1051, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->deltas = __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":858
+  /* "Toolbox/infcy.pyx":1052
  * 
  *         self.deltas     = kwargs['deltas']
  *         self.model      = kwargs['model']             # <<<<<<<<<<<<<<
  *         self.repeats    = kwargs['repeats']
  *         self.startState = kwargs['startState']
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_model); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 858, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_model); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1052, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 858, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_6Models_6models_Model))))) __PYX_ERR(0, 1052, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->model);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->model));
   __pyx_v_self->model = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":859
+  /* "Toolbox/infcy.pyx":1053
  *         self.deltas     = kwargs['deltas']
  *         self.model      = kwargs['model']
  *         self.repeats    = kwargs['repeats']             # <<<<<<<<<<<<<<
  *         self.startState = kwargs['startState']
  *         self.idx        = kwargs['idx']
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_repeats); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 859, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_repeats); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1053, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 859, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1053, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->repeats = __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":860
+  /* "Toolbox/infcy.pyx":1054
  *         self.model      = kwargs['model']
  *         self.repeats    = kwargs['repeats']
  *         self.startState = kwargs['startState']             # <<<<<<<<<<<<<<
  *         self.idx        = kwargs['idx']
  * 
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_startState); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 860, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_startState); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1054, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 860, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1054, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->startState);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->startState));
   __pyx_v_self->startState = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":861
+  /* "Toolbox/infcy.pyx":1055
  *         self.repeats    = kwargs['repeats']
  *         self.startState = kwargs['startState']
  *         self.idx        = kwargs['idx']             # <<<<<<<<<<<<<<
  * 
  *     cdef np.ndarray parallWrap(self):
  */
-  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_idx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 861, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_kwargs, __pyx_n_u_idx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1055, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 861, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 1055, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->idx = __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":853
+  /* "Toolbox/infcy.pyx":1047
  *     cdef Model model
  *     # cdef dict __dict__
  *     def __init__(self, *args, **kwargs):             # <<<<<<<<<<<<<<
@@ -11640,7 +14174,7 @@ static int __pyx_pf_7Toolbox_5infcy_6Worker___init__(struct __pyx_obj_7Toolbox_5
   return __pyx_r;
 }
 
-/* "Toolbox/infcy.pyx":863
+/* "Toolbox/infcy.pyx":1057
  *         self.idx        = kwargs['idx']
  * 
  *     cdef np.ndarray parallWrap(self):             # <<<<<<<<<<<<<<
@@ -11701,19 +14235,19 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
   PyObject *__pyx_t_33 = NULL;
   __Pyx_RefNannySetupContext("parallWrap", 0);
 
-  /* "Toolbox/infcy.pyx":864
+  /* "Toolbox/infcy.pyx":1058
  * 
  *     cdef np.ndarray parallWrap(self):
  *         cdef long[::1] startState = self.startState             # <<<<<<<<<<<<<<
  *         # start unpacking
  *         cdef int deltas           = self.deltas
  */
-  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_v_self->startState), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 864, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(((PyObject *)__pyx_v_self->startState), PyBUF_WRITABLE); if (unlikely(!__pyx_t_1.memview)) __PYX_ERR(0, 1058, __pyx_L1_error)
   __pyx_v_startState = __pyx_t_1;
   __pyx_t_1.memview = NULL;
   __pyx_t_1.data = NULL;
 
-  /* "Toolbox/infcy.pyx":866
+  /* "Toolbox/infcy.pyx":1060
  *         cdef long[::1] startState = self.startState
  *         # start unpacking
  *         cdef int deltas           = self.deltas             # <<<<<<<<<<<<<<
@@ -11723,7 +14257,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
   __pyx_t_2 = __pyx_v_self->deltas;
   __pyx_v_deltas = __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":867
+  /* "Toolbox/infcy.pyx":1061
  *         # start unpacking
  *         cdef int deltas           = self.deltas
  *         cdef int repeats          = self.repeats             # <<<<<<<<<<<<<<
@@ -11733,7 +14267,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
   __pyx_t_2 = __pyx_v_self->repeats;
   __pyx_v_repeats = __pyx_t_2;
 
-  /* "Toolbox/infcy.pyx":869
+  /* "Toolbox/infcy.pyx":1063
  *         cdef int repeats          = self.repeats
  *         # cdef long[::1] startState = startState
  *         cdef Model model          = self.model             # <<<<<<<<<<<<<<
@@ -11745,19 +14279,19 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
   __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "Toolbox/infcy.pyx":871
+  /* "Toolbox/infcy.pyx":1065
  *         cdef Model model          = self.model
  *         # pre-declaration
  *         cdef double[::1] out = np.zeros((deltas + 1) * model._nNodes * model._nStates)             # <<<<<<<<<<<<<<
  *         cdef double Z              = <double> repeats
  *         cdef double[:] copyNudge   = model._nudges.copy()
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1065, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1065, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_long((((__pyx_v_deltas + 1) * __pyx_v_model->_nNodes) * __pyx_v_model->_nStates)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_long((((__pyx_v_deltas + 1) * __pyx_v_model->_nNodes) * __pyx_v_model->_nStates)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1065, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __pyx_t_6 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -11772,16 +14306,16 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
   __pyx_t_3 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4);
   __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 871, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1065, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 871, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_to_MemoryviewSlice_dc_double(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1065, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_out = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "Toolbox/infcy.pyx":872
+  /* "Toolbox/infcy.pyx":1066
  *         # pre-declaration
  *         cdef double[::1] out = np.zeros((deltas + 1) * model._nNodes * model._nStates)
  *         cdef double Z              = <double> repeats             # <<<<<<<<<<<<<<
@@ -11790,20 +14324,20 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
   __pyx_v_Z = ((double)__pyx_v_repeats);
 
-  /* "Toolbox/infcy.pyx":873
+  /* "Toolbox/infcy.pyx":1067
  *         cdef double[::1] out = np.zeros((deltas + 1) * model._nNodes * model._nStates)
  *         cdef double Z              = <double> repeats
  *         cdef double[:] copyNudge   = model._nudges.copy()             # <<<<<<<<<<<<<<
  *         cdef bint reset            = True
  *         # loop stuff
  */
-  if (unlikely(!__pyx_v_model->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 873, __pyx_L1_error)}
-  __pyx_t_7 = __pyx_memoryview_copy_slice_dc_double_c(__pyx_v_model->_nudges); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 873, __pyx_L1_error)
+  if (unlikely(!__pyx_v_model->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1067, __pyx_L1_error)}
+  __pyx_t_7 = __pyx_memoryview_copy_slice_dc_double_c(__pyx_v_model->_nudges); if (unlikely(!__pyx_t_7.memview)) __PYX_ERR(0, 1067, __pyx_L1_error)
   __pyx_v_copyNudge = __pyx_t_7;
   __pyx_t_7.memview = NULL;
   __pyx_t_7.data = NULL;
 
-  /* "Toolbox/infcy.pyx":874
+  /* "Toolbox/infcy.pyx":1068
  *         cdef double Z              = <double> repeats
  *         cdef double[:] copyNudge   = model._nudges.copy()
  *         cdef bint reset            = True             # <<<<<<<<<<<<<<
@@ -11812,7 +14346,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
   __pyx_v_reset = 1;
 
-  /* "Toolbox/infcy.pyx":877
+  /* "Toolbox/infcy.pyx":1071
  *         # loop stuff
  *         cdef long[:, ::1] r
  *         cdef int k, delta, node, statei, counter, half = deltas // 2             # <<<<<<<<<<<<<<
@@ -11821,7 +14355,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
   __pyx_v_half = __Pyx_div_long(__pyx_v_deltas, 2);
 
-  /* "Toolbox/infcy.pyx":879
+  /* "Toolbox/infcy.pyx":1073
  *         cdef int k, delta, node, statei, counter, half = deltas // 2
  *         # pbar = tqdm(total = repeats)
  *         for k in range(repeats):             # <<<<<<<<<<<<<<
@@ -11833,7 +14367,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
   for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
     __pyx_v_k = __pyx_t_9;
 
-    /* "Toolbox/infcy.pyx":880
+    /* "Toolbox/infcy.pyx":1074
  *         # pbar = tqdm(total = repeats)
  *         for k in range(repeats):
  *             for node in range(model._nNodes):             # <<<<<<<<<<<<<<
@@ -11845,7 +14379,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
     for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
       __pyx_v_node = __pyx_t_12;
 
-      /* "Toolbox/infcy.pyx":881
+      /* "Toolbox/infcy.pyx":1075
  *         for k in range(repeats):
  *             for node in range(model._nNodes):
  *                 model._states[node] = startState[node]             # <<<<<<<<<<<<<<
@@ -11860,9 +14394,9 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
       } else if (unlikely(__pyx_t_13 >= __pyx_v_startState.shape[0])) __pyx_t_14 = 0;
       if (unlikely(__pyx_t_14 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_14);
-        __PYX_ERR(0, 881, __pyx_L1_error)
+        __PYX_ERR(0, 1075, __pyx_L1_error)
       }
-      if (unlikely(!__pyx_v_model->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 881, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_model->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1075, __pyx_L1_error)}
       __pyx_t_15 = __pyx_v_node;
       __pyx_t_14 = -1;
       if (__pyx_t_15 < 0) {
@@ -11871,11 +14405,11 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
       } else if (unlikely(__pyx_t_15 >= __pyx_v_model->_states.shape[0])) __pyx_t_14 = 0;
       if (unlikely(__pyx_t_14 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_14);
-        __PYX_ERR(0, 881, __pyx_L1_error)
+        __PYX_ERR(0, 1075, __pyx_L1_error)
       }
       *((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_model->_states.data) + __pyx_t_15)) )) = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_startState.data) + __pyx_t_13)) )));
 
-      /* "Toolbox/infcy.pyx":882
+      /* "Toolbox/infcy.pyx":1076
  *             for node in range(model._nNodes):
  *                 model._states[node] = startState[node]
  *                 model._nudges[node] = copyNudge[node]             # <<<<<<<<<<<<<<
@@ -11890,9 +14424,9 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
       } else if (unlikely(__pyx_t_16 >= __pyx_v_copyNudge.shape[0])) __pyx_t_14 = 0;
       if (unlikely(__pyx_t_14 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_14);
-        __PYX_ERR(0, 882, __pyx_L1_error)
+        __PYX_ERR(0, 1076, __pyx_L1_error)
       }
-      if (unlikely(!__pyx_v_model->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 882, __pyx_L1_error)}
+      if (unlikely(!__pyx_v_model->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1076, __pyx_L1_error)}
       __pyx_t_17 = __pyx_v_node;
       __pyx_t_14 = -1;
       if (__pyx_t_17 < 0) {
@@ -11901,12 +14435,12 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
       } else if (unlikely(__pyx_t_17 >= __pyx_v_model->_nudges.shape[0])) __pyx_t_14 = 0;
       if (unlikely(__pyx_t_14 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_14);
-        __PYX_ERR(0, 882, __pyx_L1_error)
+        __PYX_ERR(0, 1076, __pyx_L1_error)
       }
       *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_model->_nudges.data) + __pyx_t_17)) )) = (*((double *) ( /* dim=0 */ (__pyx_v_copyNudge.data + __pyx_t_16 * __pyx_v_copyNudge.strides[0]) )));
     }
 
-    /* "Toolbox/infcy.pyx":884
+    /* "Toolbox/infcy.pyx":1078
  *                 model._nudges[node] = copyNudge[node]
  *             # reset simulation
  *             reset   = True             # <<<<<<<<<<<<<<
@@ -11915,7 +14449,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
     __pyx_v_reset = 1;
 
-    /* "Toolbox/infcy.pyx":885
+    /* "Toolbox/infcy.pyx":1079
  *             # reset simulation
  *             reset   = True
  *             counter = 0             # <<<<<<<<<<<<<<
@@ -11924,20 +14458,20 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
     __pyx_v_counter = 0;
 
-    /* "Toolbox/infcy.pyx":886
+    /* "Toolbox/infcy.pyx":1080
  *             reset   = True
  *             counter = 0
  *             r       = model.sampleNodes(repeats * (deltas + 1))             # <<<<<<<<<<<<<<
  *             for delta in range(deltas + 1):
  *                 # bin data
  */
-    __pyx_t_18 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, (__pyx_v_repeats * (__pyx_v_deltas + 1))); if (unlikely(!__pyx_t_18.memview)) __PYX_ERR(0, 886, __pyx_L1_error)
+    __pyx_t_18 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->sampleNodes(__pyx_v_model, (__pyx_v_repeats * (__pyx_v_deltas + 1))); if (unlikely(!__pyx_t_18.memview)) __PYX_ERR(0, 1080, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_v_r, 1);
     __pyx_v_r = __pyx_t_18;
     __pyx_t_18.memview = NULL;
     __pyx_t_18.data = NULL;
 
-    /* "Toolbox/infcy.pyx":887
+    /* "Toolbox/infcy.pyx":1081
  *             counter = 0
  *             r       = model.sampleNodes(repeats * (deltas + 1))
  *             for delta in range(deltas + 1):             # <<<<<<<<<<<<<<
@@ -11949,7 +14483,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
     for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_20; __pyx_t_10+=1) {
       __pyx_v_delta = __pyx_t_10;
 
-      /* "Toolbox/infcy.pyx":889
+      /* "Toolbox/infcy.pyx":1083
  *             for delta in range(deltas + 1):
  *                 # bin data
  *                 for node in range(model._nNodes):             # <<<<<<<<<<<<<<
@@ -11961,7 +14495,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
       for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_12; __pyx_t_14+=1) {
         __pyx_v_node = __pyx_t_14;
 
-        /* "Toolbox/infcy.pyx":890
+        /* "Toolbox/infcy.pyx":1084
  *                 # bin data
  *                 for node in range(model._nNodes):
  *                     for statei in range(model._nStates):             # <<<<<<<<<<<<<<
@@ -11973,14 +14507,14 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
         for (__pyx_t_23 = 0; __pyx_t_23 < __pyx_t_22; __pyx_t_23+=1) {
           __pyx_v_statei = __pyx_t_23;
 
-          /* "Toolbox/infcy.pyx":891
+          /* "Toolbox/infcy.pyx":1085
  *                 for node in range(model._nNodes):
  *                     for statei in range(model._nStates):
  *                         if model._states[node] == model.agentStates[statei]:             # <<<<<<<<<<<<<<
  *                             out[counter] += 1 / Z
  *                         counter += 1
  */
-          if (unlikely(!__pyx_v_model->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 891, __pyx_L1_error)}
+          if (unlikely(!__pyx_v_model->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1085, __pyx_L1_error)}
           __pyx_t_24 = __pyx_v_node;
           __pyx_t_25 = -1;
           if (__pyx_t_24 < 0) {
@@ -11989,9 +14523,9 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
           } else if (unlikely(__pyx_t_24 >= __pyx_v_model->_states.shape[0])) __pyx_t_25 = 0;
           if (unlikely(__pyx_t_25 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_25);
-            __PYX_ERR(0, 891, __pyx_L1_error)
+            __PYX_ERR(0, 1085, __pyx_L1_error)
           }
-          if (unlikely(!__pyx_v_model->agentStates.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 891, __pyx_L1_error)}
+          if (unlikely(!__pyx_v_model->agentStates.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1085, __pyx_L1_error)}
           __pyx_t_26 = __pyx_v_statei;
           __pyx_t_25 = -1;
           if (__pyx_t_26 < 0) {
@@ -12000,12 +14534,12 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
           } else if (unlikely(__pyx_t_26 >= __pyx_v_model->agentStates.shape[0])) __pyx_t_25 = 0;
           if (unlikely(__pyx_t_25 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_25);
-            __PYX_ERR(0, 891, __pyx_L1_error)
+            __PYX_ERR(0, 1085, __pyx_L1_error)
           }
           __pyx_t_27 = (((*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_model->_states.data) + __pyx_t_24)) ))) == (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_model->agentStates.data) + __pyx_t_26)) )))) != 0);
           if (__pyx_t_27) {
 
-            /* "Toolbox/infcy.pyx":892
+            /* "Toolbox/infcy.pyx":1086
  *                     for statei in range(model._nStates):
  *                         if model._states[node] == model.agentStates[statei]:
  *                             out[counter] += 1 / Z             # <<<<<<<<<<<<<<
@@ -12014,7 +14548,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
             if (unlikely(__pyx_v_Z == 0)) {
               PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-              __PYX_ERR(0, 892, __pyx_L1_error)
+              __PYX_ERR(0, 1086, __pyx_L1_error)
             }
             __pyx_t_28 = __pyx_v_counter;
             __pyx_t_25 = -1;
@@ -12024,11 +14558,11 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
             } else if (unlikely(__pyx_t_28 >= __pyx_v_out.shape[0])) __pyx_t_25 = 0;
             if (unlikely(__pyx_t_25 != -1)) {
               __Pyx_RaiseBufferIndexError(__pyx_t_25);
-              __PYX_ERR(0, 892, __pyx_L1_error)
+              __PYX_ERR(0, 1086, __pyx_L1_error)
             }
             *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_out.data) + __pyx_t_28)) )) += (1.0 / __pyx_v_Z);
 
-            /* "Toolbox/infcy.pyx":891
+            /* "Toolbox/infcy.pyx":1085
  *                 for node in range(model._nNodes):
  *                     for statei in range(model._nStates):
  *                         if model._states[node] == model.agentStates[statei]:             # <<<<<<<<<<<<<<
@@ -12037,7 +14571,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
  */
           }
 
-          /* "Toolbox/infcy.pyx":893
+          /* "Toolbox/infcy.pyx":1087
  *                         if model._states[node] == model.agentStates[statei]:
  *                             out[counter] += 1 / Z
  *                         counter += 1             # <<<<<<<<<<<<<<
@@ -12048,7 +14582,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
         }
       }
 
-      /* "Toolbox/infcy.pyx":895
+      /* "Toolbox/infcy.pyx":1089
  *                         counter += 1
  *                 # update
  *                 model._updateState(r[counter])             # <<<<<<<<<<<<<<
@@ -12067,7 +14601,7 @@ static PyArrayObject *__pyx_f_7Toolbox_5infcy_6Worker_parallWrap(struct __pyx_ob
         if (!__Pyx_is_valid_index(__pyx_tmp_idx, __pyx_tmp_shape)) {
             PyErr_SetString(PyExc_IndexError,
                             "Index out of bounds (axis 0)");
-            __PYX_ERR(0, 895, __pyx_L1_error)
+            __PYX_ERR(0, 1089, __pyx_L1_error)
         }
         __pyx_t_1.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
@@ -12076,7 +14610,7 @@ __pyx_t_1.shape[0] = __pyx_v_r.shape[1];
 __pyx_t_1.strides[0] = __pyx_v_r.strides[1];
     __pyx_t_1.suboffsets[0] = -1;
 
-__pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->_updateState(__pyx_v_model, __pyx_t_1); if (unlikely(!__pyx_t_29.memview)) __PYX_ERR(0, 895, __pyx_L1_error)
+__pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__pyx_vtab)->_updateState(__pyx_v_model, __pyx_t_1); if (unlikely(!__pyx_t_29.memview)) __PYX_ERR(0, 1089, __pyx_L1_error)
       __PYX_XDEC_MEMVIEW(&__pyx_t_1, 1);
       __pyx_t_1.memview = NULL;
       __pyx_t_1.data = NULL;
@@ -12084,7 +14618,7 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
       __pyx_t_29.memview = NULL;
       __pyx_t_29.data = NULL;
 
-      /* "Toolbox/infcy.pyx":898
+      /* "Toolbox/infcy.pyx":1092
  * 
  *                 # turn-off
  *                 if reset:             # <<<<<<<<<<<<<<
@@ -12094,14 +14628,14 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
       __pyx_t_27 = (__pyx_v_reset != 0);
       if (__pyx_t_27) {
 
-        /* "Toolbox/infcy.pyx":899
+        /* "Toolbox/infcy.pyx":1093
  *                 # turn-off
  *                 if reset:
  *                     if model._nudgeType == 'pulse' or \             # <<<<<<<<<<<<<<
  *                     model._nudgeType    == 'constant' and delta >= half:
  *                         model._nudges[:] = 0
  */
-        __pyx_t_30 = (__Pyx_PyUnicode_Equals(__pyx_v_model->_nudgeType, __pyx_n_u_pulse, Py_EQ)); if (unlikely(__pyx_t_30 < 0)) __PYX_ERR(0, 899, __pyx_L1_error)
+        __pyx_t_30 = (__Pyx_PyUnicode_Equals(__pyx_v_model->_nudgeType, __pyx_n_u_pulse, Py_EQ)); if (unlikely(__pyx_t_30 < 0)) __PYX_ERR(0, 1093, __pyx_L1_error)
         __pyx_t_31 = (__pyx_t_30 != 0);
         if (!__pyx_t_31) {
         } else {
@@ -12109,14 +14643,14 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
           goto __pyx_L16_bool_binop_done;
         }
 
-        /* "Toolbox/infcy.pyx":900
+        /* "Toolbox/infcy.pyx":1094
  *                 if reset:
  *                     if model._nudgeType == 'pulse' or \
  *                     model._nudgeType    == 'constant' and delta >= half:             # <<<<<<<<<<<<<<
  *                         model._nudges[:] = 0
  *                         reset            = False
  */
-        __pyx_t_31 = (__Pyx_PyUnicode_Equals(__pyx_v_model->_nudgeType, __pyx_n_u_constant, Py_EQ)); if (unlikely(__pyx_t_31 < 0)) __PYX_ERR(0, 900, __pyx_L1_error)
+        __pyx_t_31 = (__Pyx_PyUnicode_Equals(__pyx_v_model->_nudgeType, __pyx_n_u_constant, Py_EQ)); if (unlikely(__pyx_t_31 < 0)) __PYX_ERR(0, 1094, __pyx_L1_error)
         __pyx_t_30 = (__pyx_t_31 != 0);
         if (__pyx_t_30) {
         } else {
@@ -12127,7 +14661,7 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
         __pyx_t_27 = __pyx_t_30;
         __pyx_L16_bool_binop_done:;
 
-        /* "Toolbox/infcy.pyx":899
+        /* "Toolbox/infcy.pyx":1093
  *                 # turn-off
  *                 if reset:
  *                     if model._nudgeType == 'pulse' or \             # <<<<<<<<<<<<<<
@@ -12136,14 +14670,14 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
  */
         if (__pyx_t_27) {
 
-          /* "Toolbox/infcy.pyx":901
+          /* "Toolbox/infcy.pyx":1095
  *                     if model._nudgeType == 'pulse' or \
  *                     model._nudgeType    == 'constant' and delta >= half:
  *                         model._nudges[:] = 0             # <<<<<<<<<<<<<<
  *                         reset            = False
  *             # pbar.update(1)
  */
-          if (unlikely(!__pyx_v_model->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 901, __pyx_L1_error)}
+          if (unlikely(!__pyx_v_model->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 1095, __pyx_L1_error)}
           {
               double __pyx_temp_scalar = 0.0;
               {
@@ -12157,7 +14691,7 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
               }
           }
 
-          /* "Toolbox/infcy.pyx":902
+          /* "Toolbox/infcy.pyx":1096
  *                     model._nudgeType    == 'constant' and delta >= half:
  *                         model._nudges[:] = 0
  *                         reset            = False             # <<<<<<<<<<<<<<
@@ -12166,7 +14700,7 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
  */
           __pyx_v_reset = 0;
 
-          /* "Toolbox/infcy.pyx":899
+          /* "Toolbox/infcy.pyx":1093
  *                 # turn-off
  *                 if reset:
  *                     if model._nudgeType == 'pulse' or \             # <<<<<<<<<<<<<<
@@ -12175,7 +14709,7 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
  */
         }
 
-        /* "Toolbox/infcy.pyx":898
+        /* "Toolbox/infcy.pyx":1092
  * 
  *                 # turn-off
  *                 if reset:             # <<<<<<<<<<<<<<
@@ -12186,27 +14720,27 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
     }
   }
 
-  /* "Toolbox/infcy.pyx":905
+  /* "Toolbox/infcy.pyx":1099
  *             # pbar.update(1)
  *         # pbar.close()
  *         return out.base.reshape((deltas + 1, model._nNodes, model._nStates))             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_5 = __pyx_memoryview_fromslice(__pyx_v_out, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_5 = __pyx_memoryview_fromslice(__pyx_v_out, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_base); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_base); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_reshape); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_long((__pyx_v_deltas + 1)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_long((__pyx_v_deltas + 1)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_model->_nNodes); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_32 = __Pyx_PyInt_From_int(__pyx_v_model->_nStates); if (unlikely(!__pyx_t_32)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_32 = __Pyx_PyInt_From_int(__pyx_v_model->_nStates); if (unlikely(!__pyx_t_32)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_32);
-  __pyx_t_33 = PyTuple_New(3); if (unlikely(!__pyx_t_33)) __PYX_ERR(0, 905, __pyx_L1_error)
+  __pyx_t_33 = PyTuple_New(3); if (unlikely(!__pyx_t_33)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_33);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_33, 0, __pyx_t_4);
@@ -12230,15 +14764,15 @@ __pyx_t_29 = ((struct __pyx_vtabstruct_6Models_6models_Model *)__pyx_v_model->__
   __pyx_t_3 = (__pyx_t_32) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_32, __pyx_t_33) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_33);
   __Pyx_XDECREF(__pyx_t_32); __pyx_t_32 = 0;
   __Pyx_DECREF(__pyx_t_33); __pyx_t_33 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 905, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 1099, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 905, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 1099, __pyx_L1_error)
   __pyx_r = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "Toolbox/infcy.pyx":863
+  /* "Toolbox/infcy.pyx":1057
  *         self.idx        = kwargs['idx']
  * 
  *     cdef np.ndarray parallWrap(self):             # <<<<<<<<<<<<<<
@@ -12596,9 +15130,9 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_6Worker_4__setstate_cython__(struct __
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_7Toolbox_5infcy_31__pyx_unpickle_Worker(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_7Toolbox_5infcy_31__pyx_unpickle_Worker = {"__pyx_unpickle_Worker", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_31__pyx_unpickle_Worker, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_7Toolbox_5infcy_31__pyx_unpickle_Worker(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_7Toolbox_5infcy_39__pyx_unpickle_Worker(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_7Toolbox_5infcy_39__pyx_unpickle_Worker = {"__pyx_unpickle_Worker", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_39__pyx_unpickle_Worker, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_7Toolbox_5infcy_39__pyx_unpickle_Worker(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v___pyx_type = 0;
   long __pyx_v___pyx_checksum;
   PyObject *__pyx_v___pyx_state = 0;
@@ -12661,14 +15195,14 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_31__pyx_unpickle_Worker(PyObject *__py
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_30__pyx_unpickle_Worker(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_38__pyx_unpickle_Worker(__pyx_self, __pyx_v___pyx_type, __pyx_v___pyx_checksum, __pyx_v___pyx_state);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_30__pyx_unpickle_Worker(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_38__pyx_unpickle_Worker(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v___pyx_type, long __pyx_v___pyx_checksum, PyObject *__pyx_v___pyx_state) {
   PyObject *__pyx_v___pyx_PickleError = 0;
   PyObject *__pyx_v___pyx_result = 0;
   PyObject *__pyx_r = NULL;
@@ -13135,7 +15669,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 272, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 272, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -13191,7 +15725,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  * 
  *             info.buf = PyArray_DATA(self)
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__10, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 276, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 276, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -13449,7 +15983,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 306, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 306, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -14329,7 +16863,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__12, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 856, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 856, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -14397,7 +16931,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  *             # One could encode it in the format string and have Cython
  *             # complain instead, BUT: < and > in format strings also imply
  */
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__11, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 860, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 860, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_Raise(__pyx_t_3, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -14506,7 +17040,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  */
-        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 880, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_RuntimeError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 880, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_Raise(__pyx_t_4, 0, 0, 0);
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -15134,7 +17668,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  * 
  * cdef inline int import_umath() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__14, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 1038, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 1038, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -15263,7 +17797,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  * 
  * cdef inline int import_ufunc() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 1044, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 1044, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -15389,7 +17923,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__15, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 1050, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 1050, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -15909,60 +18443,6 @@ static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &__pyx_v
   return __pyx_r;
 }
 
-static PyObject *__pyx_convert_vector_to_py_double(const std::vector<double>  &__pyx_v_v) {
-  size_t __pyx_v_i;
-  PyObject *__pyx_r = NULL;
-  __Pyx_RefNannyDeclarations
-  PyObject *__pyx_t_1 = NULL;
-  size_t __pyx_t_2;
-  size_t __pyx_t_3;
-  size_t __pyx_t_4;
-  PyObject *__pyx_t_5 = NULL;
-  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_double", 0);
-
-  /* "vector.to_py":61
- * @cname("__pyx_convert_vector_to_py_double")
- * cdef object __pyx_convert_vector_to_py_double(vector[X]& v):
- *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 61, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __pyx_v_v.size();
-  __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
-    __pyx_v_i = __pyx_t_4;
-    __pyx_t_5 = PyFloat_FromDouble((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 61, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(1, 61, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  }
-  __pyx_r = __pyx_t_1;
-  __pyx_t_1 = 0;
-  goto __pyx_L0;
-
-  /* "vector.to_py":60
- * 
- * @cname("__pyx_convert_vector_to_py_double")
- * cdef object __pyx_convert_vector_to_py_double(vector[X]& v):             # <<<<<<<<<<<<<<
- *     return [v[i] for i in range(v.size())]
- * 
- */
-
-  /* function exit code */
-  __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_double", __pyx_clineno, __pyx_lineno, __pyx_filename);
-  __pyx_r = 0;
-  __pyx_L0:;
-  __Pyx_XGIVEREF(__pyx_r);
-  __Pyx_RefNannyFinishContext();
-  return __pyx_r;
-}
-
 /* "View.MemoryView":122
  *         cdef bint dtype_is_object
  * 
@@ -16160,7 +18640,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  *         if itemsize <= 0:
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__16, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 133, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -16192,7 +18672,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  *         if not isinstance(format, bytes):
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__17, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 136, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__19, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 136, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -16319,7 +18799,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 148, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 148, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -16593,7 +19073,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  * 
  *             if self.dtype_is_object:
  */
-      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__19, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 176, __pyx_L1_error)
+      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__21, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(1, 176, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_Raise(__pyx_t_10, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
@@ -16834,7 +19314,7 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(stru
  *         info.buf = self.data
  *         info.len = self.len
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__20, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 192, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__22, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 192, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -17550,7 +20030,7 @@ static PyObject *__pyx_pf___pyx_array___reduce_cython__(CYTHON_UNUSED struct __p
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__21, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__23, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -17603,7 +20083,7 @@ static PyObject *__pyx_pf___pyx_array_2__setstate_cython__(CYTHON_UNUSED struct 
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__22, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__24, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -19247,7 +21727,7 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_6__setit
  * 
  *         have_slices, index = _unellipsify(index, self.view.ndim)
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__23, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 414, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__25, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 414, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -20274,7 +22754,7 @@ static PyObject *__pyx_memoryview_convert_item_to_object(struct __pyx_memoryview
  *         else:
  *             if len(self.view.format) == 1:
  */
-      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__24, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 491, __pyx_L5_except_error)
+      __pyx_t_6 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__26, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(1, 491, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_Raise(__pyx_t_6, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -20630,7 +23110,7 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_8__getbu
  * 
  *         if flags & PyBUF_ND:
  */
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__25, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 516, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__27, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 516, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_Raise(__pyx_t_3, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -21170,7 +23650,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_7strides___get__(st
  * 
  *         return tuple([stride for stride in self.view.strides[:self.view.ndim]])
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__26, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 566, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 566, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -21284,7 +23764,7 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_10suboffsets___get_
     __Pyx_XDECREF(__pyx_r);
     __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->view.ndim); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyNumber_Multiply(__pyx_tuple__27, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 573, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_tuple__29, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(1, 573, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_r = __pyx_t_3;
@@ -22285,7 +24765,7 @@ static PyObject *__pyx_pf___pyx_memoryview___reduce_cython__(CYTHON_UNUSED struc
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__28, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__30, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -22338,7 +24818,7 @@ static PyObject *__pyx_pf___pyx_memoryview_2__setstate_cython__(CYTHON_UNUSED st
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__29, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -22689,9 +25169,9 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
         __Pyx_GOTREF(__pyx_t_7);
         { Py_ssize_t __pyx_temp;
           for (__pyx_temp=0; __pyx_temp < ((__pyx_v_ndim - __pyx_t_8) + 1); __pyx_temp++) {
-            __Pyx_INCREF(__pyx_slice__30);
-            __Pyx_GIVEREF(__pyx_slice__30);
-            PyList_SET_ITEM(__pyx_t_7, __pyx_temp, __pyx_slice__30);
+            __Pyx_INCREF(__pyx_slice__32);
+            __Pyx_GIVEREF(__pyx_slice__32);
+            PyList_SET_ITEM(__pyx_t_7, __pyx_temp, __pyx_slice__32);
           }
         }
         __pyx_t_9 = __Pyx_PyList_Extend(__pyx_v_result, __pyx_t_7); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(1, 678, __pyx_L1_error)
@@ -22724,7 +25204,7 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
  *         else:
  */
       /*else*/ {
-        __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_result, __pyx_slice__30); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(1, 681, __pyx_L1_error)
+        __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_result, __pyx_slice__32); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(1, 681, __pyx_L1_error)
       }
       __pyx_L7:;
 
@@ -22864,9 +25344,9 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
     __Pyx_GOTREF(__pyx_t_3);
     { Py_ssize_t __pyx_temp;
       for (__pyx_temp=0; __pyx_temp < __pyx_v_nslices; __pyx_temp++) {
-        __Pyx_INCREF(__pyx_slice__30);
-        __Pyx_GIVEREF(__pyx_slice__30);
-        PyList_SET_ITEM(__pyx_t_3, __pyx_temp, __pyx_slice__30);
+        __Pyx_INCREF(__pyx_slice__32);
+        __Pyx_GIVEREF(__pyx_slice__32);
+        PyList_SET_ITEM(__pyx_t_3, __pyx_temp, __pyx_slice__32);
       }
     }
     __pyx_t_9 = __Pyx_PyList_Extend(__pyx_v_result, __pyx_t_3); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(1, 692, __pyx_L1_error)
@@ -22990,7 +25470,7 @@ static PyObject *assert_direct_dimensions(Py_ssize_t *__pyx_v_suboffsets, int __
  * 
  * 
  */
-      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__31, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 699, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(1, 699, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_Raise(__pyx_t_5, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -25153,7 +27633,7 @@ static PyObject *__pyx_pf___pyx_memoryviewslice___reduce_cython__(CYTHON_UNUSED 
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__32, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__34, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 2, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -25206,7 +27686,7 @@ static PyObject *__pyx_pf___pyx_memoryviewslice_2__setstate_cython__(CYTHON_UNUS
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__33, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_TypeError, __pyx_tuple__35, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 4, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_Raise(__pyx_t_1, 0, 0, 0);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -29532,15 +32012,19 @@ static PyMethodDef __pyx_methods[] = {
   {"getSnapShots", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_7getSnapShots, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_6getSnapShots},
   {"monteCarlo", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_9monteCarlo, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_8monteCarlo},
   {"collectSnapshots", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_11collectSnapshots, METH_VARARGS|METH_KEYWORDS, 0},
-  {"binaryEntropies", (PyCFunction)__pyx_pw_7Toolbox_5infcy_13binaryEntropies, METH_O, 0},
-  {"mutualInformationIDL", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_15mutualInformationIDL, METH_VARARGS|METH_KEYWORDS, 0},
-  {"entropy", (PyCFunction)__pyx_pw_7Toolbox_5infcy_17entropy, METH_O, 0},
-  {"MIAtDist", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_19MIAtDist, METH_VARARGS|METH_KEYWORDS, 0},
-  {"runMI", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_21runMI, METH_VARARGS|METH_KEYWORDS, 0},
-  {"magnetizationParallel", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_23magnetizationParallel, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_22magnetizationParallel},
-  {"mutualInformation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_25mutualInformation, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_24mutualInformation},
-  {"runMC", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_27runMC, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_26runMC},
-  {"f", (PyCFunction)__pyx_pw_7Toolbox_5infcy_29f, METH_O, 0},
+  {"collectSnapshotsMagThreshold", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_13collectSnapshotsMagThreshold, METH_VARARGS|METH_KEYWORDS, 0},
+  {"binaryEntropies", (PyCFunction)__pyx_pw_7Toolbox_5infcy_15binaryEntropies, METH_O, 0},
+  {"mutualInformationIDL", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_17mutualInformationIDL, METH_VARARGS|METH_KEYWORDS, 0},
+  {"entropy", (PyCFunction)__pyx_pw_7Toolbox_5infcy_19entropy, METH_O, 0},
+  {"MIAtDist", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_21MIAtDist, METH_VARARGS|METH_KEYWORDS, 0},
+  {"magTimeSeries", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_23magTimeSeries, METH_VARARGS|METH_KEYWORDS, 0},
+  {"runMI", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_25runMI, METH_VARARGS|METH_KEYWORDS, 0},
+  {"magnetizationParallel", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_27magnetizationParallel, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_26magnetizationParallel},
+  {"autocorrelation", (PyCFunction)__pyx_pw_7Toolbox_5infcy_29autocorrelation, METH_O, 0},
+  {"determineMixingTime", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_31determineMixingTime, METH_VARARGS|METH_KEYWORDS, 0},
+  {"mutualInformation", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_33mutualInformation, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_32mutualInformation},
+  {"runMC", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_7Toolbox_5infcy_35runMC, METH_VARARGS|METH_KEYWORDS, __pyx_doc_7Toolbox_5infcy_34runMC},
+  {"f", (PyCFunction)__pyx_pw_7Toolbox_5infcy_37f, METH_O, 0},
   {0, 0, 0, 0}
 };
 
@@ -29611,6 +32095,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_MemoryView_of_r_object, __pyx_k_MemoryView_of_r_object, sizeof(__pyx_k_MemoryView_of_r_object), 0, 0, 1, 0},
   {&__pyx_n_s_N, __pyx_k_N, sizeof(__pyx_k_N), 0, 0, 1, 1},
   {&__pyx_kp_u_Non_native_byte_order_not_suppor, __pyx_k_Non_native_byte_order_not_suppor, sizeof(__pyx_k_Non_native_byte_order_not_suppor), 0, 1, 0, 0},
+  {&__pyx_kp_u_None, __pyx_k_None, sizeof(__pyx_k_None), 0, 1, 0, 0},
   {&__pyx_n_b_O, __pyx_k_O, sizeof(__pyx_k_O), 0, 0, 0, 1},
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
@@ -29624,8 +32109,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_View_MemoryView, __pyx_k_View_MemoryView, sizeof(__pyx_k_View_MemoryView), 0, 0, 1, 1},
   {&__pyx_kp_u_Warning_Windows_detected_Please, __pyx_k_Warning_Windows_detected_Please, sizeof(__pyx_k_Warning_Windows_detected_Please), 0, 1, 0, 0},
   {&__pyx_n_s_Worker, __pyx_k_Worker, sizeof(__pyx_k_Worker), 0, 0, 1, 1},
+  {&__pyx_n_u__5, __pyx_k__5, sizeof(__pyx_k__5), 0, 1, 0, 1},
   {&__pyx_n_s_abs, __pyx_k_abs, sizeof(__pyx_k_abs), 0, 0, 1, 1},
   {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
+  {&__pyx_n_s_arange, __pyx_k_arange, sizeof(__pyx_k_arange), 0, 0, 1, 1},
   {&__pyx_n_s_array, __pyx_k_array, sizeof(__pyx_k_array), 0, 0, 1, 1},
   {&__pyx_n_s_axis, __pyx_k_axis, sizeof(__pyx_k_axis), 0, 0, 1, 1},
   {&__pyx_n_s_base, __pyx_k_base, sizeof(__pyx_k_base), 0, 0, 1, 1},
@@ -29638,19 +32125,21 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
   {&__pyx_n_s_close, __pyx_k_close, sizeof(__pyx_k_close), 0, 0, 1, 1},
   {&__pyx_n_s_conditional, __pyx_k_conditional, sizeof(__pyx_k_conditional), 0, 0, 1, 1},
+  {&__pyx_n_s_conjugate, __pyx_k_conjugate, sizeof(__pyx_k_conjugate), 0, 0, 1, 1},
   {&__pyx_n_u_constant, __pyx_k_constant, sizeof(__pyx_k_constant), 0, 1, 0, 1},
   {&__pyx_kp_s_contiguous_and_direct, __pyx_k_contiguous_and_direct, sizeof(__pyx_k_contiguous_and_direct), 0, 0, 1, 0},
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
   {&__pyx_n_s_copy, __pyx_k_copy, sizeof(__pyx_k_copy), 0, 0, 1, 1},
+  {&__pyx_n_s_correlate, __pyx_k_correlate, sizeof(__pyx_k_correlate), 0, 0, 1, 1},
   {&__pyx_n_s_cpu_count, __pyx_k_cpu_count, sizeof(__pyx_k_cpu_count), 0, 0, 1, 1},
   {&__pyx_n_s_ctypes, __pyx_k_ctypes, sizeof(__pyx_k_ctypes), 0, 0, 1, 1},
   {&__pyx_n_s_dec, __pyx_k_dec, sizeof(__pyx_k_dec), 0, 0, 1, 1},
   {&__pyx_n_s_deepcopy, __pyx_k_deepcopy, sizeof(__pyx_k_deepcopy), 0, 0, 1, 1},
   {&__pyx_n_s_default_timer, __pyx_k_default_timer, sizeof(__pyx_k_default_timer), 0, 0, 1, 1},
+  {&__pyx_n_s_degree, __pyx_k_degree, sizeof(__pyx_k_degree), 0, 0, 1, 1},
   {&__pyx_n_s_deltas, __pyx_k_deltas, sizeof(__pyx_k_deltas), 0, 0, 1, 1},
   {&__pyx_n_u_deltas, __pyx_k_deltas, sizeof(__pyx_k_deltas), 0, 1, 0, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
-  {&__pyx_n_s_dist, __pyx_k_dist, sizeof(__pyx_k_dist), 0, 0, 1, 1},
   {&__pyx_n_s_distMax, __pyx_k_distMax, sizeof(__pyx_k_distMax), 0, 0, 1, 1},
   {&__pyx_n_s_distSamples, __pyx_k_distSamples, sizeof(__pyx_k_distSamples), 0, 0, 1, 1},
   {&__pyx_n_s_dtype, __pyx_k_dtype, sizeof(__pyx_k_dtype), 0, 0, 1, 1},
@@ -29659,6 +32148,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_entropies, __pyx_k_entropies, sizeof(__pyx_k_entropies), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
+  {&__pyx_n_s_fft, __pyx_k_fft, sizeof(__pyx_k_fft), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
@@ -29666,8 +32156,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_full, __pyx_k_full, sizeof(__pyx_k_full), 0, 0, 1, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
+  {&__pyx_n_s_graph, __pyx_k_graph, sizeof(__pyx_k_graph), 0, 0, 1, 1},
+  {&__pyx_n_s_hstack, __pyx_k_hstack, sizeof(__pyx_k_hstack), 0, 0, 1, 1},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_u_idx, __pyx_k_idx, sizeof(__pyx_k_idx), 0, 1, 0, 1},
+  {&__pyx_n_s_ifft, __pyx_k_ifft, sizeof(__pyx_k_ifft), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_inf, __pyx_k_inf, sizeof(__pyx_k_inf), 0, 0, 1, 1},
   {&__pyx_n_s_items, __pyx_k_items, sizeof(__pyx_k_items), 0, 0, 1, 1},
@@ -29675,9 +32168,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
   {&__pyx_n_s_iteritems, __pyx_k_iteritems, sizeof(__pyx_k_iteritems), 0, 0, 1, 1},
   {&__pyx_n_s_keys, __pyx_k_keys, sizeof(__pyx_k_keys), 0, 0, 1, 1},
+  {&__pyx_n_s_linregress, __pyx_k_linregress, sizeof(__pyx_k_linregress), 0, 0, 1, 1},
   {&__pyx_n_s_log2, __pyx_k_log2, sizeof(__pyx_k_log2), 0, 0, 1, 1},
   {&__pyx_n_s_logspace, __pyx_k_logspace, sizeof(__pyx_k_logspace), 0, 0, 1, 1},
   {&__pyx_n_s_lower, __pyx_k_lower, sizeof(__pyx_k_lower), 0, 0, 1, 1},
+  {&__pyx_n_s_magThreshold, __pyx_k_magThreshold, sizeof(__pyx_k_magThreshold), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_matchMagnetization, __pyx_k_matchMagnetization, sizeof(__pyx_k_matchMagnetization), 0, 0, 1, 1},
   {&__pyx_n_s_mean, __pyx_k_mean, sizeof(__pyx_k_mean), 0, 0, 1, 1},
@@ -29689,6 +32184,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_multiprocessing, __pyx_k_multiprocessing, sizeof(__pyx_k_multiprocessing), 0, 0, 1, 1},
   {&__pyx_n_s_n, __pyx_k_n, sizeof(__pyx_k_n), 0, 0, 1, 1},
   {&__pyx_n_s_nSamples, __pyx_k_nSamples, sizeof(__pyx_k_nSamples), 0, 0, 1, 1},
+  {&__pyx_n_s_nStepsCorr, __pyx_k_nStepsCorr, sizeof(__pyx_k_nStepsCorr), 0, 0, 1, 1},
+  {&__pyx_n_s_nStepsRegress, __pyx_k_nStepsRegress, sizeof(__pyx_k_nStepsRegress), 0, 0, 1, 1},
   {&__pyx_n_s_nThreads, __pyx_k_nThreads, sizeof(__pyx_k_nThreads), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_name_2, __pyx_k_name_2, sizeof(__pyx_k_name_2), 0, 0, 1, 1},
@@ -29697,6 +32194,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
+  {&__pyx_n_s_neighbours, __pyx_k_neighbours, sizeof(__pyx_k_neighbours), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_node, __pyx_k_node, sizeof(__pyx_k_node), 0, 0, 1, 1},
@@ -29704,6 +32202,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_node2, __pyx_k_node2, sizeof(__pyx_k_node2), 0, 0, 1, 1},
   {&__pyx_n_s_nodes, __pyx_k_nodes, sizeof(__pyx_k_nodes), 0, 0, 1, 1},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
+  {&__pyx_kp_u_npy, __pyx_k_npy, sizeof(__pyx_k_npy), 0, 1, 0, 0},
   {&__pyx_n_s_nudges, __pyx_k_nudges, sizeof(__pyx_k_nudges), 0, 0, 1, 1},
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
   {&__pyx_kp_u_numpy_core_multiarray_failed_to, __pyx_k_numpy_core_multiarray_failed_to, sizeof(__pyx_k_numpy_core_multiarray_failed_to), 0, 1, 0, 0},
@@ -29713,7 +32212,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
   {&__pyx_n_s_platform, __pyx_k_platform, sizeof(__pyx_k_platform), 0, 0, 1, 1},
   {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
-  {&__pyx_n_s_process_time, __pyx_k_process_time, sizeof(__pyx_k_process_time), 0, 0, 1, 1},
   {&__pyx_n_u_pulse, __pyx_k_pulse, sizeof(__pyx_k_pulse), 0, 1, 0, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_checksum, __pyx_k_pyx_checksum, sizeof(__pyx_k_pyx_checksum), 0, 0, 1, 1},
@@ -29725,6 +32223,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pyx_unpickle_Worker, __pyx_k_pyx_unpickle_Worker, sizeof(__pyx_k_pyx_unpickle_Worker), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
+  {&__pyx_n_s_real, __pyx_k_real, sizeof(__pyx_k_real), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
@@ -29733,6 +32232,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_reset, __pyx_k_reset, sizeof(__pyx_k_reset), 0, 0, 1, 1},
   {&__pyx_n_s_reshape, __pyx_k_reshape, sizeof(__pyx_k_reshape), 0, 0, 1, 1},
   {&__pyx_n_s_return_counts, __pyx_k_return_counts, sizeof(__pyx_k_return_counts), 0, 0, 1, 1},
+  {&__pyx_n_s_rmapping, __pyx_k_rmapping, sizeof(__pyx_k_rmapping), 0, 0, 1, 1},
+  {&__pyx_n_s_save, __pyx_k_save, sizeof(__pyx_k_save), 0, 0, 1, 1},
+  {&__pyx_n_s_scipy, __pyx_k_scipy, sizeof(__pyx_k_scipy), 0, 0, 1, 1},
+  {&__pyx_n_s_scipy_signal, __pyx_k_scipy_signal, sizeof(__pyx_k_scipy_signal), 0, 0, 1, 1},
+  {&__pyx_n_s_scipy_stats, __pyx_k_scipy_stats, sizeof(__pyx_k_scipy_stats), 0, 0, 1, 1},
   {&__pyx_kp_u_sec, __pyx_k_sec, sizeof(__pyx_k_sec), 0, 1, 0, 0},
   {&__pyx_n_s_seed, __pyx_k_seed, sizeof(__pyx_k_seed), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
@@ -29740,12 +32244,14 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
   {&__pyx_n_s_snapshots, __pyx_k_snapshots, sizeof(__pyx_k_snapshots), 0, 0, 1, 1},
+  {&__pyx_kp_u_snapshots_T, __pyx_k_snapshots_T, sizeof(__pyx_k_snapshots_T), 0, 1, 0, 0},
   {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
   {&__pyx_n_u_startState, __pyx_k_startState, sizeof(__pyx_k_startState), 0, 1, 0, 1},
   {&__pyx_kp_u_starting_runs, __pyx_k_starting_runs, sizeof(__pyx_k_starting_runs), 0, 1, 0, 0},
   {&__pyx_kp_u_states, __pyx_k_states, sizeof(__pyx_k_states), 0, 1, 0, 0},
-  {&__pyx_n_s_std, __pyx_k_std, sizeof(__pyx_k_std), 0, 0, 1, 1},
+  {&__pyx_n_s_states_2, __pyx_k_states_2, sizeof(__pyx_k_states_2), 0, 0, 1, 1},
   {&__pyx_n_s_step, __pyx_k_step, sizeof(__pyx_k_step), 0, 0, 1, 1},
+  {&__pyx_n_s_stepSizeBurnin, __pyx_k_stepSizeBurnin, sizeof(__pyx_k_stepSizeBurnin), 0, 0, 1, 1},
   {&__pyx_n_s_stop, __pyx_k_stop, sizeof(__pyx_k_stop), 0, 0, 1, 1},
   {&__pyx_kp_s_strided_and_direct, __pyx_k_strided_and_direct, sizeof(__pyx_k_strided_and_direct), 0, 0, 1, 0},
   {&__pyx_kp_s_strided_and_direct_or_indirect, __pyx_k_strided_and_direct_or_indirect, sizeof(__pyx_k_strided_and_direct_or_indirect), 0, 0, 1, 0},
@@ -29753,11 +32259,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_struct, __pyx_k_struct, sizeof(__pyx_k_struct), 0, 0, 1, 1},
   {&__pyx_n_s_sum, __pyx_k_sum, sizeof(__pyx_k_sum), 0, 0, 1, 1},
+  {&__pyx_n_s_switch, __pyx_k_switch, sizeof(__pyx_k_switch), 0, 0, 1, 1},
   {&__pyx_n_s_t, __pyx_k_t, sizeof(__pyx_k_t), 0, 0, 1, 1},
+  {&__pyx_n_s_targetDirectory, __pyx_k_targetDirectory, sizeof(__pyx_k_targetDirectory), 0, 0, 1, 1},
   {&__pyx_n_s_temps, __pyx_k_temps, sizeof(__pyx_k_temps), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
+  {&__pyx_n_s_threshold, __pyx_k_threshold, sizeof(__pyx_k_threshold), 0, 0, 1, 1},
   {&__pyx_n_s_time, __pyx_k_time, sizeof(__pyx_k_time), 0, 0, 1, 1},
-  {&__pyx_kp_u_time_2, __pyx_k_time_2, sizeof(__pyx_k_time_2), 0, 1, 0, 0},
   {&__pyx_n_s_timeit, __pyx_k_timeit, sizeof(__pyx_k_timeit), 0, 0, 1, 1},
   {&__pyx_n_s_timer, __pyx_k_timer, sizeof(__pyx_k_timer), 0, 0, 1, 1},
   {&__pyx_n_s_total, __pyx_k_total, sizeof(__pyx_k_total), 0, 0, 1, 1},
@@ -29774,9 +32282,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 78, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 95, __pyx_L1_error)
-  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 225, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 228, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 1038, __pyx_L1_error)
@@ -29794,36 +32302,36 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "Toolbox/infcy.pyx":78
+  /* "Toolbox/infcy.pyx":81
  *     from platform import platform
  *     if 'windows' in platform().lower():
  *         print('Warning: Windows detected. Please remember to respect the GIL'\             # <<<<<<<<<<<<<<
  *               ' when using multi-core functions')
  * checkDistribution() # print it only once
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Warning_Windows_detected_Please); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 78, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Warning_Windows_detected_Please); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 81, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "Toolbox/infcy.pyx":196
+  /* "Toolbox/infcy.pyx":199
  *     # one idea would be to have the buffers inside the for loop. However prange is not possible
  *     # if that is used.
  *     print('Pre-computing rngs')             # <<<<<<<<<<<<<<
  *     cdef:
  *         float past = timer()
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_Pre_computing_rngs); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_Pre_computing_rngs); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 199, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "Toolbox/infcy.pyx":238
+  /* "Toolbox/infcy.pyx":241
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  *     print('starting runs')             # <<<<<<<<<<<<<<
  *     if nThreads == -1:
  *         nThreads = mp.cpu_count()
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_starting_runs); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 238, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_starting_runs); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 241, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
@@ -29834,9 +32342,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  */
-  __pyx_tuple__9 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(2, 272, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__9);
-  __Pyx_GIVEREF(__pyx_tuple__9);
+  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_C_contiguous); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(2, 272, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__11);
+  __Pyx_GIVEREF(__pyx_tuple__11);
 
   /* "../.local/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
@@ -29845,9 +32353,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             info.buf = PyArray_DATA(self)
  */
-  __pyx_tuple__10 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(2, 276, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__10);
-  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_u_ndarray_is_not_Fortran_contiguou); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(2, 276, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
 
   /* "../.local/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":306
  *                 if ((descr.byteorder == c'>' and little_endian) or
@@ -29856,9 +32364,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  */
-  __pyx_tuple__11 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__11)) __PYX_ERR(2, 306, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__11);
-  __Pyx_GIVEREF(__pyx_tuple__11);
+  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_u_Non_native_byte_order_not_suppor); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(2, 306, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__13);
+  __Pyx_GIVEREF(__pyx_tuple__13);
 
   /* "../.local/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":856
  * 
@@ -29867,9 +32375,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  */
-  __pyx_tuple__12 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(2, 856, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__12);
-  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(2, 856, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__14);
+  __Pyx_GIVEREF(__pyx_tuple__14);
 
   /* "../.local/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":880
  *             t = child.type_num
@@ -29878,9 +32386,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  */
-  __pyx_tuple__13 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__13)) __PYX_ERR(2, 880, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__13);
-  __Pyx_GIVEREF(__pyx_tuple__13);
+  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_u_Format_string_allocated_too_shor_2); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(2, 880, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__15);
+  __Pyx_GIVEREF(__pyx_tuple__15);
 
   /* "../.local/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1038
  *         _import_array()
@@ -29889,9 +32397,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * cdef inline int import_umath() except -1:
  */
-  __pyx_tuple__14 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(2, 1038, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__14);
-  __Pyx_GIVEREF(__pyx_tuple__14);
+  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(2, 1038, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__16);
+  __Pyx_GIVEREF(__pyx_tuple__16);
 
   /* "../.local/lib/python3.6/site-packages/Cython/Includes/numpy/__init__.pxd":1044
  *         _import_umath()
@@ -29900,9 +32408,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * cdef inline int import_ufunc() except -1:
  */
-  __pyx_tuple__15 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(2, 1044, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__15);
-  __Pyx_GIVEREF(__pyx_tuple__15);
+  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(2, 1044, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__17);
+  __Pyx_GIVEREF(__pyx_tuple__17);
 
   /* "View.MemoryView":133
  * 
@@ -29911,9 +32419,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if itemsize <= 0:
  */
-  __pyx_tuple__16 = PyTuple_Pack(1, __pyx_kp_s_Empty_shape_tuple_for_cython_arr); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(1, 133, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__16);
-  __Pyx_GIVEREF(__pyx_tuple__16);
+  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_kp_s_Empty_shape_tuple_for_cython_arr); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(1, 133, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__18);
+  __Pyx_GIVEREF(__pyx_tuple__18);
 
   /* "View.MemoryView":136
  * 
@@ -29922,9 +32430,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if not isinstance(format, bytes):
  */
-  __pyx_tuple__17 = PyTuple_Pack(1, __pyx_kp_s_itemsize_0_for_cython_array); if (unlikely(!__pyx_tuple__17)) __PYX_ERR(1, 136, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__17);
-  __Pyx_GIVEREF(__pyx_tuple__17);
+  __pyx_tuple__19 = PyTuple_Pack(1, __pyx_kp_s_itemsize_0_for_cython_array); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(1, 136, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__19);
+  __Pyx_GIVEREF(__pyx_tuple__19);
 
   /* "View.MemoryView":148
  * 
@@ -29933,9 +32441,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__18 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_shape_and_str); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(1, 148, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__18);
-  __Pyx_GIVEREF(__pyx_tuple__18);
+  __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_shape_and_str); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(1, 148, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__20);
+  __Pyx_GIVEREF(__pyx_tuple__20);
 
   /* "View.MemoryView":176
  *             self.data = <char *>malloc(self.len)
@@ -29944,9 +32452,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *             if self.dtype_is_object:
  */
-  __pyx_tuple__19 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_array_data); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(1, 176, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__19);
-  __Pyx_GIVEREF(__pyx_tuple__19);
+  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_unable_to_allocate_array_data); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(1, 176, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__21);
+  __Pyx_GIVEREF(__pyx_tuple__21);
 
   /* "View.MemoryView":192
  *             bufmode = PyBUF_F_CONTIGUOUS | PyBUF_ANY_CONTIGUOUS
@@ -29955,9 +32463,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         info.buf = self.data
  *         info.len = self.len
  */
-  __pyx_tuple__20 = PyTuple_Pack(1, __pyx_kp_s_Can_only_create_a_buffer_that_is); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(1, 192, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__20);
-  __Pyx_GIVEREF(__pyx_tuple__20);
+  __pyx_tuple__22 = PyTuple_Pack(1, __pyx_kp_s_Can_only_create_a_buffer_that_is); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(1, 192, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__22);
+  __Pyx_GIVEREF(__pyx_tuple__22);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -29965,18 +32473,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__21);
-  __Pyx_GIVEREF(__pyx_tuple__21);
+  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__23);
+  __Pyx_GIVEREF(__pyx_tuple__23);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__22 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__22);
-  __Pyx_GIVEREF(__pyx_tuple__22);
+  __pyx_tuple__24 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__24);
+  __Pyx_GIVEREF(__pyx_tuple__24);
 
   /* "View.MemoryView":414
  *     def __setitem__(memoryview self, object index, object value):
@@ -29985,9 +32493,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         have_slices, index = _unellipsify(index, self.view.ndim)
  */
-  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_Cannot_assign_to_read_only_memor); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(1, 414, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__23);
-  __Pyx_GIVEREF(__pyx_tuple__23);
+  __pyx_tuple__25 = PyTuple_Pack(1, __pyx_kp_s_Cannot_assign_to_read_only_memor); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(1, 414, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__25);
+  __Pyx_GIVEREF(__pyx_tuple__25);
 
   /* "View.MemoryView":491
  *             result = struct.unpack(self.view.format, bytesitem)
@@ -29996,9 +32504,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *         else:
  *             if len(self.view.format) == 1:
  */
-  __pyx_tuple__24 = PyTuple_Pack(1, __pyx_kp_s_Unable_to_convert_item_to_object); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(1, 491, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__24);
-  __Pyx_GIVEREF(__pyx_tuple__24);
+  __pyx_tuple__26 = PyTuple_Pack(1, __pyx_kp_s_Unable_to_convert_item_to_object); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(1, 491, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__26);
+  __Pyx_GIVEREF(__pyx_tuple__26);
 
   /* "View.MemoryView":516
  *     def __getbuffer__(self, Py_buffer *info, int flags):
@@ -30007,9 +32515,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         if flags & PyBUF_ND:
  */
-  __pyx_tuple__25 = PyTuple_Pack(1, __pyx_kp_s_Cannot_create_writable_memory_vi); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(1, 516, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__25);
-  __Pyx_GIVEREF(__pyx_tuple__25);
+  __pyx_tuple__27 = PyTuple_Pack(1, __pyx_kp_s_Cannot_create_writable_memory_vi); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(1, 516, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__27);
+  __Pyx_GIVEREF(__pyx_tuple__27);
 
   /* "View.MemoryView":566
  *         if self.view.strides == NULL:
@@ -30018,9 +32526,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         return tuple([stride for stride in self.view.strides[:self.view.ndim]])
  */
-  __pyx_tuple__26 = PyTuple_Pack(1, __pyx_kp_s_Buffer_view_does_not_expose_stri); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(1, 566, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__26);
-  __Pyx_GIVEREF(__pyx_tuple__26);
+  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_Buffer_view_does_not_expose_stri); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(1, 566, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__28);
+  __Pyx_GIVEREF(__pyx_tuple__28);
 
   /* "View.MemoryView":573
  *     def suboffsets(self):
@@ -30029,12 +32537,12 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  *         return tuple([suboffset for suboffset in self.view.suboffsets[:self.view.ndim]])
  */
-  __pyx_tuple__27 = PyTuple_New(1); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(1, 573, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__27);
+  __pyx_tuple__29 = PyTuple_New(1); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(1, 573, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_INCREF(__pyx_int_neg_1);
   __Pyx_GIVEREF(__pyx_int_neg_1);
-  PyTuple_SET_ITEM(__pyx_tuple__27, 0, __pyx_int_neg_1);
-  __Pyx_GIVEREF(__pyx_tuple__27);
+  PyTuple_SET_ITEM(__pyx_tuple__29, 0, __pyx_int_neg_1);
+  __Pyx_GIVEREF(__pyx_tuple__29);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -30042,18 +32550,18 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__28 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__28);
-  __Pyx_GIVEREF(__pyx_tuple__28);
+  __pyx_tuple__30 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__30);
+  __Pyx_GIVEREF(__pyx_tuple__30);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__29 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__29);
-  __Pyx_GIVEREF(__pyx_tuple__29);
+  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__31);
+  __Pyx_GIVEREF(__pyx_tuple__31);
 
   /* "View.MemoryView":678
  *         if item is Ellipsis:
@@ -30062,9 +32570,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *                 seen_ellipsis = True
  *             else:
  */
-  __pyx_slice__30 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__30)) __PYX_ERR(1, 678, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_slice__30);
-  __Pyx_GIVEREF(__pyx_slice__30);
+  __pyx_slice__32 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__32)) __PYX_ERR(1, 678, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_slice__32);
+  __Pyx_GIVEREF(__pyx_slice__32);
 
   /* "View.MemoryView":699
  *     for suboffset in suboffsets[:ndim]:
@@ -30073,9 +32581,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__31 = PyTuple_Pack(1, __pyx_kp_s_Indirect_dimensions_not_supporte); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(1, 699, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__31);
-  __Pyx_GIVEREF(__pyx_tuple__31);
+  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_kp_s_Indirect_dimensions_not_supporte); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(1, 699, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__33);
+  __Pyx_GIVEREF(__pyx_tuple__33);
 
   /* "(tree fragment)":2
  * def __reduce_cython__(self):
@@ -30083,51 +32591,51 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  */
-  __pyx_tuple__32 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(1, 2, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__32);
-  __Pyx_GIVEREF(__pyx_tuple__32);
+  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(1, 2, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__34);
+  __Pyx_GIVEREF(__pyx_tuple__34);
 
   /* "(tree fragment)":4
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")
  * def __setstate_cython__(self, __pyx_state):
  *     raise TypeError("no default __reduce__ due to non-trivial __cinit__")             # <<<<<<<<<<<<<<
  */
-  __pyx_tuple__33 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(1, 4, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__33);
-  __Pyx_GIVEREF(__pyx_tuple__33);
+  __pyx_tuple__35 = PyTuple_Pack(1, __pyx_kp_s_no_default___reduce___due_to_non); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(1, 4, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__35);
+  __Pyx_GIVEREF(__pyx_tuple__35);
 
-  /* "Toolbox/infcy.pyx":74
+  /* "Toolbox/infcy.pyx":77
  * 
  * # print gil stuff; no mp used currently so ....useless
  * def checkDistribution():             # <<<<<<<<<<<<<<
  *     '''Warning statement'''
  *     from platform import platform
  */
-  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_n_s_platform); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 74, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__34);
-  __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Toolbox_infcy_pyx, __pyx_n_s_checkDistribution, 74, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_tuple__36 = PyTuple_Pack(1, __pyx_n_s_platform); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 77, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__36);
+  __Pyx_GIVEREF(__pyx_tuple__36);
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(0, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_Toolbox_infcy_pyx, __pyx_n_s_checkDistribution, 77, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 77, __pyx_L1_error)
 
-  /* "Toolbox/infcy.pyx":542
+  /* "Toolbox/infcy.pyx":650
  * @cython.overflowcheck(False)
  * cpdef np.ndarray magnetizationParallel(Model model,\
  *                           np.ndarray temps  = np.logspace(-3, 2, 20),\             # <<<<<<<<<<<<<<
  *                       int n             = int(1e3),\
  *                       int burninSamples = 100):
  */
-  __pyx_tuple__36 = PyTuple_Pack(3, __pyx_int_neg_3, __pyx_int_2, __pyx_int_20); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 542, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__36);
-  __Pyx_GIVEREF(__pyx_tuple__36);
+  __pyx_tuple__38 = PyTuple_Pack(3, __pyx_int_neg_3, __pyx_int_2, __pyx_int_20); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__38);
+  __Pyx_GIVEREF(__pyx_tuple__38);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Worker(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_tuple__37 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__37);
-  __Pyx_GIVEREF(__pyx_tuple__37);
-  __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Worker, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__39 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__39);
+  __Pyx_GIVEREF(__pyx_tuple__39);
+  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Worker, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(1, 1, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -30136,9 +32644,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_tuple__39 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(1, 286, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__39);
-  __Pyx_GIVEREF(__pyx_tuple__39);
+  __pyx_tuple__41 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(1, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__41);
+  __Pyx_GIVEREF(__pyx_tuple__41);
 
   /* "View.MemoryView":287
  * 
@@ -30147,9 +32655,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_tuple__40 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__40)) __PYX_ERR(1, 287, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__40);
-  __Pyx_GIVEREF(__pyx_tuple__40);
+  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(1, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__42);
+  __Pyx_GIVEREF(__pyx_tuple__42);
 
   /* "View.MemoryView":288
  * cdef generic = Enum("<strided and direct or indirect>")
@@ -30158,9 +32666,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__41 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(1, 288, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__41);
-  __Pyx_GIVEREF(__pyx_tuple__41);
+  __pyx_tuple__43 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(1, 288, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__43);
+  __Pyx_GIVEREF(__pyx_tuple__43);
 
   /* "View.MemoryView":291
  * 
@@ -30169,9 +32677,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_tuple__42 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__42)) __PYX_ERR(1, 291, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__42);
-  __Pyx_GIVEREF(__pyx_tuple__42);
+  __pyx_tuple__44 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(1, 291, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__44);
+  __Pyx_GIVEREF(__pyx_tuple__44);
 
   /* "View.MemoryView":292
  * 
@@ -30180,19 +32688,19 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  * 
  * 
  */
-  __pyx_tuple__43 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(1, 292, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__43);
-  __Pyx_GIVEREF(__pyx_tuple__43);
+  __pyx_tuple__45 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(1, 292, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__45);
+  __Pyx_GIVEREF(__pyx_tuple__45);
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Enum(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_tuple__44 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__44)) __PYX_ERR(1, 1, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__44);
-  __Pyx_GIVEREF(__pyx_tuple__44);
-  __pyx_codeobj__45 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__44, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__45)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_tuple__46 = PyTuple_Pack(5, __pyx_n_s_pyx_type, __pyx_n_s_pyx_checksum, __pyx_n_s_pyx_state, __pyx_n_s_pyx_PickleError, __pyx_n_s_pyx_result); if (unlikely(!__pyx_tuple__46)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__46);
+  __Pyx_GIVEREF(__pyx_tuple__46);
+  __pyx_codeobj__47 = (PyObject*)__Pyx_PyCode_New(3, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__46, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_pyx_unpickle_Enum, 1, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__47)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -30220,6 +32728,7 @@ if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float_2_ = PyFloat_FromDouble(2.); if (unlikely(!__pyx_float_2_)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float_1e2 = PyFloat_FromDouble(1e2); if (unlikely(!__pyx_float_1e2)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_float_1e3 = PyFloat_FromDouble(1e3); if (unlikely(!__pyx_float_1e3)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_float_1e4 = PyFloat_FromDouble(1e4); if (unlikely(!__pyx_float_1e4)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_0 = PyInt_FromLong(0); if (unlikely(!__pyx_int_0)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_1 = PyInt_FromLong(1); if (unlikely(!__pyx_int_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __pyx_int_2 = PyInt_FromLong(2); if (unlikely(!__pyx_int_2)) __PYX_ERR(0, 1, __pyx_L1_error)
@@ -30276,14 +32785,14 @@ static int __Pyx_modinit_type_init_code(void) {
   /*--- Type init code ---*/
   __pyx_vtabptr_7Toolbox_5infcy_Worker = &__pyx_vtable_7Toolbox_5infcy_Worker;
   __pyx_vtable_7Toolbox_5infcy_Worker.parallWrap = (PyArrayObject *(*)(struct __pyx_obj_7Toolbox_5infcy_Worker *))__pyx_f_7Toolbox_5infcy_6Worker_parallWrap;
-  if (PyType_Ready(&__pyx_type_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 840, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 1034, __pyx_L1_error)
   __pyx_type_7Toolbox_5infcy_Worker.tp_print = 0;
   if ((CYTHON_USE_TYPE_SLOTS && CYTHON_USE_PYTYPE_LOOKUP) && likely(!__pyx_type_7Toolbox_5infcy_Worker.tp_dictoffset && __pyx_type_7Toolbox_5infcy_Worker.tp_getattro == PyObject_GenericGetAttr)) {
     __pyx_type_7Toolbox_5infcy_Worker.tp_getattro = __Pyx_PyObject_GenericGetAttr;
   }
-  if (__Pyx_SetVtable(__pyx_type_7Toolbox_5infcy_Worker.tp_dict, __pyx_vtabptr_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 840, __pyx_L1_error)
-  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Worker, (PyObject *)&__pyx_type_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 840, __pyx_L1_error)
-  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 840, __pyx_L1_error)
+  if (__Pyx_SetVtable(__pyx_type_7Toolbox_5infcy_Worker.tp_dict, __pyx_vtabptr_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 1034, __pyx_L1_error)
+  if (PyObject_SetAttr(__pyx_m, __pyx_n_s_Worker, (PyObject *)&__pyx_type_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 1034, __pyx_L1_error)
+  if (__Pyx_setup_reduce((PyObject*)&__pyx_type_7Toolbox_5infcy_Worker) < 0) __PYX_ERR(0, 1034, __pyx_L1_error)
   __pyx_ptype_7Toolbox_5infcy_Worker = &__pyx_type_7Toolbox_5infcy_Worker;
   __pyx_vtabptr_array = &__pyx_vtable_array;
   __pyx_vtable_array.get_memview = (PyObject *(*)(struct __pyx_array_obj *))__pyx_array_get_memview;
@@ -30608,263 +33117,368 @@ if (!__Pyx_RefNanny) {
   /* "Toolbox/infcy.pyx":9
  * from Models.models cimport Model
  * 
+ * import time             # <<<<<<<<<<<<<<
+ * import numpy as np
+ * cimport numpy as np
+ */
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_time, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_time, __pyx_t_1) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "Toolbox/infcy.pyx":10
+ * 
+ * import time
  * import numpy as np             # <<<<<<<<<<<<<<
  * cimport numpy as np
  * cimport cython
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 10, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":12
+  /* "Toolbox/infcy.pyx":13
  * cimport numpy as np
  * cimport cython
  * import time             # <<<<<<<<<<<<<<
  * from cython.parallel cimport parallel, prange, threadid
  * import multiprocessing as mp
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_time, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 12, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_time, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_time, __pyx_t_1) < 0) __PYX_ERR(0, 12, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_time, __pyx_t_1) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":14
+  /* "Toolbox/infcy.pyx":15
  * import time
  * from cython.parallel cimport parallel, prange, threadid
  * import multiprocessing as mp             # <<<<<<<<<<<<<<
  * import copy
  * from cpython.ref cimport PyObject
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_multiprocessing, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_multiprocessing, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_mp, __pyx_t_1) < 0) __PYX_ERR(0, 14, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_mp, __pyx_t_1) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":15
+  /* "Toolbox/infcy.pyx":16
  * from cython.parallel cimport parallel, prange, threadid
  * import multiprocessing as mp
  * import copy             # <<<<<<<<<<<<<<
  * from cpython.ref cimport PyObject
  * 
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_copy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_copy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_copy, __pyx_t_1) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_copy, __pyx_t_1) < 0) __PYX_ERR(0, 16, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "Toolbox/infcy.pyx":19
+ * from cpython.ref cimport PyObject
+ * 
+ * from scipy.stats import linregress             # <<<<<<<<<<<<<<
+ * from scipy.signal import correlate
+ * import scipy
+ */
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_INCREF(__pyx_n_s_linregress);
+  __Pyx_GIVEREF(__pyx_n_s_linregress);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_linregress);
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_scipy_stats, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_linregress); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_linregress, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":20
+ * 
+ * from scipy.stats import linregress
+ * from scipy.signal import correlate             # <<<<<<<<<<<<<<
+ * import scipy
+ * 
+ */
+  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_INCREF(__pyx_n_s_correlate);
+  __Pyx_GIVEREF(__pyx_n_s_correlate);
+  PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s_correlate);
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_scipy_signal, __pyx_t_2, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_1, __pyx_n_s_correlate); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_correlate, __pyx_t_2) < 0) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "Toolbox/infcy.pyx":21
+ * from scipy.stats import linregress
+ * from scipy.signal import correlate
+ * import scipy             # <<<<<<<<<<<<<<
+ * 
+ * # progressbar
+ */
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_scipy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_scipy, __pyx_t_1) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "Toolbox/infcy.pyx":24
  * 
  * # progressbar
  * from tqdm import tqdm   #progress bar             # <<<<<<<<<<<<<<
  * 
  * # cython
  */
-  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_n_s_tqdm);
   __Pyx_GIVEREF(__pyx_n_s_tqdm);
   PyList_SET_ITEM(__pyx_t_1, 0, __pyx_n_s_tqdm);
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_tqdm, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_tqdm, __pyx_t_1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_ImportFrom(__pyx_t_2, __pyx_n_s_tqdm); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tqdm, __pyx_t_1) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_tqdm, __pyx_t_1) < 0) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":29
+  /* "Toolbox/infcy.pyx":32
  * from libcpp.unordered_map cimport unordered_map
  * from libc.stdio cimport printf
  * import ctypes             # <<<<<<<<<<<<<<
  * from cython.view cimport array as cvarray
  * from timeit import default_timer as timer
  */
-  __pyx_t_2 = __Pyx_Import(__pyx_n_s_ctypes, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Import(__pyx_n_s_ctypes, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_ctypes, __pyx_t_2) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_ctypes, __pyx_t_2) < 0) __PYX_ERR(0, 32, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":31
+  /* "Toolbox/infcy.pyx":34
  * import ctypes
  * from cython.view cimport array as cvarray
  * from timeit import default_timer as timer             # <<<<<<<<<<<<<<
  * from cython.operator cimport dereference as deref, preincrement as prec
  * from cpython cimport PyObject, Py_XINCREF, Py_XDECREF
  */
-  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_s_default_timer);
   __Pyx_GIVEREF(__pyx_n_s_default_timer);
   PyList_SET_ITEM(__pyx_t_2, 0, __pyx_n_s_default_timer);
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_timeit, __pyx_t_2, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_timeit, __pyx_t_2, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_1, __pyx_n_s_default_timer); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_ImportFrom(__pyx_t_1, __pyx_n_s_default_timer); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_timer, __pyx_t_2) < 0) __PYX_ERR(0, 31, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_timer, __pyx_t_2) < 0) __PYX_ERR(0, 34, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":74
+  /* "Toolbox/infcy.pyx":77
  * 
  * # print gil stuff; no mp used currently so ....useless
  * def checkDistribution():             # <<<<<<<<<<<<<<
  *     '''Warning statement'''
  *     from platform import platform
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7Toolbox_5infcy_1checkDistribution, NULL, __pyx_n_s_Toolbox_infcy); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_7Toolbox_5infcy_1checkDistribution, NULL, __pyx_n_s_Toolbox_infcy); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_checkDistribution, __pyx_t_1) < 0) __PYX_ERR(0, 74, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_checkDistribution, __pyx_t_1) < 0) __PYX_ERR(0, 77, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Toolbox/infcy.pyx":80
+  /* "Toolbox/infcy.pyx":83
  *         print('Warning: Windows detected. Please remember to respect the GIL'\
  *               ' when using multi-core functions')
  * checkDistribution() # print it only once             # <<<<<<<<<<<<<<
  * 
  * # TODO rework this to include agentStates
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_checkDistribution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_checkDistribution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "Toolbox/infcy.pyx":125
+  /* "Toolbox/infcy.pyx":128
  * @cython.initializedcheck(False)
  * cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
  *                    int burninSamples = int(1e3)):             # <<<<<<<<<<<<<<
  *     """
  *     Use single Markov chain to extract snapshots from the model
  */
-  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_k__2 = __pyx_t_3;
 
-  /* "Toolbox/infcy.pyx":124
+  /* "Toolbox/infcy.pyx":127
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
  * cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\             # <<<<<<<<<<<<<<
  *                    int burninSamples = int(1e3)):
  *     """
  */
-  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "Toolbox/infcy.pyx":125
+  /* "Toolbox/infcy.pyx":128
  * @cython.initializedcheck(False)
  * cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
  *                    int burninSamples = int(1e3)):             # <<<<<<<<<<<<<<
  *     """
  *     Use single Markov chain to extract snapshots from the model
  */
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_k__2 = __pyx_t_3;
 
-  /* "Toolbox/infcy.pyx":319
- * @cython.initializedcheck(False)
+  /* "Toolbox/infcy.pyx":650
  * @cython.overflowcheck(False)
- * cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
+ * cpdef np.ndarray magnetizationParallel(Model model,\
+ *                           np.ndarray temps  = np.logspace(-3, 2, 20),\             # <<<<<<<<<<<<<<
+ *                       int n             = int(1e3),\
+ *                       int burninSamples = 100):
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_logspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__38, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 650, __pyx_L1_error)
+  __pyx_k__6 = ((PyArrayObject *)__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":651
+ * cpdef np.ndarray magnetizationParallel(Model model,\
+ *                           np.ndarray temps  = np.logspace(-3, 2, 20),\
+ *                       int n             = int(1e3),\             # <<<<<<<<<<<<<<
+ *                       int burninSamples = 100):
+ *     """
+ */
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 651, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_k__7 = __pyx_t_3;
+
+  /* "Toolbox/infcy.pyx":650
+ * @cython.overflowcheck(False)
+ * cpdef np.ndarray magnetizationParallel(Model model,\
+ *                           np.ndarray temps  = np.logspace(-3, 2, 20),\             # <<<<<<<<<<<<<<
+ *                       int n             = int(1e3),\
+ *                       int burninSamples = 100):
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_logspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__38, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 650, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 650, __pyx_L1_error)
+  __pyx_k__6 = ((PyArrayObject *)__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __pyx_t_2 = 0;
+
+  /* "Toolbox/infcy.pyx":651
+ * cpdef np.ndarray magnetizationParallel(Model model,\
+ *                           np.ndarray temps  = np.logspace(-3, 2, 20),\
+ *                       int n             = int(1e3),\             # <<<<<<<<<<<<<<
+ *                       int burninSamples = 100):
+ *     """
+ */
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 651, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 651, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_k__7 = __pyx_t_3;
+
+  /* "Toolbox/infcy.pyx":769
+ * cpdef tuple determineMixingTime(Model model,\
+ *                       int stepSizeBurnin = 100,\
+ *                       int nStepsRegress = int(1e3),\             # <<<<<<<<<<<<<<
+ *                       double threshold = 0.05,\
+ *                       int nStepsCorr = int(1e4)):
+ */
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 769, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 769, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_k__8 = __pyx_t_3;
+
+  /* "Toolbox/infcy.pyx":771
+ *                       int nStepsRegress = int(1e3),\
+ *                       double threshold = 0.05,\
+ *                       int nStepsCorr = int(1e4)):             # <<<<<<<<<<<<<<
+ * 
  *     cdef:
- *         long[:, ::1] r = model.sampleNodes(nSamples)
  */
-  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 771, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 319, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 771, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_k__5 = __pyx_t_3;
+  __pyx_k__9 = __pyx_t_3;
 
-  /* "Toolbox/infcy.pyx":542
- * @cython.overflowcheck(False)
- * cpdef np.ndarray magnetizationParallel(Model model,\
- *                           np.ndarray temps  = np.logspace(-3, 2, 20),\             # <<<<<<<<<<<<<<
- *                       int n             = int(1e3),\
- *                       int burninSamples = 100):
+  /* "Toolbox/infcy.pyx":769
+ * cpdef tuple determineMixingTime(Model model,\
+ *                       int stepSizeBurnin = 100,\
+ *                       int nStepsRegress = int(1e3),\             # <<<<<<<<<<<<<<
+ *                       double threshold = 0.05,\
+ *                       int nStepsCorr = int(1e4)):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 542, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 769, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_logspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 769, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__36, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 542, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 542, __pyx_L1_error)
-  __pyx_k__6 = ((PyArrayObject *)__pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
+  __pyx_k__8 = __pyx_t_3;
 
-  /* "Toolbox/infcy.pyx":543
- * cpdef np.ndarray magnetizationParallel(Model model,\
- *                           np.ndarray temps  = np.logspace(-3, 2, 20),\
- *                       int n             = int(1e3),\             # <<<<<<<<<<<<<<
- *                       int burninSamples = 100):
- *     """
+  /* "Toolbox/infcy.pyx":771
+ *                       int nStepsRegress = int(1e3),\
+ *                       double threshold = 0.05,\
+ *                       int nStepsCorr = int(1e4)):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
  */
-  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 543, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 771, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 543, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 771, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_k__7 = __pyx_t_3;
+  __pyx_k__9 = __pyx_t_3;
 
-  /* "Toolbox/infcy.pyx":542
- * @cython.overflowcheck(False)
- * cpdef np.ndarray magnetizationParallel(Model model,\
- *                           np.ndarray temps  = np.logspace(-3, 2, 20),\             # <<<<<<<<<<<<<<
- *                       int n             = int(1e3),\
- *                       int burninSamples = 100):
- */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 542, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_logspace); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 542, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_tuple__36, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 542, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 542, __pyx_L1_error)
-  __pyx_k__6 = ((PyArrayObject *)__pyx_t_2);
-  __Pyx_GIVEREF(__pyx_t_2);
-  __pyx_t_2 = 0;
-
-  /* "Toolbox/infcy.pyx":543
- * cpdef np.ndarray magnetizationParallel(Model model,\
- *                           np.ndarray temps  = np.logspace(-3, 2, 20),\
- *                       int n             = int(1e3),\             # <<<<<<<<<<<<<<
- *                       int burninSamples = 100):
- *     """
- */
-  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 543, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 543, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_k__7 = __pyx_t_3;
-
-  /* "Toolbox/infcy.pyx":634
+  /* "Toolbox/infcy.pyx":828
  * @cython.initializedcheck(False)
  * @cython.overflowcheck(False)
  * cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:             # <<<<<<<<<<<<<<
  *     cdef:
  *         long[:, ::1] r = model.sampleNodes(nSamples)
  */
-  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 634, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyNumber_Int(__pyx_float_1e2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 828, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 634, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 828, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_k__8 = __pyx_t_3;
+  __pyx_k__10 = __pyx_t_3;
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_Worker(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
  *     cdef object __pyx_PickleError
  *     cdef object __pyx_result
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7Toolbox_5infcy_31__pyx_unpickle_Worker, NULL, __pyx_n_s_Toolbox_infcy); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_7Toolbox_5infcy_39__pyx_unpickle_Worker, NULL, __pyx_n_s_Toolbox_infcy); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_pyx_unpickle_Worker, __pyx_t_2) < 0) __PYX_ERR(1, 1, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -30899,7 +33513,7 @@ if (!__Pyx_RefNanny) {
  * cdef strided = Enum("<strided and direct>") # default
  * cdef indirect = Enum("<strided and indirect>")
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__39, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 286, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__41, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(generic);
   __Pyx_DECREF_SET(generic, __pyx_t_2);
@@ -30913,7 +33527,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect = Enum("<strided and indirect>")
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__40, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 287, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__42, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 287, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(strided);
   __Pyx_DECREF_SET(strided, __pyx_t_2);
@@ -30927,7 +33541,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__41, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 288, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__43, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 288, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(indirect);
   __Pyx_DECREF_SET(indirect, __pyx_t_2);
@@ -30941,7 +33555,7 @@ if (!__Pyx_RefNanny) {
  * cdef indirect_contiguous = Enum("<contiguous and indirect>")
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__42, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 291, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__44, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 291, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(contiguous);
   __Pyx_DECREF_SET(contiguous, __pyx_t_2);
@@ -30955,7 +33569,7 @@ if (!__Pyx_RefNanny) {
  * 
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__43, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 292, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_MemviewEnum_type), __pyx_tuple__45, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(1, 292, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_XGOTREF(indirect_contiguous);
   __Pyx_DECREF_SET(indirect_contiguous, __pyx_t_2);
@@ -32765,6 +35379,123 @@ static PyObject* __Pyx_PyFloat_TrueDivideObjC(PyObject *op1, PyObject *op2, doub
 }
 #endif
 
+/* PyUnicode_Unicode */
+  static CYTHON_INLINE PyObject* __Pyx_PyUnicode_Unicode(PyObject *obj) {
+    if (unlikely(obj == Py_None))
+        obj = __pyx_kp_u_None;
+    return __Pyx_NewRef(obj);
+}
+
+/* SliceObject */
+  static CYTHON_INLINE PyObject* __Pyx_PyObject_GetSlice(PyObject* obj,
+        Py_ssize_t cstart, Py_ssize_t cstop,
+        PyObject** _py_start, PyObject** _py_stop, PyObject** _py_slice,
+        int has_cstart, int has_cstop, CYTHON_UNUSED int wraparound) {
+#if CYTHON_USE_TYPE_SLOTS
+    PyMappingMethods* mp;
+#if PY_MAJOR_VERSION < 3
+    PySequenceMethods* ms = Py_TYPE(obj)->tp_as_sequence;
+    if (likely(ms && ms->sq_slice)) {
+        if (!has_cstart) {
+            if (_py_start && (*_py_start != Py_None)) {
+                cstart = __Pyx_PyIndex_AsSsize_t(*_py_start);
+                if ((cstart == (Py_ssize_t)-1) && PyErr_Occurred()) goto bad;
+            } else
+                cstart = 0;
+        }
+        if (!has_cstop) {
+            if (_py_stop && (*_py_stop != Py_None)) {
+                cstop = __Pyx_PyIndex_AsSsize_t(*_py_stop);
+                if ((cstop == (Py_ssize_t)-1) && PyErr_Occurred()) goto bad;
+            } else
+                cstop = PY_SSIZE_T_MAX;
+        }
+        if (wraparound && unlikely((cstart < 0) | (cstop < 0)) && likely(ms->sq_length)) {
+            Py_ssize_t l = ms->sq_length(obj);
+            if (likely(l >= 0)) {
+                if (cstop < 0) {
+                    cstop += l;
+                    if (cstop < 0) cstop = 0;
+                }
+                if (cstart < 0) {
+                    cstart += l;
+                    if (cstart < 0) cstart = 0;
+                }
+            } else {
+                if (!PyErr_ExceptionMatches(PyExc_OverflowError))
+                    goto bad;
+                PyErr_Clear();
+            }
+        }
+        return ms->sq_slice(obj, cstart, cstop);
+    }
+#endif
+    mp = Py_TYPE(obj)->tp_as_mapping;
+    if (likely(mp && mp->mp_subscript))
+#endif
+    {
+        PyObject* result;
+        PyObject *py_slice, *py_start, *py_stop;
+        if (_py_slice) {
+            py_slice = *_py_slice;
+        } else {
+            PyObject* owned_start = NULL;
+            PyObject* owned_stop = NULL;
+            if (_py_start) {
+                py_start = *_py_start;
+            } else {
+                if (has_cstart) {
+                    owned_start = py_start = PyInt_FromSsize_t(cstart);
+                    if (unlikely(!py_start)) goto bad;
+                } else
+                    py_start = Py_None;
+            }
+            if (_py_stop) {
+                py_stop = *_py_stop;
+            } else {
+                if (has_cstop) {
+                    owned_stop = py_stop = PyInt_FromSsize_t(cstop);
+                    if (unlikely(!py_stop)) {
+                        Py_XDECREF(owned_start);
+                        goto bad;
+                    }
+                } else
+                    py_stop = Py_None;
+            }
+            py_slice = PySlice_New(py_start, py_stop, Py_None);
+            Py_XDECREF(owned_start);
+            Py_XDECREF(owned_stop);
+            if (unlikely(!py_slice)) goto bad;
+        }
+#if CYTHON_USE_TYPE_SLOTS
+        result = mp->mp_subscript(obj, py_slice);
+#else
+        result = PyObject_GetItem(obj, py_slice);
+#endif
+        if (!_py_slice) {
+            Py_DECREF(py_slice);
+        }
+        return result;
+    }
+    PyErr_Format(PyExc_TypeError,
+        "'%.200s' object is unsliceable", Py_TYPE(obj)->tp_name);
+bad:
+    return NULL;
+}
+
+/* RaiseTooManyValuesToUnpack */
+  static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
+    PyErr_Format(PyExc_ValueError,
+                 "too many values to unpack (expected %" CYTHON_FORMAT_SSIZE_T "d)", expected);
+}
+
+/* RaiseNeedMoreValuesToUnpack */
+  static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index) {
+    PyErr_Format(PyExc_ValueError,
+                 "need more than %" CYTHON_FORMAT_SSIZE_T "d value%.1s to unpack",
+                 index, (index == 1) ? "" : "s");
+}
+
 /* IterFinish */
   static CYTHON_INLINE int __Pyx_IterFinish(void) {
 #if CYTHON_FAST_THREAD_STATE
@@ -32798,6 +35529,18 @@ static PyObject* __Pyx_PyFloat_TrueDivideObjC(PyObject *op1, PyObject *op2, doub
     }
     return 0;
 #endif
+}
+
+/* UnpackItemEndCheck */
+  static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected) {
+    if (unlikely(retval)) {
+        Py_DECREF(retval);
+        __Pyx_RaiseTooManyValuesError(expected);
+        return -1;
+    } else {
+        return __Pyx_IterFinish();
+    }
+    return 0;
 }
 
 /* PyObjectGetMethod */
@@ -32910,31 +35653,6 @@ try_unpack:
     Py_DECREF(method);
 bad:
     return result;
-}
-
-/* RaiseNeedMoreValuesToUnpack */
-  static CYTHON_INLINE void __Pyx_RaiseNeedMoreValuesError(Py_ssize_t index) {
-    PyErr_Format(PyExc_ValueError,
-                 "need more than %" CYTHON_FORMAT_SSIZE_T "d value%.1s to unpack",
-                 index, (index == 1) ? "" : "s");
-}
-
-/* RaiseTooManyValuesToUnpack */
-  static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
-    PyErr_Format(PyExc_ValueError,
-                 "too many values to unpack (expected %" CYTHON_FORMAT_SSIZE_T "d)", expected);
-}
-
-/* UnpackItemEndCheck */
-  static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected) {
-    if (unlikely(retval)) {
-        Py_DECREF(retval);
-        __Pyx_RaiseTooManyValuesError(expected);
-        return -1;
-    } else {
-        return __Pyx_IterFinish();
-    }
-    return 0;
 }
 
 /* RaiseNoneIterError */
