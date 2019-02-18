@@ -140,8 +140,9 @@ if __name__ == '__main__':
     for T in temps:
         model.t = T
         for trial in range(trials):
-            MI, degrees = infcy.runMI(model, repeats, burninSamples, nSamples, distSamples, nodes=nodes, distMax=diameter, targetDirectory=targetDirectory)
-            np.save(f'{targetDirectory}/MI_T{T}_{time.time()}.npy', MI)
+            snapshots, MI, degrees = infcy.runMI(model, repeats, burninSamples, nSamples, distSamples, nodes=nodes, distMax=diameter, targetDirectory=targetDirectory)
+            np.save(f'{targetDirectory}/snapshots_T={T}_{time.time()}.npy', snapshots)
+            np.save(f'{targetDirectory}/MI_T={T}_{time.time()}.npy', MI)
             plot_avgMI(MI, degrees, diameter, 'erdos_renyi_graph, N={}, T={}'.format(N,T), f'{targetDirectory}/avgMIperDist_T{T}_{time.time()}.png')
 
 
