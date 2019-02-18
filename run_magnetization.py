@@ -24,72 +24,25 @@ from scipy import sparse
 close('all')
 
 
-if __name__ == '__main__':
+def create_erdos_renyi_graph(N, avg_deg=2.):
 
-    # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
-
-    T             = 2.0
-    nSamples      = int(1e4) #int(1e6)
-    burninSamples = int(1e4) # int(1e6)
-    magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
-    updateType    = ''
-    CHECK         = []  #[.8, .5, .2]   # value of 0.8 means match magnetiztion at 80 percent of max
-
-
-    #graph = nx.grid_2d_graph(16, 16, periodic=True)
-    avg_deg = 2.
-    N = 500
     p = avg_deg/N
 
-    """
     graph = nx.erdos_renyi_graph(N, p)
     connected_nodes = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(connected_nodes)
-    nx.write_gpickle(graph, f'ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
-    print("avg degree = {}".format(np.mean([d for k, d in graph.degree()])))
-    """
-    """
-    seq = nx.utils.powerlaw_sequence(N, 1.6)
-    G = nx.expected_degree_graph(seq, selfloops = False)
-    graph = sorted(nx.connected_component_subgraphs(G), key=len, reverse=True)[0]
-    nx.write_gpickle(graph, f'scaleFree_N={N}.gpickle')
-    """
+    nx.write_gpickle(graph, f'networkData/ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
 
-    graph = nx.read_gpickle("ER_avgDeg2.5_5000.gpickle")
-    #graph = nx.read_gpickle("../WS_4_p02.gpickle")
+def create_powerlaw_graph(N, gamma=1.6):
+    seq = nx.utils.powerlaw_sequence(N, gamma)
+    graph = nx.expected_degree_graph(seq, selfloops = False)
+    graph = sorted(nx.connected_component_subgraphs(graph), key=len, reverse=True)[0]
+    nx.write_gpickle(graph, f'networkData/scaleFree_gamma={gamma}_N={N}.gpickle')
 
-    #diameter = nx.diameter(graph)
-    #diameter = 14
-    #print("diameter = {}".format(diameter))
+def create_2D_grid(L):
 
-    #graph = nx.read_gpickle('unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle')
-    #connected_nodes = max(nx.connected_components(graph), key=len)
-    #graph = graph.subgraph(connected_nodes)
-
-    #print(len(graph))
-
-    now = time.time()
-    targetDirectory = f'{os.getcwd()}/Data/{now}'
-    os.mkdir(targetDirectory)
-
-    settings = dict(
-        T                = T,\
-        nSamples         = nSamples,\
-        burninSamples    = burninSamples,\
-        updateMethod     = updateType,\
-        nNodes           = graph.number_of_nodes()
-        )
-    IO.saveSettings(targetDirectory, settings)
-
-    # graph = nx.barabasi_albert_graph(10, 3)
-    modelSettings = dict(\
-                         graph       = graph,\
-                         temperature = T,\
-                         updateType  = updateType,\
-                         magSide     = magSide
-                         )
-    model = fastIsing.Ising(**modelSettings)
-    updateType = model.updateType
+    graph = nx.grid_2d_graph(L, L, periodic=True)
+    nx.write_gpickle(graph, f'networkData/2D_grid_L={L}.gpickle', 2)
 
 
 def run_mag_series(model, runs, steps, p_initial):
@@ -118,7 +71,7 @@ def run_mixing(model, num_p_initial, step_size_burnin, num_steps_regress, thresh
                               stepSizeBurnin = step_size_burnin,\
                               nStepsRegress = int(num_steps_regress),\
                               threshold = threshold_regress,\
-                              nStepsCorr = int(nStepsCorr))
+                              nStepsCorr = int(num_steps_corr))
 
         #func = lambda x, t: np.exp(-x/t)
         #func = lambda x, m, c, c0: c0 + x**m * c
@@ -136,6 +89,48 @@ def run_mixing(model, num_p_initial, step_size_burnin, num_steps_regress, thresh
 
     fig1.savefig(f'{targetDirectory}/autocorr.png')
     fig2.savefig(f'{targetDirectory}/magTimeSeries.png')
+
+
+
+if __name__ == '__main__':
+
+    now = time.time()
+    targetDirectory = f'{os.getcwd()}/Data/{now}'
+    os.mkdir(targetDirectory)
+
+    # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
+
+    T             = 2.0
+    nSamples      = int(1e4) #int(1e6)
+    burninSamples = int(1e4) # int(1e6)
+    magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
+    updateType    = ''
+
+    network_path = "networkData/ER_avgDeg2.5_5000.gpickle"
+    #network_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
+    graph = nx.read_gpickle(network_path)
+
+    #print(len(graph))
+
+
+    settings = dict(
+        T                = T,\
+        nSamples         = nSamples,\
+        burninSamples    = burninSamples,\
+        updateMethod     = updateType,\
+        nNodes           = graph.number_of_nodes(), \
+        graph            = network_path
+        )
+    IO.saveSettings(targetDirectory, settings)
+
+    modelSettings = dict(\
+                         graph       = graph,\
+                         temperature = T,\
+                         updateType  = updateType,\
+                         magSide     = magSide
+                         )
+    model = fastIsing.Ising(**modelSettings)
+    updateType = model.updateType
 
 
     if len(sys.argv) > 1:
