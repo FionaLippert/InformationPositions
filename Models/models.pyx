@@ -93,6 +93,8 @@ cdef class Model: # see pxd
             np.ndarray nudges = np.zeros(graph.number_of_nodes(), dtype = float)
             unordered_map[long, Connection] adj # see .pxd
 
+            np.ndarray fixedNodes = np.zeros(graph.number_of_nodes(), int, 'C')
+
 
         from ast import literal_eval
         connecting = graph.neighbors if isinstance(graph, nx.Graph) else nx.predecessors
@@ -189,6 +191,8 @@ cdef class Model: # see pxd
         self._states    = states.copy()
         self._newstates = states.copy()
         self._nNodes    = graph.number_of_nodes()
+
+        self._fixedNodes = fixedNodes.copy()
         # print(f'Done {id(self)}')
 
     # cdef long[::1]  _updateState(self, long[::1] nodesToUpdate) :
@@ -289,6 +293,12 @@ cdef class Model: # see pxd
         """
         self.nudges[:] = 0
 
+    def releaseFixedNodes(self):
+        """
+        Frees all fixed nodes
+        """
+        self._fixedNodes[:] = 0
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     @cython.nonecheck(False)
@@ -321,6 +331,49 @@ cdef class Model: # see pxd
 
         return self._states
 
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    cpdef bytes encodeStateToString(self, vector[int] nodes):
+        """Maps states of given nodes to string"""
+        cdef:
+            int N = nodes.size()
+            long[::1] subset = np.zeros(N, int)
+            long i, n
+            bytes s
+
+        for i in range(N):
+            subset[i] = self._states[nodes[i]]
+
+        #print(subset.base, np.fromstring(subset.base.astype(float).tobytes()))
+        s = subset.base.astype(float).tobytes()
+        return s
+
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    cpdef void loadStatesFromString(self, bytes statesString, vector[int] nodes):
+        """Maps string back to system state. States of nodes not included in the snapshot are assigned randomly"""
+        cdef:
+            int N = nodes.size()
+            long i
+
+        dec = np.frombuffer(statesString)
+        #print(f'decoded string: {dec}')
+
+        self.reset() # assign random states
+
+        for i in range(N):
+            self._states[nodes[i]] = <long> dec[i]
+        #print(f'reconstructed state: {self._states.base}')
+
+
     # TODO: make class pickable
     # hence the wrappers
     @property
@@ -345,6 +398,8 @@ cdef class Model: # see pxd
     def nodeids(self)   : return self._nodeids
     @property
     def seed(self)      : return self._seed
+    @property
+    def fixedNodes(self): return self.fixedNodes
 
     @seed.setter
     def seed(self, value):
@@ -366,6 +421,18 @@ cdef class Model: # see pxd
             for k, v in vals.items():
                 idx = self.mapping[k]
                 self._nudges[idx] = v
+
+    @fixedNodes.setter
+    def fixedNodes(self, nodes):
+        """
+        Set bit in fixedNodes to True for all given nodes (internal index used!)
+        """
+        self._fixedNodes[:] =  0
+        #if isinstance(nodes, vector[int]): # TODO make this more general. Any type of list, array etc could be passed as long as elements are integers
+        for n in nodes:
+            self._fixedNodes[n] = 1
+        #else:
+        #    print("Nodes are not given as vector of integers")
 
     @updateType.setter
     def updateType(self, value):

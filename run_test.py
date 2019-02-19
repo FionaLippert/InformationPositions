@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
 
     #graph = nx.grid_2d_graph(16, 16, periodic=True)
-    avg_deg = 1.5
+    avg_deg = 2.5
     N = 1000
     p = avg_deg/N
 
@@ -79,12 +79,9 @@ if __name__ == '__main__':
     nx.write_gpickle(graph, f'ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
     print("avg degree = {}".format(np.mean([d for k, d in graph.degree()])))
     """
-    #graph = nx.read_gpickle("ER_avgDeg=2.5_N=1000.gpickle")
-    graph = nx.read_gpickle("ER_avgDeg4.gpickle")
+    graph = nx.read_gpickle("networkData/ER_avgDeg=1.5_N=100.gpickle")
+    #graph = nx.read_gpickle("networkData/ER_avgDeg4.gpickle")
 
-    graph = nx.read_graphml('weighted_person-person_projection_anonymous_combined.graphml')
-    connected_nodes = max(nx.connected_components(graph), key=len)
-    graph = graph.subgraph(connected_nodes)
 
     N = len(graph)
     print(N)
@@ -104,7 +101,7 @@ if __name__ == '__main__':
     # graph = nx.barabasi_albert_graph(10, 3)
     modelSettings = dict(\
                          graph       = graph,\
-                         temperature = temps[0],\
+                         temperature = 0.1,\
                          updateType  = updateType,\
                          magSide     = magSide
                          )
@@ -134,9 +131,14 @@ if __name__ == '__main__':
 
     #print([len(nx.ego_graph(graph, all_nodes[0][0], i)) - len(nx.ego_graph(graph, all_nodes[0][0], i-1)) for i in range(1,10)])
     #print([len(nx.ego_graph(graph, all_nodes[100][0], i)) - len(nx.ego_graph(graph, all_nodes[100][0], i-1)) for i in range(1,10)])
+    #infcy.getSnapShots(model, nSamples=16, step = 10,\
+    #                  burninSamples = int(0))
+    #infcy.getSnapShotsLargeNetwork(model, nSamples=100, step = 1000,\
+    #                   burninSamples = int(0), nodeSubset = model.neighboursAtDist(0, 5)
+    infcy.test(model, node=0, dist=1, nSnapshots=1000, nStepsToSnapshot= 100,
+                  nSamples=int(4e2), distSamples=int(1e2), nRunsSampling=16)
 
-
-
+    """
     for T in temps:
         model.t = T
         for trial in range(trials):
@@ -144,7 +146,7 @@ if __name__ == '__main__':
             np.save(f'{targetDirectory}/snapshots_T={T}_{time.time()}.npy', snapshots)
             np.save(f'{targetDirectory}/MI_T={T}_{time.time()}.npy', MI)
             plot_avgMI(MI, degrees, diameter, 'erdos_renyi_graph, N={}, T={}'.format(N,T), f'{targetDirectory}/avgMIperDist_T{T}_{time.time()}.png')
-
+    """
 
     #MI_switch, degrees = infcy.runMI(model, repeats=16, burninSamples=int(1e4), nSamples=int(20), distSamples=int(1e3), nodes=nodes, distMax=diameter, magThreshold=-0.025)
     #MI_normal, degrees = infcy.runMI(model, repeats=16, burninSamples=int(1e4), nSamples=int(20), distSamples=int(1e3), nodes=nodes, distMax=diameter, magThreshold=0.025)

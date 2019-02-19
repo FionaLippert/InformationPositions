@@ -43,6 +43,8 @@ cdef class Model:
         double[::1] _nudges
         # np.ndarray _nudges
 
+        long[::1] _fixedNodes
+
         unordered_map[long, Connection] _adj # adjacency lists
         int _nStates
         #private
@@ -60,6 +62,9 @@ cdef class Model:
     cdef double rand(self) nogil
     cpdef np.ndarray simulate(self, long long int  samples)
     cdef long[::1] simulateNSteps(self, int nSteps) nogil
+
+    cpdef bytes encodeStateToString(self, vector[int] nodes)
+    cpdef void loadStatesFromString(self, bytes statesString, vector[int] nodes)
 
     # cpdef long[::1] updateState(self, long[::1] nodesToUpdate)
 

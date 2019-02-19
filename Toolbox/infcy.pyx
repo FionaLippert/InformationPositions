@@ -25,6 +25,7 @@ from tqdm import tqdm   #progress bar
 
 # cython
 from libcpp.vector cimport vector
+from libcpp.string cimport string
 from libc.stdlib cimport srand, malloc, free
 from libc.math cimport exp, log2
 from libcpp.unordered_map cimport unordered_map
@@ -101,6 +102,7 @@ cpdef int encodeState(long[::1] state) nogil:
         binNum *= 2
     return dec
 
+
 # TODO rework this to include agentStates
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -175,6 +177,139 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
     return snapshots
 
 
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef dict getSnapShotsLargeNetwork(Model model, int nSamples, vector[int] nodeSubset, int nSteps = 1):
+    """
+    Extract snapshots from MC for large network, for which the decimal encoding causes overflows
+    Only take snapshots of the specified node subset, ignore all others
+    """
+    cdef:
+        unordered_map[string, double] snapshots
+        int i, sample
+        int N          = nSamples * nSteps
+        long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs
+        double Z       = <double> nSamples
+        string idx
+        int test = 0
+        double past    = timer()
+        list modelsPy  = []
+        vector[PyObjectHolder] models_
+        cdef int tid, nThreads = mp.cpu_count()
+
+        unordered_map[int, vector[int]] allNeighbours
+
+
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    # for testing
+    #allNeighbours = model.neighboursAtDist(0, 3)
+    #print(allNeighbours[2])
+
+    pbar = tqdm(total = nSamples) # init  progbar
+    for sample in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        with gil:
+            (<Model>models_[tid].ptr).seed += sample # enforce different seeds
+            #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
+            (<Model>models_[tid].ptr).reset()
+            #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
+
+
+        (<Model>models_[tid].ptr).simulateNSteps(nSteps)
+
+        with gil:
+            #print(f'snapshot: {(<Model> models_[tid].ptr)._states.base}')
+            idx = (<Model> models_[tid].ptr).encodeStateToString(nodeSubset)
+            snapshots[idx] += 1/Z # each index corresponds to one system state, the array contains the probability of each state
+            #print(f'{tid}final state: {(<Model> models_[tid].ptr)._states.base}')
+            pbar.update(1)
+
+    print(f'Found {len(snapshots)} states')
+    print(f"Delta = {timer() - past: .2f} sec")
+    return snapshots
+
+@cython.boundscheck(False) # compiler directive
+@cython.wraparound(False) # compiler directive
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cdef dict monteCarloFixedNeighbours(Model model, string snapshot, int node, \
+               vector[int] neighbours, \
+               int nSamples = 10, int distSamples = 10, int repeats = 10):
+
+    cdef:
+       double Z = <double> nSamples * repeats
+       vector[PyObjectHolder] models_
+       int tid, rep, sample, nThreads = mp.cpu_count()
+       #int nStates = snapshots.size()
+       long length = neighbours.size()
+       long nodeState
+       unordered_map[long, double] probCond
+       #dict probCond = {0:1}
+
+    model.fixedNodes = neighbours # fix neighbour states
+    for tid in range(nThreads):
+       tmp = copy.deepcopy(model)
+       #tmp.fixedNodes = neighbours # fix neighbour states
+       models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    #pbar = tqdm(total = nStates) # init  progbar
+    #for state in tqdm(range(nStates)):
+
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = 4):
+    #for rep in range(repeats):
+        #tid = threadid()
+        tid = 0
+        #with gil:
+            #start = time.process_time()
+        #    (<Model>models_[tid].ptr).seed += rep # enforce different seeds
+        #    (<Model>models_[tid].ptr).loadStatesFromString(snapshot, neighbours) # resets all other node states to random
+            #print(f'{rep}: {(<Model>models_[tid].ptr)._states[neighbours[0]]}')
+            #stop = time.process_time()
+            #print(f'time to setup model: {stop-start}')
+
+        #with gil: start = time.process_time()
+        for sample in range(nSamples):
+            (<Model>models_[tid].ptr).simulateNSteps(distSamples)
+            nodeState = (<Model>models_[tid].ptr)._states[node]
+            probCond[nodeState] += 1/Z
+            #with gil: print(f'{rep}: {(<Model>models_[tid].ptr)._states[neighbours[0]]}'
+        #with gil:
+        #    stop = time.process_time()
+        #    print(f'time for sampling: {stop-start}')
+
+    model.releaseFixedNodes()
+
+    return probCond
+
+
+cpdef test(Model model, int node, int dist, int nSnapshots, int nStepsToSnapshot,
+              int nSamples, int distSamples, int nRunsSampling):
+    cdef:
+        #vector[int] neighbours = list(model.mapping.values())[:20]
+        vector[int] neighbours = model.neighboursAtDist(node, dist)[dist]
+        #unordered_map[string, double] snapshots
+        #dict snapshots
+        double past
+        int rep, testsum, i
+
+    print(f'neighbours at dist={dist}: {neighbours}')
+    past = timer()
+    snapshots = getSnapShotsLargeNetwork(model, nSnapshots, neighbours, nStepsToSnapshot)
+    print(f"time to get snapshots = {timer() - past: .2f} sec")
+    for state in tqdm(snapshots):
+        print(f'state: {np.frombuffer(state)}')
+        past = timer()
+        probCond = monteCarloFixedNeighbours(model, state, node, neighbours, nSamples, distSamples, nRunsSampling)
+        print(f"time for sampling = {timer() - past: .2f} sec")
+        print(f'probs: {probCond}')
 
 
 @cython.boundscheck(False) # compiler directive
@@ -537,6 +672,12 @@ cdef double[::1] _magTimeSeries(Model model, int burninSamples, \
         double[::1] mags = np.zeros(nSamples)
         int sample
 
+
+    #string = encodeStateToString(model.states.base)
+
+    #print(string)
+    #print(model.states)
+
     model.simulateNSteps(burninSamples)
 
     for sample in range(nSamples):
@@ -587,7 +728,7 @@ cpdef tuple runMI(Model model, int repeats, int burninSamples, int nSamples, \
     degrees = [model.graph.degree(model.rmapping[n]) for n in nodes]
 
     return snapshots.base, MI.base, degrees
-    
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

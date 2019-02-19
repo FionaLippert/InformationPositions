@@ -194,13 +194,14 @@ cdef class Ising(Model):
         # for n in prange(length,  = True): # dont prange this
         for n in range(length):
             node      = nodesToUpdate[n]
-            energy    = self.energy(node, self._states)
-            # p = 1 / ( 1. + exp_approx(-self.beta * 2. * energy) )
-            p  = 1 / ( 1. + exp(-self.beta * 2. * energy))
-            # p  = p  +  self._nudges[node]
-            # p += self._nudges[node]
-            if self.rand() < p:
-                self._newstates[node] = -self._states[node]
+            if self._fixedNodes[node] == 0:
+                energy    = self.energy(node, self._states)
+                # p = 1 / ( 1. + exp_approx(-self.beta * 2. * energy) )
+                p  = 1 / ( 1. + exp(-self.beta * 2. * energy))
+                # p  = p  +  self._nudges[node]
+                # p += self._nudges[node]
+                if self.rand() < p:
+                    self._newstates[node] = -self._states[node]
         # uggly
         cdef double mu   =  0 # sign
         cdef long   NEG  = -1 # see the self.magSideOptions
