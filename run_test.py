@@ -101,7 +101,7 @@ if __name__ == '__main__':
     # graph = nx.barabasi_albert_graph(10, 3)
     modelSettings = dict(\
                          graph       = graph,\
-                         temperature = 0.1,\
+                         temperature = 1.5,\
                          updateType  = updateType,\
                          magSide     = magSide
                          )
@@ -135,8 +135,8 @@ if __name__ == '__main__':
     #                  burninSamples = int(0))
     #infcy.getSnapShotsLargeNetwork(model, nSamples=100, step = 1000,\
     #                   burninSamples = int(0), nodeSubset = model.neighboursAtDist(0, 5)
-    infcy.test(model, node=0, dist=1, nSnapshots=1000, nStepsToSnapshot= 100,
-                  nSamples=int(4e2), distSamples=int(1e2), nRunsSampling=16)
+    infcy.test(model, node=0, dist=1, nSnapshots=10, nStepsToSnapshot= 1000,
+                  nSamples=int(1e3), distSamples=int(1e3), nRunsSampling=16)
 
     """
     for T in temps:

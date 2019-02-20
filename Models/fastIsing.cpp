@@ -1492,11 +1492,11 @@ struct __pyx_vtabstruct_6Models_6models_Model {
   __Pyx_memviewslice (*sampleNodes)(struct __pyx_obj_6Models_6models_Model *, long);
   double (*rand)(struct __pyx_obj_6Models_6models_Model *);
   PyArrayObject *(*simulate)(struct __pyx_obj_6Models_6models_Model *, PY_LONG_LONG, int __pyx_skip_dispatch);
-  __Pyx_memviewslice (*simulateNSteps)(struct __pyx_obj_6Models_6models_Model *, int);
-  PyObject *(*encodeStateToString)(struct __pyx_obj_6Models_6models_Model *, std::vector<int> , int __pyx_skip_dispatch);
-  void (*loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, PyObject *, std::vector<int> , int __pyx_skip_dispatch);
+  __Pyx_memviewslice (*simulateNSteps)(struct __pyx_obj_6Models_6models_Model *, long);
+  PyObject *(*encodeStateToString)(struct __pyx_obj_6Models_6models_Model *, std::vector<long> , int __pyx_skip_dispatch);
+  void (*loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, PyObject *, std::vector<long> , int __pyx_skip_dispatch);
   void (*reset)(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch);
-  std::unordered_map<int,std::vector<int> >  (*neighboursAtDist)(struct __pyx_obj_6Models_6models_Model *, int, int, int __pyx_skip_dispatch);
+  std::unordered_map<long,std::vector<long> >  (*neighboursAtDist)(struct __pyx_obj_6Models_6models_Model *, long, int, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_6Models_6models_Model *__pyx_vtabptr_6Models_6models_Model;
 

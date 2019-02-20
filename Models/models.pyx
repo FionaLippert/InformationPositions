@@ -262,14 +262,14 @@ cdef class Model: # see pxd
                 self.agentStates, size = self._nNodes)
 
 
-    cpdef unordered_map[int, vector[int]] neighboursAtDist(self, int node_idx, int maxDist):
+    cpdef unordered_map[long, vector[long]] neighboursAtDist(self, long node_idx, int maxDist):
         assert node_idx < self._nNodes and node_idx >= 0
 
         cdef:
             #long[::1] neighbours
-            unordered_map[int, vector[int]] allNeighbours
+            unordered_map[long, vector[long]] allNeighbours
             int undir = not nx.is_directed(self.graph)
-            int node = self.rmapping[node_idx]
+            long node = self.rmapping[node_idx]
             #nx.Graph total, inner
             int d
 
@@ -321,12 +321,14 @@ cdef class Model: # see pxd
     @cython.cdivision(True)
     @cython.initializedcheck(False)
     @cython.overflowcheck(False)
-    cdef long[::1] simulateNSteps(self, int nSteps) nogil:
+    cdef long[::1] simulateNSteps(self, long nSteps) nogil:
         cdef:
             long[:, ::1] r = self.sampleNodes(nSteps)
-            int step
+            long step
 
         for step in range(nSteps):
+            #with gil: print(self._states.base)
+            #with gil: print(self._newstates.base)
             self._updateState(r[step])
 
         return self._states
@@ -337,7 +339,7 @@ cdef class Model: # see pxd
     @cython.nonecheck(False)
     @cython.cdivision(True)
     @cython.initializedcheck(False)
-    cpdef bytes encodeStateToString(self, vector[int] nodes):
+    cpdef bytes encodeStateToString(self, vector[long] nodes):
         """Maps states of given nodes to string"""
         cdef:
             int N = nodes.size()
@@ -358,19 +360,20 @@ cdef class Model: # see pxd
     @cython.nonecheck(False)
     @cython.cdivision(True)
     @cython.initializedcheck(False)
-    cpdef void loadStatesFromString(self, bytes statesString, vector[int] nodes):
+    cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes):
         """Maps string back to system state. States of nodes not included in the snapshot are assigned randomly"""
         cdef:
             int N = nodes.size()
-            long i
+            long i, n
 
-        dec = np.frombuffer(statesString)
+        dec = np.frombuffer(statesString).astype(int)
         #print(f'decoded string: {dec}')
 
         self.reset() # assign random states
 
         for i in range(N):
-            self._states[nodes[i]] = <long> dec[i]
+            n = nodes[i]
+            self.states[n] = dec[i]
         #print(f'reconstructed state: {self._states.base}')
 
 
@@ -464,11 +467,13 @@ cdef class Model: # see pxd
         if isinstance(value, int):
             self._newstates[:] = value
             self._states   [:] = value
+            #print('changed node state')
         elif isinstance(value, np.ndarray) or isinstance(value, list):
             assert len(value) == self.nNodes
             value = np.asarray(value) # enforce
             self._newstates = value
             self._states    = value
+            #print('changed all node states')
     # TODOL move this back ^
     # cdef long[::1] updateState(self, int[:] nodesToUpdate):
     #     ""

@@ -89,13 +89,13 @@ checkDistribution() # print it only once
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef int encodeState(long[::1] state) nogil:
+cpdef long encodeState(long[::1] state) nogil:
     """Maps state to decimal number"""
     cdef:
-        int binNum = 1
-        int N = state.shape[0]
-        int i
-        int dec = 0
+        long binNum = 1
+        long N = state.shape[0]
+        long i
+        long dec = 0
     for i in range(N):
         if state[i] == 1:
             dec += binNum
@@ -108,10 +108,10 @@ cpdef int encodeState(long[::1] state) nogil:
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
-cpdef vector[long] decodeState(int dec, int N) nogil:
+cpdef vector[long] decodeState(long dec, long N) nogil:
     """Decodes decimal number to state"""
     cdef:
-        int i = 0
+        long i = 0
         # long[::1] buffer = np.zeros(N, dtype = int) - 1
         vector [long] buffer = vector[long](N, -1) # init with -1
     while dec > 0:
@@ -183,25 +183,24 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef dict getSnapShotsLargeNetwork(Model model, int nSamples, vector[int] nodeSubset, int nSteps = 1):
+cpdef dict getSnapShotsLargeNetwork(Model model, long nSamples, vector[long] nodeSubset, long nSteps):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
     Only take snapshots of the specified node subset, ignore all others
     """
     cdef:
         unordered_map[string, double] snapshots
-        int i, sample
-        int N          = nSamples * nSteps
+        long i, sample
+        long N          = nSamples * nSteps
         long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs
         double Z       = <double> nSamples
         string idx
-        int test = 0
         double past    = timer()
         list modelsPy  = []
         vector[PyObjectHolder] models_
-        cdef int tid, nThreads = mp.cpu_count()
+        int tid, nThreads = mp.cpu_count()
 
-        unordered_map[int, vector[int]] allNeighbours
+        unordered_map[long, vector[long]] allNeighbours
 
 
     for rep in range(nThreads):
@@ -231,8 +230,9 @@ cpdef dict getSnapShotsLargeNetwork(Model model, int nSamples, vector[int] nodeS
             #print(f'{tid}final state: {(<Model> models_[tid].ptr)._states.base}')
             pbar.update(1)
 
-    print(f'Found {len(snapshots)} states')
-    print(f"Delta = {timer() - past: .2f} sec")
+    cdef dict s = snapshots
+    print(f'Found {len(snapshots)} states with probs {s.values()}')
+    print(f"Time to get snapshots = {timer() - past: .2f} sec")
     return snapshots
 
 @cython.boundscheck(False) # compiler directive
@@ -240,37 +240,42 @@ cpdef dict getSnapShotsLargeNetwork(Model model, int nSamples, vector[int] nodeS
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cdef dict monteCarloFixedNeighbours(Model model, string snapshot, int node, \
-               vector[int] neighbours, \
-               int nSamples = 10, int distSamples = 10, int repeats = 10):
+cdef double[::1] monteCarloFixedNeighbours(Model model, string snapshot, long node, \
+               vector[long] neighbours, \
+               long nSamples = 10, long distSamples = 10, long repeats = 10):
 
     cdef:
        double Z = <double> nSamples * repeats
        vector[PyObjectHolder] models_
-       int tid, rep, sample, nThreads = mp.cpu_count()
+       int tid, nThreads = mp.cpu_count()
        #int nStates = snapshots.size()
-       long length = neighbours.size()
+       long rep, sample, length = neighbours.size()
        long nodeState
        unordered_map[long, double] probCond
        #dict probCond = {0:1}
+       long[::1] test = np.ones(model._nNodes, int)
+       unordered_map[int, int] idxer = {state : idx for idx, state in enumerate(model.agentStates)}
+       double[::1] probCondArr = np.zeros(idxer.size())
 
-    model.fixedNodes = neighbours # fix neighbour states
+    #model.fixedNodes = neighbours # fix neighbour states
     for tid in range(nThreads):
        tmp = copy.deepcopy(model)
-       #tmp.fixedNodes = neighbours # fix neighbour states
+       tmp.fixedNodes = neighbours # fix neighbour states
        models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
     #pbar = tqdm(total = nStates) # init  progbar
     #for state in tqdm(range(nStates)):
-
-    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = 4):
-    #for rep in range(repeats):
-        #tid = threadid()
-        tid = 0
-        #with gil:
+    cdef double past = timer()
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+        #for rep in range(repeats):
+        tid = threadid()
+        #tid = 0
+        with gil:
             #start = time.process_time()
-        #    (<Model>models_[tid].ptr).seed += rep # enforce different seeds
-        #    (<Model>models_[tid].ptr).loadStatesFromString(snapshot, neighbours) # resets all other node states to random
+            (<Model>models_[tid].ptr).seed += rep # enforce different seeds
+            (<Model>models_[tid].ptr).loadStatesFromString(snapshot, neighbours) # resets all other node states to random
+            #(<Model>models_[tid].ptr).states = np.ones(model._nNodes, int)
+            #print((<Model>models_[tid].ptr)._states.base)
             #print(f'{rep}: {(<Model>models_[tid].ptr)._states[neighbours[0]]}')
             #stop = time.process_time()
             #print(f'time to setup model: {stop-start}')
@@ -278,38 +283,58 @@ cdef dict monteCarloFixedNeighbours(Model model, string snapshot, int node, \
         #with gil: start = time.process_time()
         for sample in range(nSamples):
             (<Model>models_[tid].ptr).simulateNSteps(distSamples)
+            #with gil: print((<Model>models_[tid].ptr)._states.base)
             nodeState = (<Model>models_[tid].ptr)._states[node]
-            probCond[nodeState] += 1/Z
-            #with gil: print(f'{rep}: {(<Model>models_[tid].ptr)._states[neighbours[0]]}'
-        #with gil:
-        #    stop = time.process_time()
-        #    print(f'time for sampling: {stop-start}')
+            #probCond[nodeState] += 1/Z
+            probCondArr[idxer[nodeState]] += 1/Z
 
-    model.releaseFixedNodes()
+    print(f"time for sampling = {timer() - past: .2f} sec")
+    #model.releaseFixedNodes()
 
-    return probCond
+    return probCondArr
 
 
-cpdef test(Model model, int node, int dist, int nSnapshots, int nStepsToSnapshot,
-              int nSamples, int distSamples, int nRunsSampling):
+cdef double entropyFromProbs(double[::1] probs) nogil:
     cdef:
-        #vector[int] neighbours = list(model.mapping.values())[:20]
-        vector[int] neighbours = model.neighboursAtDist(node, dist)[dist]
+        double p, H = 0
+        long i, n = probs.size()
+
+    for i in range(n):
+        p = probs[i]
+        if p > 0:
+            H = H - p * log2(p)
+    return H
+
+
+
+cpdef test(Model model, long node, int dist, long nSnapshots, long nStepsToSnapshot,
+              long nSamples, long distSamples, long nRunsSampling):
+    cdef:
+        #vector[long] neighbours = list(model.mapping.values())[1:]
+        vector[long] neighbours = model.neighboursAtDist(node, dist)[dist]
         #unordered_map[string, double] snapshots
-        #dict snapshots
-        double past
-        int rep, testsum, i
+        dict snapshots
+        bytes state
+        double[::1] probConds
+        unordered_map[string, double[::1]] allProbConds
+        double HXgivenY = 0, pX = 0
+
 
     print(f'neighbours at dist={dist}: {neighbours}')
-    past = timer()
     snapshots = getSnapShotsLargeNetwork(model, nSnapshots, neighbours, nStepsToSnapshot)
-    print(f"time to get snapshots = {timer() - past: .2f} sec")
+    allProbConds = np.zeros((len(snapshots), model.agentStates.shape[0]))
     for state in tqdm(snapshots):
-        print(f'state: {np.frombuffer(state)}')
-        past = timer()
-        probCond = monteCarloFixedNeighbours(model, state, node, neighbours, nSamples, distSamples, nRunsSampling)
-        print(f"time for sampling = {timer() - past: .2f} sec")
-        print(f'probs: {probCond}')
+        probConds = monteCarloFixedNeighbours(model, state, node, neighbours, nSamples, distSamples, nRunsSampling)
+        print(f'probs: {probConds}')
+        allProbConds[state] = probConds
+
+        pY = snapshots[state]
+        pXgivenY = probConds
+        HXgivenYy = entropyFromProbs(probConds)
+        HXgivenY -= pY * HXgivenYy
+        pX += pY * pXgivenY
+
+    MI = HXgivenY + entropyFromProbs(pX)
 
 
 @cython.boundscheck(False) # compiler directive
@@ -472,12 +497,12 @@ cdef long[::1] simulate(Model model, int nSamples = int(1e2)) nogil:
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef long[:,::1] equilibriumSampling(Model model, int repeats, int burninSamples, int nSamples, int distSamples):
+cpdef long[:,::1] equilibriumSampling(Model model, long repeats, long burninSamples, long nSamples, long distSamples):
     cdef:
         vector[PyObjectHolder] models_
         Model tmp
-        int start, sample, idx, step, nThreads = mp.cpu_count()
-        long rep, s, tid
+        long start, sample, idx, step, rep, s
+        int tid, nThreads = mp.cpu_count()
         long[:,::1] snapshots = np.zeros((repeats * nSamples, model._nNodes), int) #np.intc)
 
 
@@ -510,13 +535,15 @@ cpdef long[:,::1] equilibriumSampling(Model model, int repeats, int burninSample
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef long[:,::1] equilibriumSamplingMagThreshold(Model model, int repeats, int burninSamples, int nSamples, int distSamples, int switch=1, double threshold=0.05):
+cpdef long[:,::1] equilibriumSamplingMagThreshold(Model model, long repeats, \
+                      long burninSamples, long nSamples, long distSamples, \
+                      int switch=1, double threshold=0.05):
     cdef:
         #list modelsPy  = []
         vector[PyObjectHolder] models_
         Model tmp
-        int start, sample = 0, idx, step, nThreads = mp.cpu_count()
-        long rep, s, tid, nNodes = model._nNodes
+        long start, sample = 0, idx, step, rep, s, nNodes = model._nNodes
+        int tid, nThreads = mp.cpu_count()
         double mu
         long[:,::1] snapshots = np.zeros((repeats * nSamples, nNodes), int) #np.intc)
 
@@ -558,8 +585,6 @@ cpdef double[::1] binaryEntropies(long[:,::1] snapshots):
         #np.ndarray H = np.sum(s.base, axis=0)
         np.ndarray tmp, H = np.sum(snapshots.base, axis=0, dtype=float)
         double[::1] cview_H
-        int idx
-        double len = <double> snapshots.shape[0]
 
 
     H = (len - np.abs(H))/2. + np.abs(H)
@@ -578,11 +603,11 @@ cpdef double[::1] binaryEntropies(long[:,::1] snapshots):
 @cython.nonecheck(False)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, int node1, int node2) nogil:
+cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, long node1, long node2) nogil:
     cdef:
-        int idx, nSamples = snapshots.shape[0]
+        long idx, nSamples = snapshots.shape[0]
         vector[long] states
-        vector[int] jointDistr = vector[int](nSamples, 0)
+        vector[long] jointDistr = vector[long](nSamples, 0)
         double mi, jointEntropy
 
 
@@ -599,7 +624,7 @@ cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropie
 
 
 
-cpdef double entropy(vector[int] samples):
+cpdef double entropy(vector[long] samples):
     cdef:
         long[::1] counts = np.unique(samples, return_counts=True)[1]
         double entropy, n = <double> samples.size()
@@ -616,12 +641,12 @@ cpdef double entropy(vector[int] samples):
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
 cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, \
-              double[::1] entropies, int node, vector[int] neighbours) nogil:
+              double[::1] entropies, long node, vector[long] neighbours) nogil:
 
     cdef:
         #int[::1] neighbours
         #vector[int] neighbours
-        int idx, n = neighbours.size() #.shape[0]
+        long idx, n = neighbours.size() #.shape[0]
         #vector[double] MI
         double[::1] out
 
@@ -655,8 +680,8 @@ cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef np.ndarray magTimeSeries(Model model, int burninSamples, \
-                                int nSamples, int abs=0):
+cpdef np.ndarray magTimeSeries(Model model, long burninSamples, \
+                                long nSamples, int abs=0):
 
     return _magTimeSeries(model, burninSamples, nSamples, abs).base
 
@@ -665,12 +690,12 @@ cpdef np.ndarray magTimeSeries(Model model, int burninSamples, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cdef double[::1] _magTimeSeries(Model model, int burninSamples, \
-                                int nSamples, int abs=0):
+cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
+                                long nSamples, int abs=0):
 
     cdef:
         double[::1] mags = np.zeros(nSamples)
-        int sample
+        long sample
 
 
     #string = encodeStateToString(model.states.base)
@@ -690,18 +715,18 @@ cdef double[::1] _magTimeSeries(Model model, int burninSamples, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef tuple runMI(Model model, int repeats, int burninSamples, int nSamples, \
-                  int distSamples, np.ndarray nodes, int distMax, \
+cpdef tuple runMI(Model model, long repeats, long burninSamples, long nSamples, \
+                  long distSamples, np.ndarray nodes, int distMax, \
                   double magThreshold=0):
 
     cdef:
         int[::1] cv_nodes = nodes
         long[:,::1] snapshots
         double[::1] entropies
-        int n, d, nNodes = nodes.shape[0]
+        long n, d, nNodes = nodes.shape[0]
         double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
         int nThreads = mp.cpu_count()
-        unordered_map[int, vector[int]] allNeighbours
+        unordered_map[long, vector[long]] allNeighbours
         int[::1] neighbours
 
     # run multiple MC chains in parallel and sample snapshots
@@ -758,8 +783,8 @@ cdef double mean(long[::1] arr, long len, int abs=0) nogil:
 @cython.overflowcheck(False)
 cpdef np.ndarray magnetizationParallel(Model model,\
                           np.ndarray temps  = np.logspace(-3, 2, 20),\
-                      int n             = int(1e3),\
-                      int burninSamples = 100):
+                      long n             = int(1e3),\
+                      long burninSamples = 100):
     """
     Computes the magnetization as a function of temperatures
     Input:
@@ -781,11 +806,10 @@ cpdef np.ndarray magnetizationParallel(Model model,\
     cdef:
         vector[PyObjectHolder] models_
         Model tmp
-        long idx, nNodes = model._nNodes
-        int t, step, start, tid
-        int nThreads = mp.cpu_count()
-        int nTemps = temps.shape[0]
-        int totalSteps = n + burninSamples
+        long idx, nNodes = model._nNodes, t, step, start
+        int tid, nThreads = mp.cpu_count()
+        long nTemps = temps.shape[0]
+        long totalSteps = n + burninSamples
         double m
         vector[double] mag_sum
         np.ndarray betas = np.array([1 / t if t != 0 else np.inf for t in temps])
@@ -795,7 +819,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
 
 
     # threadsafe model access
-    for t in range(nThreads):
+    for tid in range(nThreads):
         tmp = copy.deepcopy(model)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
@@ -854,21 +878,21 @@ cpdef np.ndarray autocorrelation(np.ndarray timeSeries):
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
 cpdef tuple determineMixingTime(Model model,\
-                      int stepSizeBurnin = 100,\
-                      int nStepsRegress = int(1e3),\
+                      long stepSizeBurnin = 100,\
+                      long nStepsRegress = int(1e3),\
                       double threshold = 0.05,\
-                      int nStepsCorr = int(1e4)):
+                      long nStepsCorr = int(1e4)):
 
     cdef:
         vector[PyObjectHolder] models_
         Model tmp
-        int s, tid, nNodes = model._nNodes
-        int nThreads = mp.cpu_count()
+        long s, nNodes = model._nNodes
+        int tid, nThreads = mp.cpu_count()
         #vector[double] mag_sum
 
         double[::1] mags = np.zeros(stepSizeBurnin)
         np.ndarray allMags  # for regression
-        int lag, h, counter # tmp var and counter
+        long lag, h, counter # tmp var and counter
         double beta        # slope value
         np.ndarray magSeries, autocorr, x = np.arange(nStepsRegress)# for regression
         double slope, intercept, r_value, p_value, std_err, mixingTime, corrTime
@@ -914,10 +938,10 @@ cpdef tuple determineMixingTime(Model model,\
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cdef vector[double] simulateGetMeanMag(Model model, int nSamples = int(1e2)) nogil:
+cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) nogil:
     cdef:
         long[:, ::1] r = model.sampleNodes(nSamples)
-        int step
+        long step
         double sum, sum_square
         vector[double] out = vector[double](2, 0)
 

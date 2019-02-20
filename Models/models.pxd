@@ -61,15 +61,15 @@ cdef class Model:
 
     cdef double rand(self) nogil
     cpdef np.ndarray simulate(self, long long int  samples)
-    cdef long[::1] simulateNSteps(self, int nSteps) nogil
+    cdef long[::1] simulateNSteps(self, long nSteps) nogil
 
-    cpdef bytes encodeStateToString(self, vector[int] nodes)
-    cpdef void loadStatesFromString(self, bytes statesString, vector[int] nodes)
+    cpdef bytes encodeStateToString(self, vector[long] nodes)
+    cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes)
 
     # cpdef long[::1] updateState(self, long[::1] nodesToUpdate)
 
 
     cpdef void reset(self)
 
-    cpdef unordered_map[int, vector[int]] neighboursAtDist(self, int node_idx, int maxDist)
+    cpdef unordered_map[long, vector[long]] neighboursAtDist(self, long node_idx, int maxDist)
   #  cpdef dict neighboursAtDist(self, int node, int maxDist)
