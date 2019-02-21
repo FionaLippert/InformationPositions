@@ -16,6 +16,7 @@ import networkx as nx, itertools, scipy,\
         datetime, sys
 import time
 import timeit
+from timeit import default_timer as timer
 from matplotlib.pyplot import *
 from numpy import *
 from tqdm import tqdm
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     nx.write_gpickle(graph, f'ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
     print("avg degree = {}".format(np.mean([d for k, d in graph.degree()])))
     """
-    graph = nx.read_gpickle("networkData/ER_avgDeg=1.5_N=100.gpickle")
+    graph = nx.read_gpickle("networkData/ER_avgDeg=1.5_N=1000.gpickle")
     #graph = nx.read_gpickle("networkData/ER_avgDeg4.gpickle")
 
 
@@ -135,8 +136,19 @@ if __name__ == '__main__':
     #                  burninSamples = int(0))
     #infcy.getSnapShotsLargeNetwork(model, nSamples=100, step = 1000,\
     #                   burninSamples = int(0), nodeSubset = model.neighboursAtDist(0, 5)
-    infcy.test(model, node=0, dist=1, nSnapshots=10, nStepsToSnapshot= 1000,
-                  nSamples=int(1e3), distSamples=int(1e3), nRunsSampling=16)
+    past = timer()
+    #infcy.test(model, node=0, dist=2, nSnapshots=int(1e3), nStepsToSnapshot=int(1e2),
+    #              nSamples=int(50), distSamples=int(1e2), nRunsSampling=int(1e2))
+    #print(f'time = {timer()-past} sec')
+
+    node = 0
+    maxDist = 3
+    neighbours = model.neighboursAtDist(node, maxDist)
+    snapshots = infcy.getSnapshotsPerDist(model, nSamples=int(1e2), nSteps=int(1e2), node=node, maxDist=maxDist)
+
+    d = 1
+    infcy.runNeighbourhoodMI(model, node, neighbours[d], snapshots[d-1], \
+                  nSamples=int(50), distSamples=int(1e2), nRunsSampling=int(1e2))
 
     """
     for T in temps:

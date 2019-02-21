@@ -1495,6 +1495,7 @@ struct __pyx_vtabstruct_6Models_6models_Model {
   __Pyx_memviewslice (*simulateNSteps)(struct __pyx_obj_6Models_6models_Model *, long);
   PyObject *(*encodeStateToString)(struct __pyx_obj_6Models_6models_Model *, std::vector<long> , int __pyx_skip_dispatch);
   void (*loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, PyObject *, std::vector<long> , int __pyx_skip_dispatch);
+  void (*_loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, std::vector<long> );
   void (*reset)(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch);
   std::unordered_map<long,std::vector<long> >  (*neighboursAtDist)(struct __pyx_obj_6Models_6models_Model *, long, int, int __pyx_skip_dispatch);
 };

@@ -183,24 +183,25 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef dict getSnapShotsLargeNetwork(Model model, long nSamples, vector[long] nodeSubset, long nSteps):
+cpdef vector[unordered_map[string, double]] getSnapshotsPerDist(Model model, long nSamples, long nSteps, long node, int maxDist):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
     Only take snapshots of the specified node subset, ignore all others
     """
     cdef:
-        unordered_map[string, double] snapshots
+        vector[unordered_map[string, double]] snapshots = vector[unordered_map[string, double]](maxDist)
         long i, sample
         long N          = nSamples * nSteps
-        long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs
+        #long[:, ::1] r = model.sampleNodes(N) # returns N shuffled versions of node IDs
         double Z       = <double> nSamples
+        double part = 1/Z
         string idx
         double past    = timer()
-        list modelsPy  = []
+        #list modelsPy  = []
         vector[PyObjectHolder] models_
         int tid, nThreads = mp.cpu_count()
 
-        unordered_map[long, vector[long]] allNeighbours
+        unordered_map[long, vector[long]] allNeighbours = model.neighboursAtDist(node, maxDist)
 
 
     for rep in range(nThreads):
@@ -225,15 +226,17 @@ cpdef dict getSnapShotsLargeNetwork(Model model, long nSamples, vector[long] nod
 
         with gil:
             #print(f'snapshot: {(<Model> models_[tid].ptr)._states.base}')
-            idx = (<Model> models_[tid].ptr).encodeStateToString(nodeSubset)
-            snapshots[idx] += 1/Z # each index corresponds to one system state, the array contains the probability of each state
+            for d in range(maxDist):
+                idx = (<Model> models_[tid].ptr).encodeStateToString(allNeighbours[d+1])
+                snapshots[d][idx] += part # each index corresponds to one system state, the array contains the probability of each state
             #print(f'{tid}final state: {(<Model> models_[tid].ptr)._states.base}')
             pbar.update(1)
 
-    cdef dict s = snapshots
-    print(f'Found {len(snapshots)} states with probs {s.values()}')
-    print(f"Time to get snapshots = {timer() - past: .2f} sec")
+    #cdef dict s = snapshots
+    #print(f'Found {len(snapshots)} states with probs {list(s.values())}')
+    #print(f"Time to get snapshots = {timer() - past: .2f} sec")
     return snapshots
+
 
 @cython.boundscheck(False) # compiler directive
 @cython.wraparound(False) # compiler directive
@@ -246,6 +249,7 @@ cdef double[::1] monteCarloFixedNeighbours(Model model, string snapshot, long no
 
     cdef:
        double Z = <double> nSamples * repeats
+       double part = 1/Z
        vector[PyObjectHolder] models_
        int tid, nThreads = mp.cpu_count()
        #int nStates = snapshots.size()
@@ -256,6 +260,7 @@ cdef double[::1] monteCarloFixedNeighbours(Model model, string snapshot, long no
        long[::1] test = np.ones(model._nNodes, int)
        unordered_map[int, int] idxer = {state : idx for idx, state in enumerate(model.agentStates)}
        double[::1] probCondArr = np.zeros(idxer.size())
+       long[::1] decodedStates = np.frombuffer(snapshot).astype(int)
 
     #model.fixedNodes = neighbours # fix neighbour states
     for tid in range(nThreads):
@@ -266,14 +271,16 @@ cdef double[::1] monteCarloFixedNeighbours(Model model, string snapshot, long no
     #pbar = tqdm(total = nStates) # init  progbar
     #for state in tqdm(range(nStates)):
     cdef double past = timer()
-    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+    for rep in prange(repeats, nogil = True, schedule = 'dynamic', num_threads = 8):
         #for rep in range(repeats):
         tid = threadid()
         #tid = 0
         with gil:
             #start = time.process_time()
             (<Model>models_[tid].ptr).seed += rep # enforce different seeds
-            (<Model>models_[tid].ptr).loadStatesFromString(snapshot, neighbours) # resets all other node states to random
+            #(<Model>models_[tid].ptr).loadStatesFromString(snapshot, neighbours)
+        #(<Model>models_[tid].ptr)._incrSeed(rep)
+        (<Model>models_[tid].ptr)._loadStatesFromString(decodedStates, neighbours) # keeps all other node states as they are
             #(<Model>models_[tid].ptr).states = np.ones(model._nNodes, int)
             #print((<Model>models_[tid].ptr)._states.base)
             #print(f'{rep}: {(<Model>models_[tid].ptr)._states[neighbours[0]]}')
@@ -285,19 +292,70 @@ cdef double[::1] monteCarloFixedNeighbours(Model model, string snapshot, long no
             (<Model>models_[tid].ptr).simulateNSteps(distSamples)
             #with gil: print((<Model>models_[tid].ptr)._states.base)
             nodeState = (<Model>models_[tid].ptr)._states[node]
-            #probCond[nodeState] += 1/Z
-            probCondArr[idxer[nodeState]] += 1/Z
+            #probCond[nodeState] += part
+            probCondArr[idxer[nodeState]] += part
 
-    print(f"time for sampling = {timer() - past: .2f} sec")
+    #print(f"time for sampling = {timer() - past: .2f} sec")
     #model.releaseFixedNodes()
 
     return probCondArr
 
 
+
+@cython.boundscheck(False) # compiler directive
+@cython.wraparound(False) # compiler directive
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cdef double[::1] monteCarloFixedNeighboursSeq(Model model, string snapshot, long node, \
+               vector[long] neighbours, \
+               long nSamples = 10, long distSamples = 10, long repeats = 10) nogil:
+
+    cdef:
+       double Z = <double> nSamples * repeats
+       double part = 1/Z
+       long idx, rep, sample, length = neighbours.size()
+       long nodeState
+       unordered_map[long, double] probCond
+       unordered_map[int, int] idxer #= {state : idx for idx, state in enumerate(model.agentStates)}
+       double[::1] probCondArr #= np.zeros(idxer.size())
+       long[::1] decodedStates
+
+    for idx in range(model.agentStates.shape[0]):
+        idxer[model.agentStates[idx]] = idx
+
+    with gil:
+        decodedStates = np.frombuffer(snapshot).astype(int)
+        probCondArr = np.zeros(idxer.size())
+
+
+    #with gil: print('start repetitions')
+    for rep in range(repeats):
+
+        with gil: model.seed += rep # enforce different seeds
+
+        model._loadStatesFromString(decodedStates, neighbours) # keeps all other node states as they are
+
+        for sample in range(nSamples):
+            model.simulateNSteps(distSamples)
+            nodeState = model._states[node]
+            #probCond[nodeState] += part
+            probCondArr[idxer[nodeState]] += part
+
+    #print(f"time for sampling = {timer() - past: .2f} sec")
+    #model.releaseFixedNodes()
+
+    return probCondArr
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
 cdef double entropyFromProbs(double[::1] probs) nogil:
     cdef:
         double p, H = 0
-        long i, n = probs.size()
+        long i, n = probs.shape[0]
 
     for i in range(n):
         p = probs[i]
@@ -307,35 +365,121 @@ cdef double entropyFromProbs(double[::1] probs) nogil:
 
 
 
-cpdef test(Model model, long node, int dist, long nSnapshots, long nStepsToSnapshot,
+cpdef tuple runNeighbourhoodMI(Model model, long node, vector[long] neighbours, unordered_map[string, double] snapshots, \
+              long nSamples, long distSamples, long nRunsSampling):
+    cdef:
+        Model tmp
+        vector[PyObjectHolder] models_
+        int tid, nThreads = mp.cpu_count()
+
+        #vector[long] neighbours = list(model.mapping.values())[1:]
+        #vector[long] neighbours = model.neighboursAtDist(node, dist)[dist]
+        long sample, idx, nNeighbours = neighbours.size()
+        #long totalSnapshots = nSnapshots * nNeighbours
+        #double part = 1 / (<double> totalSnapshots)
+        #unordered_map[string, double] snapshots
+        string state
+        double[::1] pY, pX
+        double HXgiveny, HXgivenY = 0, MI
+
+    for tid in range(nThreads):
+       tmp = copy.deepcopy(model)
+       tmp.fixedNodes = neighbours
+       models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    #print(f'neighbours at dist={dist}: {neighbours}')
+
+    # get snapshots and their probabilities
+    #snapshots = getSnapShotsLargeNetwork(model, nSnapshots*nNeighbours, neighbours, nStepsToSnapshot)
+
+    # TODO extract snapshots for all distances at once. Then pass snapshots to MI computation
+    """
+    pbar = tqdm(total = totalSnapshots) # init  progbar
+    for sample in prange(totalSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        with gil:
+            (<Model>models_[tid].ptr).seed += sample # enforce different seeds
+            (<Model>models_[tid].ptr).reset()
+
+        (<Model>models_[tid].ptr).simulateNSteps(nStepsToSnapshot)
+
+        with gil:
+            state = (<Model> models_[tid].ptr).encodeStateToString(neighbours)
+            snapshots[state] += part
+            pbar.update(1)
+    """
+
+    cdef:
+        dict snapshotsDict = snapshots
+        vector[string] keys = list(snapshotsDict.keys())
+        double[::1] probs = np.array([snapshots[k] for k in keys])
+        double[:,::1] container = np.zeros((keys.size(), model.agentStates.shape[0]))
+
+    #print(f'Found {len(snapshots)} states')
+
+    # fix neighbour states
+    #for tid in range(nThreads):
+    #    (<Model> models_[tid].ptr).fixedNodes = neighbours # fix neighbour states
+
+    # get conditional probabilities
+    pbar = tqdm(total = keys.size())
+    for idx in prange(keys.size(), nogil = True, schedule = 'dynamic', num_threads = nThreads):
+        tid = threadid()
+        container[idx] = monteCarloFixedNeighboursSeq((<Model>models_[tid].ptr), \
+                        keys[idx], node, neighbours, nSamples, distSamples, nRunsSampling)
+        HXgiveny = entropyFromProbs(container[idx])
+        HXgivenY -= probs[idx] * HXgiveny
+
+        with gil: pbar.update(1)
+
+    # compute MI based on conditional probabilities
+    pX = np.sum(np.multiply(probs.base, container.base.transpose()), axis=1)
+    MI = HXgivenY + entropyFromProbs(pX)
+
+    print(f'MI= {MI}')
+
+    return snapshotsDict, container.base, MI
+
+"""
+cpdef tuple test2(Model model, long node, int dist, long nSnapshots, long nStepsToSnapshot, \
               long nSamples, long distSamples, long nRunsSampling):
     cdef:
         #vector[long] neighbours = list(model.mapping.values())[1:]
         vector[long] neighbours = model.neighboursAtDist(node, dist)[dist]
+        long idx, nNeighbours = neighbours.size()
         #unordered_map[string, double] snapshots
         dict snapshots
         bytes state
-        double[::1] probConds
+        double[::1] probConds, pXgivenY, pX = np.zeros(model.agentStates.shape[0])
+        #dict allProbConds = {}
         unordered_map[string, double[::1]] allProbConds
-        double HXgivenY = 0, pX = 0
+        dict allProbCondsDict
+        #double[:,::1] allProbConds
+        double pY, HXgiveny, HXgivenY = 0, MI
 
 
     print(f'neighbours at dist={dist}: {neighbours}')
-    snapshots = getSnapShotsLargeNetwork(model, nSnapshots, neighbours, nStepsToSnapshot)
-    allProbConds = np.zeros((len(snapshots), model.agentStates.shape[0]))
-    for state in tqdm(snapshots):
-        probConds = monteCarloFixedNeighbours(model, state, node, neighbours, nSamples, distSamples, nRunsSampling)
-        print(f'probs: {probConds}')
-        allProbConds[state] = probConds
+    snapshots = getSnapShotsLargeNetwork(model, nSnapshots*nNeighbours, neighbours, nStepsToSnapshot)
 
+    #allProbConds = np.zeros((len(snapshots), model.agentStates.shape[0]))
+
+    for state in tqdm(snapshots):
+        pXgivenY = monteCarloFixedNeighbours(model, \
+                      state, node, neighbours, nSamples, distSamples, nRunsSampling)
+        # compute MI based on conditional probabilities
         pY = snapshots[state]
-        pXgivenY = probConds
-        HXgivenYy = entropyFromProbs(probConds)
-        HXgivenY -= pY * HXgivenYy
-        pX += pY * pXgivenY
+        HXgiveny = entropyFromProbs(pXgivenY)
+        HXgivenY -= pY * HXgiveny
+        pX += pY * pXgivenY.base
 
     MI = HXgivenY + entropyFromProbs(pX)
 
+    #allProbCondsDict = allProbConds
+
+    print(f'MI= {MI}')
+
+    return snapshots, MI
+"""
 
 @cython.boundscheck(False) # compiler directive
 @cython.wraparound(False) # compiler directive

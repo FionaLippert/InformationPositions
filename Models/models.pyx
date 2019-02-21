@@ -361,7 +361,7 @@ cdef class Model: # see pxd
     @cython.cdivision(True)
     @cython.initializedcheck(False)
     cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes):
-        """Maps string back to system state. States of nodes not included in the snapshot are assigned randomly"""
+        """Maps string back to system state. States of nodes not included in the snapshot remain the same (--> burnin samples needed to forget them)"""
         cdef:
             int N = nodes.size()
             long i, n
@@ -369,11 +369,35 @@ cdef class Model: # see pxd
         dec = np.frombuffer(statesString).astype(int)
         #print(f'decoded string: {dec}')
 
-        self.reset() # assign random states
+        #self.reset() # assign random states
 
         for i in range(N):
             n = nodes[i]
             self.states[n] = dec[i]
+        #print(f'reconstructed state: {self._states.base}')
+
+
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    cdef void _loadStatesFromString(self, long[::1] snapshot, vector[long] nodes) nogil:
+        """Maps string back to system state. States of nodes not included in the snapshot remain the same (--> burnin samples needed to forget them)"""
+        cdef:
+            int N = nodes.size()
+            long i, n
+
+        #dec = np.frombuffer(statesString).astype(int)
+        #print(f'decoded string: {dec}')
+
+        #self.reset() # assign random states
+
+        for i in range(N):
+            n = nodes[i]
+            self._newstates[n] = snapshot[i]
+            self._states[n]    = snapshot[i]
         #print(f'reconstructed state: {self._states.base}')
 
 
@@ -411,6 +435,10 @@ cdef class Model: # see pxd
             self.gen   = mt19937(self.seed)
         else:
             print("Value is not unsigned long")
+
+    #cdef void _incrSeed(self, long value) nogil:
+    #    self._seed = self._seed + value
+    #    self.gen = mt19937(self._seed)
 
 
     # TODO: reset all after new?

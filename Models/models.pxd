@@ -65,9 +65,11 @@ cdef class Model:
 
     cpdef bytes encodeStateToString(self, vector[long] nodes)
     cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes)
+    cdef void _loadStatesFromString(self, long[::1] snapshot, vector[long] nodes) nogil
 
     # cpdef long[::1] updateState(self, long[::1] nodesToUpdate)
 
+    #cdef void _incrSeed(self, long value) nogil
 
     cpdef void reset(self)
 
