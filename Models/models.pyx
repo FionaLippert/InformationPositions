@@ -262,12 +262,12 @@ cdef class Model: # see pxd
                 self.agentStates, size = self._nNodes)
 
 
-    cpdef unordered_map[long, vector[long]] neighboursAtDist(self, long node_idx, int maxDist):
+    cpdef tuple neighboursAtDist(self, long node_idx, int maxDist):
         assert node_idx < self._nNodes and node_idx >= 0
 
         cdef:
             #long[::1] neighbours
-            unordered_map[long, vector[long]] allNeighbours
+            unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
             int undir = not nx.is_directed(self.graph)
             long node = self.rmapping[node_idx]
             #nx.Graph total, inner
@@ -279,12 +279,13 @@ cdef class Model: # see pxd
             inner = total
             total = nx.ego_graph(self.graph, node, radius=d, undirected=undir)
             for n in (set(total.nodes()) - set(inner.nodes())):
-                allNeighbours[d].push_back(self.mapping[n])
+                allNeighbours_G[d].push_back(n)
+                allNeighbours_idx[d].push_back(self.mapping[n])
             #allNeighbours[d] = np.array([self.mapping[n] for n in (set(total.nodes()) - set(inner.nodes()))], dtype=np.intc)
             #allNeighbours[d].push_back(neighbours)
         #print("neighbors: {}".format(neighbors))
 
-        return allNeighbours
+        return allNeighbours_G, allNeighbours_idx
 
 
     def removeAllNudges(self):
@@ -350,9 +351,33 @@ cdef class Model: # see pxd
         for i in range(N):
             subset[i] = self._states[nodes[i]]
 
-        #print(subset.base, np.fromstring(subset.base.astype(float).tobytes()))
+        #print(subset.base, np.frombuffer(subset.base.astype(float).tobytes()))
         s = subset.base.astype(float).tobytes()
         return s
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    cdef int encodeStateToAvg(self, vector[long] nodes, double[::1] bins) nogil:
+        """Maps states of given nodes to binned avg magnetization"""
+        cdef:
+            long N = nodes.size(), nBins = bins.shape[0]
+            #long[::1] subset = np.zeros(N, int)
+            double avg = 0
+            long i, n
+            #bytes s
+
+        for i in range(N):
+            avg += self._states[nodes[i]]
+
+        for i in range(nBins):
+            if avg <= bins[i]:
+                avg = i
+                break
+
+        return <int>avg
 
 
     @cython.boundscheck(False)
@@ -489,6 +514,10 @@ cdef class Model: # see pxd
     def nudgeType(self, value):
         assert value in 'constant pulse'
         self._nudgeType = value
+
+    cdef void _setStates(self, long[::1] newStates) nogil:
+            self._newstates = newStates
+            self._states = newStates
 
     @states.setter # TODO: expand
     def states(self, value):

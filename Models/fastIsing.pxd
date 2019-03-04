@@ -9,7 +9,6 @@ cdef struct Connection:
     vector[int] neighbors
     vector[double] weights
 
-cdef long mean(long[::1] arr, long len) nogil
 
 cdef class Ising(Model):
     cdef:

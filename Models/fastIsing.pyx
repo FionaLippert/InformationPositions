@@ -42,20 +42,6 @@ cdef extern from *:
         PyObject *ptr
         PyObjectHolder(PyObject *o) nogil
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-@cython.overflowcheck(False)
-cdef long mean(long[::1] arr, long len) nogil:
-    cdef:
-        long mu = 0
-        long i
-    for i in range(len):
-        mu = mu + arr[i]
-    #mu = mu / len
-    return mu
 
 cdef class Ising(Model):
     # def __cinit__(self, *args, **kwargs):
@@ -323,7 +309,10 @@ cdef class Ising(Model):
     @t.setter
     def t(self, value):
         self._t   = value
-        self.beta = 1 / value if value != 0 else np.inf
+        if np.isfinite(value):
+            self.beta = 1 / value if value != 0 else np.inf
+        else:
+            self.beta = 0
 
 cpdef Ising rebuild(object graph, double t, list agentStates, str updateType, str nudgeType, str magSide, \
               np.ndarray nudges):

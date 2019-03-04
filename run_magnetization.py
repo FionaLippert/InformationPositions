@@ -65,6 +65,8 @@ def run_mixing(model, num_p_initial, step_size_burnin, num_steps_regress, thresh
     #corrTimes = []
     fig1, ax1 = subplots(figsize=(10,5))
     fig2, ax2 = subplots(figsize=(10,5))
+    maxMixingTime = 0
+    maxCorrTime = 0
     for prob in tqdm(np.linspace(0.5, 1, num_p_initial)):
         model.states = np.random.choice([-1,1], size = model.nNodes, p=[prob, 1-prob])
         mags, mixingTime, autocorr = infcy.determineMixingTime(model,\
@@ -72,23 +74,67 @@ def run_mixing(model, num_p_initial, step_size_burnin, num_steps_regress, thresh
                               nStepsRegress = int(num_steps_regress),\
                               threshold = threshold_regress,\
                               nStepsCorr = int(num_steps_corr))
-
+        maxMixingTime = max(maxMixingTime, mixingTime)
+        corrTime = np.where(np.abs(autocorr) < threshold_corr)[0][0]
+        maxCorrTime = max(maxCorrTime, corrTime)
         #func = lambda x, t: np.exp(-x/t)
         #func = lambda x, m, c, c0: c0 + x**m * c
         #a, b = scipy.optimize.curve_fit(func, np.arange(autocorr.size), autocorr, p0=[-1., 1., 0.]) # characteristic autocorrelation time
-        corrTime = np.where(np.abs(autocorr) < threshold_corr)[0][0]
         #mixingTimes.append(mixingTime)
         #corrTimes.append(corrTime)
-        ax1.plot(autocorr[:corrTime*2])
+        #ax1.plot(autocorr[:corrTime*2])
+        #ax1.plot(autocorr)
         #xx = np.linspace(0, 500, 1000)
-        ax1.plot(corrTime, autocorr[corrTime], 'p', c='red')
+        #ax1.plot(corrTime, autocorr[corrTime], 'p', c='red')
         ax2.plot(mags)
 
+    print(maxMixingTime)
+    print(maxCorrTime)
+
+    maxCorrTime = 0
+    for prob in tqdm(np.linspace(0.5, 1, num_p_initial)):
+        model.states = np.random.choice([-1,1], size = model.nNodes, p=[prob, 1-prob])
+        autocorr = infcy.determineCorrTime(model,\
+                              nBurnin = maxMixingTime,\
+                              nStepsCorr = int(num_steps_corr))
+        corrTime = np.where(np.abs(autocorr) < threshold_corr)[0][0]
+        ax1.plot(autocorr)
+        ax1.plot(corrTime, autocorr[corrTime], 'p', c='red')
+        maxCorrTime = max(maxCorrTime, corrTime)
+
     #print(mixingTimes)
-    #print(corrTimes)
+    print(maxCorrTime)
 
     fig1.savefig(f'{targetDirectory}/autocorr.png')
     fig2.savefig(f'{targetDirectory}/magTimeSeries.png')
+
+def run_mixing_temps(model, nInitialConfigs, temps, stepSizeBurnin=10, nStepsRegress=int(1e4), thresholdReg=0.05, nStepsCorr=int(1e4), thresholdCorr=0.05):
+    mixingTimes, corrTimes = infcy.mixingTimePerTemp(model, \
+                            nInitialConfigs, \
+                            temps, \
+                            stepSizeBurnin, \
+                            nStepsRegress, \
+                            thresholdReg, \
+                            nStepsCorr, \
+                            thresholdCorr)
+    fig1, ax1 = subplots(figsize=(10,5))
+    ax1.plot(temps, mixingTimes, label="mixing time")
+    ax1.plot(temps, corrTimes, label= "correlation time")
+    ax1.legend()
+    fig1.savefig(f'{targetDirectory}/mixing_and_corr_times_perT.png')
+
+    for idx, t in enumerate(temps):
+        fig, ax = subplots(figsize=(10,5))
+        model.t = t
+        model.states = np.random.choice([1,-1], size = model.nNodes, p=[1, 0])
+        mags = infcy.magTimeSeries(model, burninSamples=int(0), nSamples=int(1e4))
+        #mags_normal = np.where(np.abs(mags)>0.05, mags, np.nan)
+        #mags_switch = np.where(np.abs(mags)<=0.05, mags, np.nan)
+        fig, ax = subplots(figsize=(10,5))
+        ax.plot(mags)
+        ax.plot(corrTimes[idx], mags[int(corrTimes[idx])], 'p', c='red')
+        fig.savefig(f'{targetDirectory}/mags_T={t}.png')
+
 
 
 
@@ -100,13 +146,13 @@ if __name__ == '__main__':
 
     # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
 
-    T             = 2.0
+    T             = 1.2
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
 
-    network_path = "networkData/ER_avgDeg2.5_5000.gpickle"
+    network_path = "networkData/ER_avgDeg=1.5_N=100.gpickle"
     #network_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
     graph = nx.read_gpickle(network_path)
 
@@ -141,17 +187,18 @@ if __name__ == '__main__':
                             p_initial   = 1.0)
 
         if sys.argv[1] == "mixing":
-            run_mixing(model, \
-                            num_p_initial       = 10,   \
-                            step_size_burnin    = 10,   \
-                            num_steps_regress   = 1e3,  \
-                            threshold_regress   = 0.05, \
-                            num_steps_corr      = 1e4,  \
-                            threshold_corr      = 0.05)
+            #run_mixing(model, \
+            #                num_p_initial       = 10,   \
+            #                step_size_burnin    = 10,   \
+            #                num_steps_regress   = 1e4,  \
+            #                threshold_regress   = 0.01, \
+            #                num_steps_corr      = 5e4,  \
+            #                threshold_corr      = 0.05)
+            run_mixing_temps(model, 20, np.linspace(0.5, 2, 10))
 
     else:
 
-        magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
+        #magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
         temps = linspace(0.1, 4, 16)
 
         mag, sus = infcy.magnetizationParallel(model,       \

@@ -64,6 +64,7 @@ cdef class Model:
     cdef long[::1] simulateNSteps(self, long nSteps) nogil
 
     cpdef bytes encodeStateToString(self, vector[long] nodes)
+    cdef int encodeStateToAvg(self, vector[long] nodes, double[::1] bins) nogil
     cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes)
     cdef void _loadStatesFromString(self, long[::1] snapshot, vector[long] nodes) nogil
 
@@ -73,5 +74,7 @@ cdef class Model:
 
     cpdef void reset(self)
 
-    cpdef unordered_map[long, vector[long]] neighboursAtDist(self, long node_idx, int maxDist)
+    cpdef tuple neighboursAtDist(self, long node_idx, int maxDist)
   #  cpdef dict neighboursAtDist(self, int node, int maxDist)
+
+    cdef void _setStates(self, long[::1] newStates) nogil

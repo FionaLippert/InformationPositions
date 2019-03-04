@@ -22,6 +22,7 @@ from numpy import *
 from tqdm import tqdm
 from functools import partial
 from scipy import sparse
+from threading import Thread
 close('all')
 
 
@@ -80,7 +81,7 @@ if __name__ == '__main__':
     nx.write_gpickle(graph, f'ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
     print("avg degree = {}".format(np.mean([d for k, d in graph.degree()])))
     """
-    graph = nx.read_gpickle("networkData/ER_avgDeg=1.5_N=1000.gpickle")
+    graph = nx.read_gpickle("networkData/ER_avgDeg=1.5_N=100.gpickle")
     #graph = nx.read_gpickle("networkData/ER_avgDeg4.gpickle")
 
 
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     # graph = nx.barabasi_albert_graph(10, 3)
     modelSettings = dict(\
                          graph       = graph,\
-                         temperature = 1.5,\
+                         temperature = 1.0,\
                          updateType  = updateType,\
                          magSide     = magSide
                          )
@@ -136,19 +137,89 @@ if __name__ == '__main__':
     #                  burninSamples = int(0))
     #infcy.getSnapShotsLargeNetwork(model, nSamples=100, step = 1000,\
     #                   burninSamples = int(0), nodeSubset = model.neighboursAtDist(0, 5)
-    past = timer()
+    #past = timer()
     #infcy.test(model, node=0, dist=2, nSnapshots=int(1e3), nStepsToSnapshot=int(1e2),
     #              nSamples=int(50), distSamples=int(1e2), nRunsSampling=int(1e2))
     #print(f'time = {timer()-past} sec')
 
-    node = 0
-    maxDist = 3
-    neighbours = model.neighboursAtDist(node, maxDist)
-    snapshots = infcy.getSnapshotsPerDist(model, nSamples=int(1e2), nSteps=int(1e2), node=node, maxDist=maxDist)
+    """
+    mixingTimes, corrTimes = infcy.mixingTimePerTemp(model, \
+                            nInitialConfigs = 20, \
+                            temps = np.array([model.t]), \
+                            stepSizeBurnin = 10, \
+                            nStepsRegress = int(1e3), \
+                            thresholdReg = 0.05, \
+                            nStepsCorr = int(1e4), \
+                            thresholdCorr = 0.05)
 
-    d = 1
-    infcy.runNeighbourhoodMI(model, node, neighbours[d], snapshots[d-1], \
-                  nSamples=int(50), distSamples=int(1e2), nRunsSampling=int(1e2))
+    distSamples = corrTimes[0]
+    print(f'correlation time = {distSamples}')
+    """
+    distSamples = 3000
+    #print(f'correlation time = {distSamples}')
+
+    node = 0
+    maxDist = 5
+    neighbours = model.neighboursAtDist(node, maxDist)
+    """
+    snapshots = infcy.getSnapshotsPerDist(model, nSamples=int(1e2), nSteps=int(distSamples), node=node, maxDist=maxDist, threshold=1e-4)
+    #model.reset()
+    #model.seed += 1
+    #snapshots2 = infcy.getSnapshotsPerDist(model, nSamples=int(1e3), nSteps=int(distSamples), node=node, maxDist=maxDist, threshold=1e-4)
+    d = 4
+
+    sortedSnapshots = sorted(snapshots[d].items(), key=lambda x: x[1], reverse=True)
+    top100 = sortedSnapshots[:10]
+    #sortedSnapshots2 = sorted(snapshots2[d].items(), key=lambda x: x[1], reverse=True)
+    #top1002 = sortedSnapshots2[:10]
+
+    dictTop = dict(top100)
+    #dictTop2 = dict(top1002)
+
+    tmp = dict(snapshots = snapshots)
+    with open(f'{targetDirectory}/snapshots_node={node}.pickle', 'wb') as f:
+        pickle.dump(snapshots, f)
+    """
+    with open(f'Data/1551108283.320843/snapshots_node={node}.pickle', 'rb') as f:
+        snapshots = pickle.load(f)
+    #for k in dictTop:
+    #    if k in list(dictTop2.keys()):
+    #        print(dictTop[k], dictTop2[k])
+    #    else:
+    #        print(dictTop[k])
+
+
+
+    # how many samples are needed to obtain stable estimate ?
+    d = 5
+    states = list(snapshots[d-1].keys())[5]
+    print(np.fromstring(states))
+    model.fixedNodes = neighbours[d]
+    conds = []
+    for i in tqdm(range(10)):
+        model.reset()
+        model.seed += 1
+        probCond = infcy.monteCarloFixedNeighboursSeq(model, states, node, \
+                   neighbours[d], 0, \
+                   nSamples = int(1e3), distSamples = distSamples)
+        conds.append(probCond[0])
+        print(conds)
+    print(np.std(conds))
+
+    # TODO how many snapshots need to be considered to get stable estimate of MI?
+    """
+    MIs = np.zeros(maxDist)
+    for d in range(1, maxDist+1):
+        _, _, MI = infcy.runNeighbourhoodMI(model, node, neighbours[d], snapshots[d-1], \
+                  nBurnin=int(distSamples), nSamples=int(1e3), distSamples=int(distSamples))
+        MIs[d-1] = MI
+    fig, ax = subplots(figsize=(8,5))
+    ax.plot(range(1,maxDist+1), MIs, ls='--', marker='o')
+    ax.set_xlabel('distance')
+    ax.set_ylabel('MI')
+    fig.savefig(f'{targetDirectory}/MIperDist.png')
+    np.save(f'{targetDirectory}/MI_T={model.t}_{time.time()}.npy', MIs)
+    """
 
     """
     for T in temps:

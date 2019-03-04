@@ -159,9 +159,9 @@ def savePickle(fileName, objects):
     with open(fileName, 'wb') as f:
         pickle.dump(objects, f, protocol = pickle.HIGHEST_PROTOCOL)
 
-def saveSettings(targetDirectory, settings):
+def saveSettings(targetDirectory, settings, prefix=''):
     print('Saving settings')
-    with open(targetDirectory + '/settings.json', 'w') as f:
+    with open(targetDirectory + f'/{prefix}Settings.json', 'w') as f:
         json.dump(settings, f)
 
 def readSettings(targetDirectory, dataType = '.pickle'):
