@@ -161,17 +161,18 @@ if __name__ == '__main__':
     # 2e4 steps with non-single updates and 32x32 grid --> serial-time = parallel-time
 
     T             = 0.5
-    nSamples      = int(1e5) #int(1e6)
+    nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
 
-    network_path = "networkData/ER_avgDeg=1.5_N=100.gpickle"
+    network_path = "networkData/ER_k=3.0_N=500.gpickle"
+    #network_path = "networkData/undirected_tree_z=4_depth=6.gpickle"
     #network_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
     graph = nx.read_gpickle(network_path)
 
-    graph = create_undirected_tree(2,6)
-    network_path = 'directed tree z=2, d=5'
+    #graph = create_undirected_tree(2,6)
+    #network_path = 'directed tree z=2, d=5'
 
     #print(len(graph))
 
@@ -216,14 +217,14 @@ if __name__ == '__main__':
     else:
 
         #magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
-        temps = linspace(0.25, 4, 100)
+        temps = linspace(0.05, 4, 500)
 
         mag, sus = infcy.magnetizationParallel(model,       \
                             temps           = temps,        \
                             n               = nSamples,     \
                             burninSamples   = burninSamples)
 
-        fig, ax = subplots()
+        fig, ax = subplots(figsize=(10,6))
         ax.scatter(temps, mag, alpha = .2, label='magnetization')
         ax.scatter(temps, sus, alpha = .2, label='susceptibility')
         ax.legend()
@@ -233,7 +234,7 @@ if __name__ == '__main__':
         tmp = dict(temps = temps, mag = mag)
         IO.savePickle(f'{targetDirectory}/mags.pickle', tmp)
 
-        np.save(f'{targetDirectory}/mags.npy', mags)
+        np.save(f'{targetDirectory}/mags.npy', mag)
         np.save(f'{targetDirectory}/susceptibility.npy', sus)
 
     print(targetDirectory)

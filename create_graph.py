@@ -68,6 +68,7 @@ if __name__ == '__main__':
     now = time.time()
     targetDirectory = f'{os.getcwd()}/networkData'
 
+    """
     undirected_2 = create_undirected_tree(2, 6, targetDirectory)
     undirected_3 = create_undirected_tree(3, 6, targetDirectory)
     undirected_4 = create_undirected_tree(4, 6, targetDirectory)
@@ -92,3 +93,7 @@ if __name__ == '__main__':
     ER_N500_k2 = create_erdos_renyi_graph(500, 2.0, targetDirectory)
     ER_N500_k25 = create_erdos_renyi_graph(500, 2.5, targetDirectory)
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
+    """
+
+    graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.0_N=500.gpickle')
+    print(graph.degree)
