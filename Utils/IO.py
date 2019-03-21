@@ -165,11 +165,11 @@ def saveSettings(targetDirectory, settings, prefix=''):
         json.dump(settings, f)
 
 def saveResults(targetDirectory, name, result_dict):
-    with open(os.path.join(targetDirectory, f'{name}.json', 'w') as f:
+    with open(os.path.join(targetDirectory, f'{name}.json'), 'w') as f:
         json.dump(result_dict, f)
 
 def loadResults(targetDirectory, name):
-    with open(os.path.join(targetDirectory, f'{name}.json') as f:
+    with open(os.path.join(targetDirectory, f'{name}.json')) as f:
         return json.load(f)
 
 def readSettings(targetDirectory, dataType = '.pickle'):
