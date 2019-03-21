@@ -62,6 +62,8 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 print(f'mixing time      = {mixingTime_subgraph}')
                 #distSamples_subgraph = distSamples_subgraph
 
+                threads = mp.cpu_count() - 1 if len(subgraph_nodes) > 20 else 1
+
                 _, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7)
 
@@ -84,6 +86,7 @@ if __name__ == '__main__':
 
     # load network
     graph_path = "networkData/ER_avgDeg=2.5_N=1000.gpickle"
+    graph_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
     graph = nx.read_gpickle(graph_path)
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(2,3, create_using=graph)
@@ -96,7 +99,7 @@ if __name__ == '__main__':
     #diameter = nx.diameter(graph)
     #print("diameter = {}".format(diameter))
 
-    maxDist = 20
+    maxDist = 3
 
     networkSettings = dict( \
         path = graph_path, \
@@ -105,7 +108,7 @@ if __name__ == '__main__':
 
 
     all_nodes = sorted(graph.degree, key=lambda x: x[1], reverse=True)
-    node = all_nodes[8][0]
+    node = all_nodes[-500][0]
     print(node, graph.degree(node))
     #node = list(graph)[0]
 
@@ -113,7 +116,7 @@ if __name__ == '__main__':
     # setup Ising model with nNodes spin flip attempts per simulation step
     # set temp to np.infty --> completely random
     modelSettings = dict( \
-        temperature     = 2.25, \
+        temperature     = 2.0, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -123,7 +126,7 @@ if __name__ == '__main__':
 
     # determine mixing/correlation time
     mixingTimeSettings = dict( \
-        nInitialConfigs = 10, \
+        nInitialConfigs = 5, \
         burninSteps  = 10, \
         nStepsRegress   = int(1e3), \
         nStepsCorr      = int(1e4), \
@@ -170,13 +173,13 @@ if __name__ == '__main__':
     #model_reverse = fastIsing.Ising(graph.reverse(), **modelSettings)
     #allNeighbours_G, allNeighbours_idx = model_reverse.neighboursAtDist(node, maxDist)
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
-    print(allNeighbours_G)
-    print(allNeighbours_idx)
+    #print(allNeighbours_G)
+    #print(allNeighbours_idx)
     nNeighbours = np.array([len(allNeighbours_G[d]) for d in sorted(allNeighbours_G.keys())])
     print(nNeighbours)
     np.save(f'{targetDirectory}/nNeighbours.npy', nNeighbours)
 
-
+    """
     jointSnapshots, avgSnapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=7)
     print(f'Z={Z}')
 
@@ -184,7 +187,7 @@ if __name__ == '__main__':
         pickle.dump(jointSnapshots, f)
     with open(f'{targetDirectory}/avgSnapshots_node={node}.pickle', 'wb') as f:
         pickle.dump(avgSnapshots, f)
-
+    """
 
     """
     with open(f'Data/jointSnapshots_node={node}.pickle', 'rb') as f:
@@ -194,7 +197,7 @@ if __name__ == '__main__':
 
     Z=6000.0
     """
-
+    """
     MIs = computeMI_joint(jointSnapshots, maxDist, Z)
     np.save(f'{targetDirectory}/MI_joint_T={model.t}.npy', np.array(MIs))
     MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
@@ -208,7 +211,7 @@ if __name__ == '__main__':
     bias_pR = 2/(2*Z*np.log(2))
     corrected_MI = MIs - bias_pRS + bias_pS + bias_pR
     print(corrected_MI)
-
+    """
     """
     pairwiseMISettings = dict( \
         repeats    = 16, \
@@ -220,7 +223,7 @@ if __name__ == '__main__':
     IO.saveSettings(targetDirectory, pairwiseMISettings, 'pairwise')
 
 
-    _, MI, degrees = infcy.runMI(model, nodes = np.array([node]), **pairwiseMISettings)
+    _, MI, corr, degrees = infcy.runMI(model, nodes = np.array([node]), **pairwiseMISettings)
     MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
     print(MIs_pairwise)
     np.save(f'{targetDirectory}/MI_pairwise_T={model.t}.npy', MIs_pairwise[0])
@@ -229,7 +232,7 @@ if __name__ == '__main__':
     """
 
 
-    nSnapshots = 200
+    nSnapshots = 100
     snapshotSettingsCond = dict( \
         nSamples    = nSnapshots, \
         burninSamples = mixingTime, \
@@ -270,10 +273,11 @@ if __name__ == '__main__':
 
     #maxDist = 20
     minDist = 1
-    nTrials = 100
-    for nSamples in [int(1e3)]: #[int(1e2), int(1e3), int(1e4)]: #int(5e3), int(1e4), int(5e4)]:
-        nSamples /= nTrials
-        computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
+    nTrials = 10
+    nSamples = 1000
+    #for nSamples in [int(1e3)]: #[int(1e2), int(1e3), int(1e4)]: #int(5e3), int(1e4), int(5e4)]:
+        #nSamples /= nTrials
+    computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
 
     """
     for n in [int(5e3), int(1e4), int(5e4)]:

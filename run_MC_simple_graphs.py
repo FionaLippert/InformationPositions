@@ -19,9 +19,10 @@ from numpy import *
 from tqdm import tqdm
 from functools import partial
 from scipy import sparse, stats
-from threading import Thread
-close('all')
 
+
+nthreads = mp.cpu_count() - 1 # leave one thread for coordination tasks
+#nthreads = 1
 
 
 
@@ -41,7 +42,7 @@ def computeMI_joint(jointSnapshots, maxDist, Z):
     return MIs
 
 
-def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings):
+def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, rep=1):
     MIs = []
     subgraph_nodes = [node]
     for d in range(1, maxDist+1):
@@ -59,19 +60,31 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
 
-                _, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=1)
+                threads = nthreads if len(subgraph_nodes) > 20 else 1
+
+                snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
+                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads)
+
+                #for i, s in enumerate(list(snapshotsDict.keys())):
+                #    print(np.frombuffer(s), pCond[i])
 
                 #_, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                 #          nSamples=nSamples, distSamples=distSamples_subgraph)
                 MIs.append(MI)
+                #np.save(f'{targetDirectory}/snapshots_nSamples={nSamples*nTrials}_d={d}_rep={rep}.npy', np.array(list(snapshotsDict.keys())))
+                #np.save(f'{targetDirectory}/pCond_nSamples={nSamples*nTrials}_d={d}_rep={rep}.npy', pCond)
     print(MIs)
-    np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}.npy', np.array(MIs))
+    np.save(f'{targetDirectory}/MI_cond_T={model.t}_rep={rep}.npy', np.array(MIs))
     return MIs
 
 
 
 if __name__ == '__main__':
+
+    if len(sys.argv) > 1:
+        T = float(sys.argv[1])
+    else:
+        T = 1.0
 
     # create data directory
     now = time.time()
@@ -79,18 +92,21 @@ if __name__ == '__main__':
     os.mkdir(targetDirectory)
     print(targetDirectory)
 
+    maxDist = 6
+
     # load network
     graph = nx.DiGraph()
     #graph = nx.path_graph(20, create_using=graph)
     #graph = nx.path_graph(20)
     #graph = nx.DiGraph()
-    graph = nx.balanced_tree(2,6, create_using=graph)
-    #graph = nx.balanced_tree(2,6)
+    z = 2
+    #graph = nx.balanced_tree(z,maxDist, create_using=graph)
+    graph = nx.balanced_tree(z,maxDist)
     #graph.remove_edge(2,1)
     #graph.add_edge(2,1)
     N = len(graph)
+    #print(graph.edges())
     #maxDist = N-1
-    maxDist = 6
 
     #print(graph.edges())
 
@@ -100,7 +116,7 @@ if __name__ == '__main__':
     #    print(theory[d])
     #np.save(f'{targetDirectory}/MI_bin_tree_theory.npy', theory)
 
-    path = 'nx.balanced_tree(2,10)'
+    path = f'nx.balanced_tree({z},{maxDist})'
     #path = 'nx.path_graph'
 
     networkSettings = dict( \
@@ -112,7 +128,7 @@ if __name__ == '__main__':
     # setup Ising model with nNodes spin flip attempts per simulation step
     # set temp to np.infty --> completely random
     modelSettings = dict( \
-        temperature     = 1.0, \
+        temperature     = T, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -133,6 +149,7 @@ if __name__ == '__main__':
     mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
     print(f'correlation time = {distSamples}')
     print(f'mixing time      = {mixingTime}')
+    print(f'mean mag         = {meanMag}')
     #distSamples = 100
 
     for key, values in mags.items():
@@ -155,7 +172,8 @@ if __name__ == '__main__':
 
     node = list(graph)[0]
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
-    
+    #print(allNeighbours_G[2])
+
     """
     snapshotSettingsJoint = dict( \
         nSamples    = int(1e3), \
@@ -166,7 +184,7 @@ if __name__ == '__main__':
     )
     IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
-    jointSnapshots, avgSnapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=1)
+    jointSnapshots, avgSnapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=nthreads)
     print(f'Z={Z}')
 
     with open(f'{targetDirectory}/jointSnapshots_node={node}.pickle', 'wb') as f:
@@ -216,28 +234,32 @@ if __name__ == '__main__':
     )
     IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
 
-    snapshots, neighbours_idx = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=7)
+    #with open(f'{targetDirectory}/neighboursG_node={node}.pickle', 'wb') as f:
+    #    pickle.dump(allNeighbours_G, f)
 
-    with open(f'{targetDirectory}/snapshots_node={node}_nSamples={nSnapshots}.pickle', 'wb') as f:
-        pickle.dump(snapshots, f)
-    with open(f'{targetDirectory}/neighboursG_node={node}.pickle', 'wb') as f:
-        pickle.dump(allNeighbours_G, f)
-    """
-    with open(f'Data/1551775429.3397434/snapshots_node={node}_nSamples={nSnapshots}.pickle', 'rb') as f:
-        snapshots = pickle.load(f)
-    with open(f'Data/1551775429.3397434/neighboursG_node={node}.pickle', 'rb') as f:
-        neighbours_G = pickle.load(f)
-    """
 
     #maxDist = 10
     minDist = 1
-    nTrials = 100
-    nSamples = 100
-    rep = 3
-    MIruns = np.zeros((rep, maxDist))
+    #maxDist = 3
+    nTrials = 10
+    nSamples = 1000
+    rep = 1
+    #MIruns = np.zeros((rep, maxDist-minDist+1))
     for i in range(rep):
-        MIruns[i,:] = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
-    np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}_{rep}_repetitions.npy', np.array(MIruns))
+        snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
+
+        #snapshots = [{},{}]
+        #s1 = np.array([1,1,1,-1,-1,-1,-1,-1,-1]).astype(float)
+        #s2 = np.array([1,-1,-1,1,-1,-1,1,-1,-1]).astype(float)
+        #snapshots[1][s1.tobytes()] = 0.5
+        #snapshots[1][s2.tobytes()] = 0.5
+
+
+        #with open(f'{targetDirectory}/snapshots_node={node}_nSamples={nSnapshots}_{i}.pickle', 'wb') as f:
+        #    pickle.dump(snapshots, f)
+
+        computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, i)
+    #np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}_{rep}_repetitions.npy', np.array(MIruns))
 
 
     print(targetDirectory)

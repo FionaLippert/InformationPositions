@@ -1099,8 +1099,34 @@ cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropie
         #print(binEntropies[node1], binEntropies[node2], entropy(jointDistr))
         jointEntropy = entropy(jointDistr)
 
+    # mutual information
     mi = binEntropies[node1] + binEntropies[node2] - jointEntropy
+
     return mi
+
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef double spinCorrelation(long[:,::1] snapshots, long node1, long node2) nogil:
+    cdef:
+        long idx, nSamples = snapshots.shape[0]
+        double avgNode1 = 0
+        double avgNode2 = 0
+        double avgProduct = 0
+        double corr
+
+
+    for idx in range(nSamples):
+        avgNode1 += snapshots[idx][node1]
+        avgNode2 += snapshots[idx][node2]
+        avgProduct += snapshots[idx][node1]*snapshots[idx][node2]
+
+    # spin-spin correlation
+    corr = avgProduct/nSamples - (avgNode1 * avgNode2)/nSamples
+
+    return corr
 
 
 
@@ -1160,6 +1186,28 @@ cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
+cpdef double[::1] corrAtDist(Model model, long[:,::1] snapshots, \
+              long node, vector[long] neighbours) nogil:
+
+    cdef:
+        long idx, n = neighbours.size() #.shape[0]
+        double[::1] out
+
+    with gil: # TODO possible without GIL?
+        out = np.full(model._nNodes, np.nan)
+
+    if n > 0:
+        for idx in range(n):
+            out[idx] = spinCorrelation(snapshots, node, neighbours[idx])
+
+    return out
+
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
 cpdef np.ndarray magTimeSeries(Model model, long burninSamples, \
                                 long nSamples, int abs=0):
 
@@ -1206,6 +1254,7 @@ cpdef tuple runMI(Model model, long repeats, long burninSamples, long nSamples, 
         long n, d, nNodes = nodes.shape[0]
         long[::1] nodesIdx = np.array([model.mapping[n] for n in nodes])
         double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
+        double[:,:,::1] corr = np.zeros((nNodes, distMax, model._nNodes))
         int nThreads = mp.cpu_count() if threads == -1 else threads
         unordered_map[long, vector[long]] allNeighbours
         int[::1] neighbours
@@ -1230,10 +1279,11 @@ cpdef tuple runMI(Model model, long repeats, long burninSamples, long nSamples, 
         for d in range(distMax):
             #with gil: neighbours = allNeighbours[d+1]
             MI[n][d] = MIAtDist(model, snapshots, entropies, nodesIdx[n], allNeighbours[d+1])
+            corr[n][d] = corrAtDist(model, snapshots, nodesIdx[n], allNeighbours[d+1])
 
     degrees = [model.graph.degree(n) for n in nodes]
 
-    return snapshots.base, MI.base, degrees
+    return snapshots.base, MI.base, corr.base, degrees
 
 
 @cython.boundscheck(False)
@@ -1294,10 +1344,10 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         long totalSteps = n + burninSamples
         double m
         vector[double] mag_sum
-        np.ndarray betas = np.array([1 / t if t != 0 else np.inf for t in temps])
-        double[::1] cview_betas = betas
-        np.ndarray results = np.zeros((2, nTemps))
-        double[:,::1] cview_results = results
+        #double[::1] betas = np.array([1.0 / float(t) if t != 0 else np.inf for t in temps])
+        double[::1] temps_cview = temps
+        double[:,::1] results = np.zeros((2, nTemps))
+
 
 
     # threadsafe model access
@@ -1321,13 +1371,13 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         mag_sum = simulateGetMeanMag((<Model>modelptr), n)
 
         m = mag_sum[0] / n
-        cview_results[0][t] = m if m > 0 else -m
-        cview_results[1][t] = ((mag_sum[1] / n) - (m * m)) * cview_betas[t] #* (<Model> models_[t].ptr).beta
+        results[0][t] = m if m > 0 else -m
+        results[1][t] = ((mag_sum[1] / n) - (m * m)) / temps_cview[t]#betas[t] #* (<Model> models_[t].ptr).beta
 
         with gil:
             pbar.update(1)
 
-    return results
+    return results.base
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
