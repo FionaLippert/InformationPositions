@@ -164,7 +164,7 @@ def saveSettings(targetDirectory, settings, prefix=''):
     with open(targetDirectory + f'/{prefix}Settings.json', 'w') as f:
         json.dump(settings, f)
 
-def saveResults(targetDirectory, name, result_dict):
+def saveResults(targetDirectory, result_dict, name):
     with open(os.path.join(targetDirectory, f'{name}.json'), 'w') as f:
         json.dump(result_dict, f)
 
