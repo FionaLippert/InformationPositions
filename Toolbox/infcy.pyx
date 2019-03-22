@@ -394,6 +394,73 @@ cpdef tuple getSnapshotsPerDist2(Model model, long node, unordered_map[long, vec
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
+cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
+          long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, int nBins=10, int threads = -1):
+    """
+    Extract snapshots from MC for large network, for which the decimal encoding causes overflows
+    Only take snapshots of the specified node subset, ignore all others
+    """
+    cdef:
+        vector[unordered_map[int, unordered_map[string, double]]] snapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
+        #vector[unordered_map[int, unordered_map[string, double]]] oldSnapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
+        vector[unordered_map[int, unordered_map[int, double]]] avgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+        #vector[unordered_map[int, unordered_map[int, double]]] oldAvgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+
+
+        long d, i, sample, rep
+        double Z       = 0#= <double> nSamples
+        #double part = 1/Z
+        string state
+        double past    = timer()
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nodeSpin, s, avg
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+        #np.ndarray KL = np.ones(maxDist)
+        #double KL_d
+        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
+
+        #unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
+
+    node = model.mapping[node]
+
+    #allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
+
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    i = repeats
+
+    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        with gil:
+            (<Model>modelptr).seed += rep # enforce different seeds
+            #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
+            (<Model>modelptr).reset()
+            #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for sample in range(nSamples):
+            (<Model>modelptr).simulateNSteps(distSamples)
+
+            nodeSpin = (<Model> modelptr)._states[node]
+            for d in range(maxDist):
+                #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
+                avg = (<Model> modelptr).encodeStateToAvg(allNeighbours_idx[d+1], bins)
+                #snapshots[d][nodeSpin][state] += 1
+                avgSnapshots[d][nodeSpin][avg] +=1
+
+    return snapshots, avgSnapshots
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
 cpdef tuple getJointSnapshotsPerDist(Model model, long node, unordered_map[long, vector[long]] allNeighbours_idx, \
           long nSamples = int(1e3), long burninSamples = int(1e3), int maxDist = 1, int nBins=10, double threshold = 0.05, int threads = -1):
     """

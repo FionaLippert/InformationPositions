@@ -179,19 +179,30 @@ if __name__ == '__main__':
         nSamples    = int(1e3), \
         burninSamples = mixingTime, \
         maxDist     = maxDist, \
-        nBins       = 50, \
-        threshold   = 0.001
+        nBins       = 10, \
+        threshold   = 0.0001
+    )
+    """
+    snapshotSettingsJoint = dict( \
+        nSamples    = int(1e4), \
+        repeats     = 100, \
+        burninSamples = mixingTime, \
+        distSamples   = distSamples, \
+        maxDist     = maxDist, \
+        nBins       = 10
     )
     IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
-    jointSnapshots, avgSnapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=nthreads)
-    print(f'Z={Z}')
+    #jointSnapshots, avgSnapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=nthreads)
+    #print(f'Z={Z}')
+    jointSnapshots, avgSnapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads = nthreads)
+    Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 
     with open(f'{targetDirectory}/jointSnapshots_node={node}.pickle', 'wb') as f:
         pickle.dump(jointSnapshots, f)
     with open(f'{targetDirectory}/avgSnapshots_node={node}.pickle', 'wb') as f:
         pickle.dump(avgSnapshots, f)
-    """
+
 
     """
     with open(f'Data/jointSnapshots_node={node}.pickle', 'rb') as f:
@@ -200,7 +211,7 @@ if __name__ == '__main__':
         avgSnapshots = pickle.load(f)
 
     Z2=6000.0
-    """
+
     """
     MIs = computeMI_joint(jointSnapshots, maxDist, Z)
     np.save(f'{targetDirectory}/MI_joint_T={model.t}.npy', np.array(MIs))
@@ -208,7 +219,7 @@ if __name__ == '__main__':
     np.save(f'{targetDirectory}/MI_avg_T={model.t}.npy', np.array(MIs_avg))
     print(MIs)
     print(MIs_avg)
-    """
+
     """
     pairwiseMISettings = dict( \
         repeats    = 16, \
@@ -225,7 +236,7 @@ if __name__ == '__main__':
     print(MIs_pairwise)
     np.save(f'{targetDirectory}/MI_pairwise_T={model.t}.npy', MIs_pairwise[0])
     """
-
+    """
     nSnapshots = 100
     snapshotSettingsCond = dict( \
         nSamples    = nSnapshots, \
@@ -260,6 +271,6 @@ if __name__ == '__main__':
 
         computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, i)
     #np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}_{rep}_repetitions.npy', np.array(MIruns))
-
+    """
 
     print(targetDirectory)
