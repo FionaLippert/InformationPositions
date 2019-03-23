@@ -163,7 +163,7 @@ if __name__ == '__main__':
     updateType    = ''
 
     #network_path = "networkData/ER_k=3.0_N=500.gpickle"
-    network_path = f'{os.getcwd()}/networkData/ER_avgDeg=1.5_N=1000.gpickle'
+    network_path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
     #network_path = "networkData/undirected_tree_z=4_depth=6.gpickle"
     #network_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
     graph = nx.read_gpickle(network_path)

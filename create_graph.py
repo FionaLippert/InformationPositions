@@ -68,6 +68,9 @@ if __name__ == '__main__':
     now = time.time()
     targetDirectory = f'{os.getcwd()}/networkData'
 
+    undirected_2 = create_undirected_tree(2, 10, targetDirectory)
+    undirected_3 = create_undirected_tree(3, 10, targetDirectory)
+
     """
     undirected_2 = create_undirected_tree(2, 6, targetDirectory)
     undirected_3 = create_undirected_tree(3, 6, targetDirectory)

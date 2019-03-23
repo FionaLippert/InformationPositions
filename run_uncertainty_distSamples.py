@@ -67,7 +67,7 @@ if __name__ == '__main__':
     graph = nx.balanced_tree(2,6)
     path = f'nx.balanced_tree({z},{maxDist})'
 
-    path = f'{os.getcwd()}/networkData/ER_avgDeg=1.5_N=1000.gpickle'
+    path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
     graph = nx.read_gpickle(path)
 
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 1.25, \
+        temperature     = 1.6, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -151,10 +151,10 @@ if __name__ == '__main__':
     #print(f'correlation time = {distSamples}')
     #print(f'mixing time      = {mixingTime}')
 
-    nTrials = 1
-    nSamples = 10000
-    reps = 5
-    dist = 3
+    nTrials = 10
+    nSamples = 1000
+    reps = 10
+    dist = 2
 
     for distSamples in np.logspace(0, 3, 7).astype(int):
         print(f'------------- distSamples = {distSamples} -------------')
