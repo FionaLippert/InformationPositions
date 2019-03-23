@@ -64,8 +64,9 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
 
                 threads = mp.cpu_count() - 1 if len(subgraph_nodes) > 20 else 1
 
-                _, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
+                _, p, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7)
+                print(p)
 
                 #_, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                 #          nSamples=nSamples, distSamples=distSamples_subgraph)
@@ -85,8 +86,8 @@ if __name__ == '__main__':
     print(targetDirectory)
 
     # load network
-    graph_path = "networkData/ER_avgDeg=2.5_N=1000.gpickle"
-    graph_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
+    graph_path = "networkData/ER_avgDeg=1.5_N=100.gpickle"
+    #graph_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
     graph = nx.read_gpickle(graph_path)
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(2,3, create_using=graph)
@@ -108,7 +109,7 @@ if __name__ == '__main__':
 
 
     all_nodes = sorted(graph.degree, key=lambda x: x[1], reverse=True)
-    node = all_nodes[-500][0]
+    node = all_nodes[-3][0]
     print(node, graph.degree(node))
     #node = list(graph)[0]
 
@@ -116,7 +117,7 @@ if __name__ == '__main__':
     # setup Ising model with nNodes spin flip attempts per simulation step
     # set temp to np.infty --> completely random
     modelSettings = dict( \
-        temperature     = 2.0, \
+        temperature     = 5.0, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -274,7 +275,7 @@ if __name__ == '__main__':
     #maxDist = 20
     minDist = 1
     nTrials = 10
-    nSamples = 1000
+    nSamples = 10
     #for nSamples in [int(1e3)]: #[int(1e2), int(1e3), int(1e4)]: #int(5e3), int(1e4), int(5e4)]:
         #nSamples /= nTrials
     computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)

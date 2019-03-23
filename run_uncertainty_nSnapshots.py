@@ -43,6 +43,8 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads)
 
+                print(pCond)
+
                 MIs.append(MI)
                 #np.save(f'{targetDirectory}/snapshots_nSamples={nSamples*nTrials}_d={d}_rep={rep}.npy', np.array(list(snapshotsDict.keys())))
                 #np.save(f'{targetDirectory}/pCond_nSamples={nSamples*nTrials}_d={d}_rep={rep}.npy', pCond)
@@ -132,8 +134,8 @@ if __name__ == '__main__':
 
     minDist = 1
     #maxDist = 4
-    nTrials = 10
-    nSamples = 1000
+    nTrials = 1
+    nSamples = 10
     reps = 50
 
     for nSnapshots in [10,50,100,200,300,500]: #np.linspace(50, 500, 10).astype(int):

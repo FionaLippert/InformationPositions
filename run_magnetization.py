@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# __author__ = 'Casper van Elteren'
-"""
-Created on Mon Jun 11 09:06:57 2018
+# __author__ = 'Fiona Lippert'
 
-@author: casper
-"""
 
 from Models import fastIsing
 from Toolbox import infcy
@@ -166,7 +162,8 @@ if __name__ == '__main__':
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
 
-    network_path = "networkData/ER_k=3.0_N=500.gpickle"
+    #network_path = "networkData/ER_k=3.0_N=500.gpickle"
+    network_path = f'{os.getcwd()}/networkData/ER_avgDeg=1.5_N=1000.gpickle'
     #network_path = "networkData/undirected_tree_z=4_depth=6.gpickle"
     #network_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
     graph = nx.read_gpickle(network_path)
@@ -217,7 +214,7 @@ if __name__ == '__main__':
     else:
 
         #magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
-        temps = linspace(0.05, 4, 500)
+        temps = linspace(0.05, 4, 100)
 
         mag, sus = infcy.magnetizationParallel(model,       \
                             temps           = temps,        \

@@ -92,14 +92,14 @@ if __name__ == '__main__':
     os.mkdir(targetDirectory)
     print(targetDirectory)
 
-    maxDist = 6
+    maxDist = 10
 
     # load network
-    graph = nx.DiGraph()
+    #graph = nx.DiGraph()
     #graph = nx.path_graph(20, create_using=graph)
     #graph = nx.path_graph(20)
     #graph = nx.DiGraph()
-    z = 2
+    z = 1
     #graph = nx.balanced_tree(z,maxDist, create_using=graph)
     graph = nx.balanced_tree(z,maxDist)
     #graph.remove_edge(2,1)
@@ -183,6 +183,7 @@ if __name__ == '__main__':
         threshold   = 0.0001
     )
     """
+    """
     snapshotSettingsJoint = dict( \
         nSamples    = int(1e4), \
         repeats     = 100, \
@@ -202,7 +203,7 @@ if __name__ == '__main__':
         pickle.dump(jointSnapshots, f)
     with open(f'{targetDirectory}/avgSnapshots_node={node}.pickle', 'wb') as f:
         pickle.dump(avgSnapshots, f)
-
+    """
 
     """
     with open(f'Data/jointSnapshots_node={node}.pickle', 'rb') as f:
@@ -213,11 +214,12 @@ if __name__ == '__main__':
     Z2=6000.0
 
     """
-    MIs = computeMI_joint(jointSnapshots, maxDist, Z)
-    np.save(f'{targetDirectory}/MI_joint_T={model.t}.npy', np.array(MIs))
+    """
+    #MIs = computeMI_joint(jointSnapshots, maxDist, Z)
+    #np.save(f'{targetDirectory}/MI_joint_T={model.t}.npy', np.array(MIs))
     MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
     np.save(f'{targetDirectory}/MI_avg_T={model.t}.npy', np.array(MIs_avg))
-    print(MIs)
+    #print(MIs)
     print(MIs_avg)
 
     """
@@ -231,11 +233,14 @@ if __name__ == '__main__':
     IO.saveSettings(targetDirectory, pairwiseMISettings, 'pairwise')
 
 
-    _, MI, degrees = infcy.runMI(model, nodes = np.array([node]), **pairwiseMISettings)
+    snapshots, MI, corr, degrees = infcy.runMI(model, nodes = np.array([node]), **pairwiseMISettings)
     MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
     print(MIs_pairwise)
+    print(corr)
+    for d in range(1,4):
+        print(snapshots[:,model.mapping[node]]*snapshots[:,allNeighbours_idx[d][0]])
     np.save(f'{targetDirectory}/MI_pairwise_T={model.t}.npy', MIs_pairwise[0])
-    """
+
     """
     nSnapshots = 100
     snapshotSettingsCond = dict( \

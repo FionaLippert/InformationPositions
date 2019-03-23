@@ -20,35 +20,31 @@ nthreads = 1
 
 
 
-def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples, rep=1):
+def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples, reps=1):
     MIs = []
     corrTimes = []
     subgraph_nodes = [node]
-    for d in range(1, maxDist+1):
+    for d in range(1, dist+1):
         # get subgraph and outer neighbourhood at distance d
         if d in neighbours_G.keys():
             subgraph_nodes.extend(neighbours_G[d])
             subgraph = graph.subgraph(subgraph_nodes)
 
-            if d >= minDist:
-                print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, num states = {len(snapshots[d-1])} -----------------------')
-                model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
-                # determine correlation time for subgraph Ising model
-                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
-                #distSamples_subgraph = 50
-                print(f'correlation time = {distSamples_subgraph}')
-                #print(f'mixing time      = {mixingTime_subgraph}')
 
-                snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples, threads=nthreads)
+    for r in range(reps):
+        print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, num states = {len(snapshots[d-1])} -----------------------')
+        model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
+        model_subgraph.reset()
+        print(f'mean mag = {np.mean(model_subgraph.states)}')
 
-                MIs.append(MI)
-                corrTimes.append(distSamples_subgraph)
-                #np.save(f'{targetDirectory}/snapshots_nSamples={nSamples*nTrials}_d={d}_rep={rep}.npy', np.array(list(snapshotsDict.keys())))
-                #np.save(f'{targetDirectory}/pCond_nSamples={nSamples*nTrials}_d={d}_rep={rep}.npy', pCond)
-    print(MIs)
-    #np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}_rep={rep}.npy', np.array(MIs))
-    return MIs, corrTimes
+        threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
+
+        snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
+                  nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
+
+        MIs.append(MI)
+
+    return MIs
 
 
 
@@ -65,10 +61,16 @@ if __name__ == '__main__':
 
     # load network
     z = 2
-    maxDist = 2
+    maxDist = 3
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(z,maxDist, create_using=graph)
     graph = nx.balanced_tree(2,6)
+    path = f'nx.balanced_tree({z},{maxDist})'
+
+    path = f'{os.getcwd()}/networkData/ER_avgDeg=1.5_N=1000.gpickle'
+    graph = nx.read_gpickle(path)
+
+
     N = len(graph)
 
 
@@ -78,7 +80,8 @@ if __name__ == '__main__':
     #    print(theory[d])
     #np.save(f'{targetDirectory}/MI_bin_tree_theory.npy', theory)
 
-    path = f'nx.balanced_tree({z},{maxDist})'
+
+
 
     networkSettings = dict( \
         path = path, \
@@ -88,7 +91,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 0.75, \
+        temperature     = 1.25, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -143,24 +146,20 @@ if __name__ == '__main__':
 
 
     snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
-    state = list(snapshots[maxDist-1].keys())[0]
-    mixingTime, meanMag, distSamples, _ = infcy.determineCorrTime(model, **corrTimeSettings)
-    print(f'correlation time = {distSamples}')
-    print(f'mixing time      = {mixingTime}')
+    #state = list(snapshots[maxDist-1].keys())[0]
+    #mixingTime, meanMag, distSamples, _ = infcy.determineCorrTime(model, **corrTimeSettings)
+    #print(f'correlation time = {distSamples}')
+    #print(f'mixing time      = {mixingTime}')
 
-    nTrials = 10
-    nSamples = 1000
-    reps = 100
-    minDist = 1
+    nTrials = 1
+    nSamples = 10000
+    reps = 5
+    dist = 3
 
-    for distSamples in np.logspace(1, 3, 5).astype(int):
+    for distSamples in np.logspace(0, 3, 7).astype(int):
         print(f'------------- distSamples = {distSamples} -------------')
-        allMIs = np.zeros((reps, maxDist-minDist+1))
-        allCorrTimes = np.zeros((reps, maxDist-minDist+1))
-        for r in range(reps):
-            allMIs[r,:], allCorrTimes[r,:] = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, r)
-        np.save(f'{targetDirectory}/MI_cond_T={model.t}_distSamples={distSamples}.npy', np.array(allMIs))
-        np.save(f'{targetDirectory}/corrTimes_T={model.t}_distSamples={distSamples}.npy', np.array(allCorrTimes))
+        MIs = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples, reps=reps)
+        np.save(f'{targetDirectory}/MI_cond_T={model.t}_distSamples={distSamples}.npy', np.array(MIs))
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

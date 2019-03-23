@@ -452,6 +452,7 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
                 avg = (<Model> modelptr).encodeStateToAvg(allNeighbours_idx[d+1], bins)
                 #snapshots[d][nodeSpin][state] += 1
                 avgSnapshots[d][nodeSpin][avg] +=1
+                with gil: print(rep, avgSnapshots[d])
 
     return snapshots, avgSnapshots
 
@@ -655,16 +656,16 @@ cdef double[::1] _monteCarloFixedNeighboursSeq(Model model, string snapshot, lon
        #unordered_map[long, double] probCond
        unordered_map[int, int] idxer #= {state : idx for idx, state in enumerate(model.agentStates)}
        double[::1] probCondArr #= np.zeros(idxer.size())
+       #vector[double] probCondVec = vector[double](model.agentStates.shape[0], 0)
        long[::1] decodedStates
        long[::1] initialState
 
     for idx in range(model.agentStates.shape[0]):
         idxer[model.agentStates[idx]] = idx
 
-    with gil:
-        decodedStates = np.frombuffer(snapshot).astype(int)
-        #initialState = np.random.choice(model.agentStates, size = model._nNodes)
-        probCondArr = np.zeros(idxer.size())
+    with gil: decodedStates = np.frombuffer(snapshot).astype(int)
+
+    with gil: probCondArr = np.zeros(idxer.size())
 
     #for idx in range(length):
     #    n = neighbours[idx]
@@ -679,7 +680,10 @@ cdef double[::1] _monteCarloFixedNeighboursSeq(Model model, string snapshot, lon
     #model._loadStatesFromString(decodedStates, neighbours) # keeps all other node states as they are
     #model.simulateNSteps(burninSamples)
 
+    #with gil: print(snapshot)
+
     for trial in range(nTrials):
+        #with gil: print(trial, part, probCondArr.base)
         # set states without gil
         with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
 
@@ -696,9 +700,13 @@ cdef double[::1] _monteCarloFixedNeighboursSeq(Model model, string snapshot, lon
         for sample in range(nSamples):
             model.simulateNSteps(distSamples)
             nodeState = model._states[node]
+
             #with gil: print(nodeState, model._states[neighbours[0]])
             #probCond[nodeState] += part
+            #with gil: print(f'before: {probCondArr.base}, {part}')
             probCondArr[idxer[nodeState]] += part
+            #with gil: print(f'after: {probCondArr.base}, {part}')
+            #probCondVec[idxer[nodeState]] += part
 
     #print(f"time for sampling = {timer() - past: .2f} sec")
     #model.releaseFixedNodes()
@@ -746,6 +754,7 @@ cpdef tuple neighbourhoodMI(Model model, long node, vector[long] neighbours, uno
     for idx in range(nNeighbours):
         n = neighbours[idx]
         neighbours[idx] = model.mapping[n] # map from graph to model index
+    #print(neighbours)
 
     for tid in range(nThreads):
        tmp = copy.deepcopy(model)
@@ -753,6 +762,7 @@ cpdef tuple neighbourhoodMI(Model model, long node, vector[long] neighbours, uno
        models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
     node = model.mapping[node]
+    #print(node)
 
     #print(f'neighbours at dist={dist}: {neighbours}')
 
@@ -1189,9 +1199,10 @@ cpdef double spinCorrelation(long[:,::1] snapshots, long node1, long node2) nogi
         avgNode1 += snapshots[idx][node1]
         avgNode2 += snapshots[idx][node2]
         avgProduct += snapshots[idx][node1]*snapshots[idx][node2]
+        #with gil: print(snapshots[idx][node1], snapshots[idx][node2])
 
     # spin-spin correlation
-    corr = avgProduct/nSamples - (avgNode1 * avgNode2)/nSamples
+    corr = avgProduct/nSamples - (avgNode1 * avgNode2)/(nSamples**2)
 
     return corr
 
