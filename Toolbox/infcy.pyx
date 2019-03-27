@@ -463,7 +463,7 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
+cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \
           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows

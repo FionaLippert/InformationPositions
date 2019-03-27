@@ -153,7 +153,7 @@ if __name__ == '__main__':
     #    print(f'------------- nBins = {nBins} -------------')
     # 1e4, 100
     snapshotSettingsJoint = dict( \
-        nSamples    = int(1e4), \
+        nSamples    = int(1e2), \
         repeats     = 100, \
         burninSamples = mixingTime, \
         distSamples   = distSamples, \
@@ -161,10 +161,11 @@ if __name__ == '__main__':
     )
     IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
-    reps = 5
+    reps = 1
     MIs = np.zeros((reps, nBins.size))
     for r in range(reps):
 
+        avgSnapshots, Z = infcy.getJointSnapshotsPerDistNodes(model, np.array([0,1,2]), **snapshotSettingsJoint, nBins=10, threads = nthreads)
         avgSnapshots, Z = infcy.getJointSnapshotsPerDistBins(model, node, allNeighbours_idx, **snapshotSettingsJoint, nBins=nBins, threads = nthreads)
         #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 

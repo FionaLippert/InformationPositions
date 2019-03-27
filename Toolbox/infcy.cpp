@@ -1473,7 +1473,7 @@ struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDist2 {
 /* "Toolbox/infcy.pyx":466
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
  *     """
  */
@@ -3138,7 +3138,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getSnapShots(struct __pyx_obj_6Models_6
 static PyObject *__pyx_f_7Toolbox_5infcy_getSnapshotsPerDist(struct __pyx_obj_6Models_6models_Model *, long, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getSnapshotsPerDist *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_getSnapshotsPerDist2(struct __pyx_obj_6Models_6models_Model *, long, std::unordered_map<long,std::vector<long> > , int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getSnapshotsPerDist2 *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDist2(struct __pyx_obj_6Models_6models_Model *, long, std::unordered_map<long,std::vector<long> > , int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDist2 *__pyx_optional_args); /*proto*/
-static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, std::unordered_map<long,std::vector<long> > , int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDistNodes *__pyx_optional_args); /*proto*/
+static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDistNodes *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistBins(struct __pyx_obj_6Models_6models_Model *, long, std::unordered_map<long,std::vector<long> > , int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDistBins *__pyx_optional_args); /*proto*/
 static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDist(struct __pyx_obj_6Models_6models_Model *, long, std::unordered_map<long,std::vector<long> > , int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDist *__pyx_optional_args); /*proto*/
 static PyArrayObject *__pyx_f_7Toolbox_5infcy_monteCarloFixedNeighboursSeq(struct __pyx_obj_6Models_6models_Model *, std::string, long, std::vector<long> , long, long, int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_monteCarloFixedNeighboursSeq *__pyx_optional_args); /*proto*/
@@ -3739,7 +3739,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_10getSnapShots(CYTHON_UNUSED PyObject 
 static PyObject *__pyx_pf_7Toolbox_5infcy_12getSnapshotsPerDist(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, long __pyx_v_node, long __pyx_v_nSamples, long __pyx_v_burninSamples, int __pyx_v_maxDist, double __pyx_v_threshold, int __pyx_v_threads); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_14getSnapshotsPerDist2(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, long __pyx_v_node, std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, long __pyx_v_nSamples, long __pyx_v_burninSamples, int __pyx_v_maxDist, int __pyx_v_threads); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_16getJointSnapshotsPerDist2(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, long __pyx_v_node, std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, long __pyx_v_repeats, long __pyx_v_nSamples, long __pyx_v_burninSamples, long __pyx_v_distSamples, int __pyx_v_maxDist, long __pyx_v_nBins, int __pyx_v_threads); /* proto */
-static PyObject *__pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_nodes, std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, long __pyx_v_repeats, long __pyx_v_nSamples, long __pyx_v_burninSamples, long __pyx_v_distSamples, int __pyx_v_maxDist, long __pyx_v_nBins, int __pyx_v_threads); /* proto */
+static PyObject *__pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_nodes, long __pyx_v_repeats, long __pyx_v_nSamples, long __pyx_v_burninSamples, long __pyx_v_distSamples, int __pyx_v_maxDist, long __pyx_v_nBins, int __pyx_v_threads); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_20getJointSnapshotsPerDistBins(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, long __pyx_v_node, std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, long __pyx_v_repeats, long __pyx_v_nSamples, long __pyx_v_burninSamples, long __pyx_v_distSamples, int __pyx_v_maxDist, PyArrayObject *__pyx_v_nBins, int __pyx_v_threads); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_22getJointSnapshotsPerDist(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, long __pyx_v_node, std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, long __pyx_v_nSamples, long __pyx_v_burninSamples, int __pyx_v_maxDist, int __pyx_v_nBins, double __pyx_v_threshold, int __pyx_v_threads); /* proto */
 static PyObject *__pyx_pf_7Toolbox_5infcy_24monteCarloFixedNeighboursSeq(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, std::string __pyx_v_snapshot, long __pyx_v_node, std::vector<long>  __pyx_v_neighbours, long __pyx_v_nTrials, long __pyx_v_burninSamples, long __pyx_v_nSamples, long __pyx_v_distSamples); /* proto */
@@ -9060,34 +9060,20 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDist2(struct __pyx_
   __pyx_t_13.memview = NULL;
   __pyx_t_13.data = NULL;
 
-  /* "Toolbox/infcy.pyx":427
- *         #unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
- * 
- *     print(bins)             # <<<<<<<<<<<<<<
- * 
- *     node = model.mapping[node]
- */
-  __pyx_t_3 = __pyx_memoryview_fromslice(__pyx_v_bins, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 427, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 427, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-
   /* "Toolbox/infcy.pyx":429
- *     print(bins)
+ *     #print(bins)
  * 
  *     node = model.mapping[node]             # <<<<<<<<<<<<<<
  * 
  *     for rep in range(nThreads):
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_mapping); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 429, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_3 = __Pyx_GetItemInt(__pyx_t_4, __pyx_v_node, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 429, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_model), __pyx_n_s_mapping); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 429, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_14 = __Pyx_PyInt_As_long(__pyx_t_3); if (unlikely((__pyx_t_14 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 429, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_node, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 429, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_14 = __Pyx_PyInt_As_long(__pyx_t_4); if (unlikely((__pyx_t_14 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 429, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_node = __pyx_t_14;
 
   /* "Toolbox/infcy.pyx":431
@@ -9109,28 +9095,28 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDist2(struct __pyx_
  *         models_.push_back(PyObjectHolder(<PyObject *> tmp))
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_copy); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 432, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 432, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_copy); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 432, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_deepcopy); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 432, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
-    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = NULL;
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_3 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_12))) {
-      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_12);
-      if (likely(__pyx_t_4)) {
+      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_12);
+      if (likely(__pyx_t_3)) {
         PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_12);
-        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(__pyx_t_3);
         __Pyx_INCREF(function);
         __Pyx_DECREF_SET(__pyx_t_12, function);
       }
     }
-    __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_12, __pyx_t_4, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_12, ((PyObject *)__pyx_v_model));
-    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 432, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_12, __pyx_t_3, ((PyObject *)__pyx_v_model)) : __Pyx_PyObject_CallOneArg(__pyx_t_12, ((PyObject *)__pyx_v_model));
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 432, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-    __Pyx_XDECREF_SET(__pyx_v_tmp, __pyx_t_3);
-    __pyx_t_3 = 0;
+    __Pyx_XDECREF_SET(__pyx_v_tmp, __pyx_t_4);
+    __pyx_t_4 = 0;
 
     /* "Toolbox/infcy.pyx":433
  *     for rep in range(nThreads):
@@ -9264,16 +9250,16 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDist2(struct __pyx_
  */
                                   __Pyx_INCREF(((PyObject *)((struct __pyx_obj_6Models_6models_Model *)__pyx_v_modelptr)));
                                   __pyx_t_18 = ((struct __pyx_obj_6Models_6models_Model *)__pyx_v_modelptr);
-                                  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 441, __pyx_L15_error)
-                                  __Pyx_GOTREF(__pyx_t_3);
+                                  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 441, __pyx_L15_error)
+                                  __Pyx_GOTREF(__pyx_t_4);
                                   __pyx_t_12 = __Pyx_PyInt_From_long(__pyx_v_rep); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 441, __pyx_L15_error)
                                   __Pyx_GOTREF(__pyx_t_12);
-                                  __pyx_t_4 = PyNumber_InPlaceAdd(__pyx_t_3, __pyx_t_12); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 441, __pyx_L15_error)
-                                  __Pyx_GOTREF(__pyx_t_4);
-                                  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-                                  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed, __pyx_t_4) < 0) __PYX_ERR(0, 441, __pyx_L15_error)
+                                  __pyx_t_3 = PyNumber_InPlaceAdd(__pyx_t_4, __pyx_t_12); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 441, __pyx_L15_error)
+                                  __Pyx_GOTREF(__pyx_t_3);
                                   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+                                  __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+                                  if (__Pyx_PyObject_SetAttrStr(((PyObject *)__pyx_t_18), __pyx_n_s_seed, __pyx_t_3) < 0) __PYX_ERR(0, 441, __pyx_L15_error)
+                                  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
                                   __Pyx_DECREF(((PyObject *)__pyx_t_18)); __pyx_t_18 = 0;
 
                                   /* "Toolbox/infcy.pyx":443
@@ -9526,20 +9512,20 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDist2(struct __pyx_
  * @cython.boundscheck(False)
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_4 = __pyx_convert_vector_to_py_std_3a__3a_unordered_map_3c_int_2c_std_3a__3a_unordered_map_3c_std_3a__3a_string_2c_double_3e____3e___(__pyx_v_snapshots); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 459, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_4);
+  __pyx_t_3 = __pyx_convert_vector_to_py_std_3a__3a_unordered_map_3c_int_2c_std_3a__3a_unordered_map_3c_std_3a__3a_string_2c_double_3e____3e___(__pyx_v_snapshots); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_12 = __pyx_convert_vector_to_py_std_3a__3a_unordered_map_3c_int_2c_std_3a__3a_unordered_map_3c_int_2c_double_3e____3e___(__pyx_v_avgSnapshots); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 459, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 459, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GIVEREF(__pyx_t_4);
-  PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_4);
+  __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 459, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_12);
-  PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_12);
-  __pyx_t_4 = 0;
-  __pyx_t_12 = 0;
-  __pyx_r = ((PyObject*)__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_12);
   __pyx_t_3 = 0;
+  __pyx_t_12 = 0;
+  __pyx_r = ((PyObject*)__pyx_t_4);
+  __pyx_t_4 = 0;
   goto __pyx_L0;
 
   /* "Toolbox/infcy.pyx":397
@@ -9799,13 +9785,13 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_16getJointSnapshotsPerDist2(CYTHON_UNU
 /* "Toolbox/infcy.pyx":466
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
  *     """
  */
 
 static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_nodes, CYTHON_UNUSED std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDistNodes *__pyx_optional_args) {
+static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_nodes, CYTHON_UNUSED int __pyx_skip_dispatch, struct __pyx_opt_args_7Toolbox_5infcy_getJointSnapshotsPerDistNodes *__pyx_optional_args) {
   long __pyx_v_repeats = __pyx_k__10;
   long __pyx_v_nSamples = __pyx_k__11;
   long __pyx_v_burninSamples = __pyx_k__12;
@@ -10703,7 +10689,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(struct __
   /* "Toolbox/infcy.pyx":466
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
  *     """
  */
@@ -10737,7 +10723,6 @@ static char __pyx_doc_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes[] = "\n   
 static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   struct __pyx_obj_6Models_6models_Model *__pyx_v_model = 0;
   __Pyx_memviewslice __pyx_v_nodes = { 0, 0, { 0 }, { 0 }, { 0 } };
-  std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx;
   long __pyx_v_repeats;
   long __pyx_v_nSamples;
   long __pyx_v_burninSamples;
@@ -10749,14 +10734,12 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObje
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("getJointSnapshotsPerDistNodes (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_nodes,&__pyx_n_s_allNeighbours_idx,&__pyx_n_s_repeats,&__pyx_n_s_nSamples,&__pyx_n_s_burninSamples,&__pyx_n_s_distSamples,&__pyx_n_s_maxDist,&__pyx_n_s_nBins,&__pyx_n_s_threads,0};
-    PyObject* values[10] = {0,0,0,0,0,0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_model,&__pyx_n_s_nodes,&__pyx_n_s_repeats,&__pyx_n_s_nSamples,&__pyx_n_s_burninSamples,&__pyx_n_s_distSamples,&__pyx_n_s_maxDist,&__pyx_n_s_nBins,&__pyx_n_s_threads,0};
+    PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
-        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
-        CYTHON_FALLTHROUGH;
         case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
         CYTHON_FALLTHROUGH;
         case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
@@ -10787,55 +10770,49 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObje
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nodes)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("getJointSnapshotsPerDistNodes", 0, 3, 10, 1); __PYX_ERR(0, 466, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getJointSnapshotsPerDistNodes", 0, 2, 9, 1); __PYX_ERR(0, 466, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_allNeighbours_idx)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("getJointSnapshotsPerDistNodes", 0, 3, 10, 2); __PYX_ERR(0, 466, __pyx_L3_error)
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_repeats);
+          if (value) { values[2] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_repeats);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples);
           if (value) { values[3] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nSamples);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_burninSamples);
           if (value) { values[4] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_burninSamples);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_distSamples);
           if (value) { values[5] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  6:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_distSamples);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_maxDist);
           if (value) { values[6] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  7:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_maxDist);
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nBins);
           if (value) { values[7] = value; kw_args--; }
         }
         CYTHON_FALLTHROUGH;
         case  8:
         if (kw_args > 0) {
-          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nBins);
-          if (value) { values[8] = value; kw_args--; }
-        }
-        CYTHON_FALLTHROUGH;
-        case  9:
-        if (kw_args > 0) {
           PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_threads);
-          if (value) { values[9] = value; kw_args--; }
+          if (value) { values[8] = value; kw_args--; }
         }
       }
       if (unlikely(kw_args > 0)) {
@@ -10843,8 +10820,6 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObje
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
-        case 10: values[9] = PyTuple_GET_ITEM(__pyx_args, 9);
-        CYTHON_FALLTHROUGH;
         case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
         CYTHON_FALLTHROUGH;
         case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
@@ -10858,7 +10833,8 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObje
         case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
         CYTHON_FALLTHROUGH;
         case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         break;
         default: goto __pyx_L5_argtuple_error;
@@ -10866,53 +10842,52 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObje
     }
     __pyx_v_model = ((struct __pyx_obj_6Models_6models_Model *)values[0]);
     __pyx_v_nodes = __Pyx_PyObject_to_MemoryviewSlice_dc_long(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_nodes.memview)) __PYX_ERR(0, 466, __pyx_L3_error)
-    __pyx_v_allNeighbours_idx = __pyx_convert_unordered_map_from_py_long__and_std_3a__3a_vector_3c_long_3e___(values[2]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 466, __pyx_L3_error)
-    if (values[3]) {
-      __pyx_v_repeats = __Pyx_PyInt_As_long(values[3]); if (unlikely((__pyx_v_repeats == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 466, __pyx_L3_error)
+    if (values[2]) {
+      __pyx_v_repeats = __Pyx_PyInt_As_long(values[2]); if (unlikely((__pyx_v_repeats == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 466, __pyx_L3_error)
     } else {
       __pyx_v_repeats = __pyx_k__10;
     }
-    if (values[4]) {
-      __pyx_v_nSamples = __Pyx_PyInt_As_long(values[4]); if (unlikely((__pyx_v_nSamples == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
+    if (values[3]) {
+      __pyx_v_nSamples = __Pyx_PyInt_As_long(values[3]); if (unlikely((__pyx_v_nSamples == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
     } else {
       __pyx_v_nSamples = __pyx_k__11;
     }
-    if (values[5]) {
-      __pyx_v_burninSamples = __Pyx_PyInt_As_long(values[5]); if (unlikely((__pyx_v_burninSamples == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
+    if (values[4]) {
+      __pyx_v_burninSamples = __Pyx_PyInt_As_long(values[4]); if (unlikely((__pyx_v_burninSamples == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
     } else {
       __pyx_v_burninSamples = __pyx_k__12;
     }
-    if (values[6]) {
-      __pyx_v_distSamples = __Pyx_PyInt_As_long(values[6]); if (unlikely((__pyx_v_distSamples == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
+    if (values[5]) {
+      __pyx_v_distSamples = __Pyx_PyInt_As_long(values[5]); if (unlikely((__pyx_v_distSamples == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
     } else {
       __pyx_v_distSamples = ((long)0x64);
     }
-    if (values[7]) {
-      __pyx_v_maxDist = __Pyx_PyInt_As_int(values[7]); if (unlikely((__pyx_v_maxDist == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
+    if (values[6]) {
+      __pyx_v_maxDist = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_maxDist == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
     } else {
       __pyx_v_maxDist = ((int)1);
     }
-    if (values[8]) {
-      __pyx_v_nBins = __Pyx_PyInt_As_long(values[8]); if (unlikely((__pyx_v_nBins == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
+    if (values[7]) {
+      __pyx_v_nBins = __Pyx_PyInt_As_long(values[7]); if (unlikely((__pyx_v_nBins == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
     } else {
       __pyx_v_nBins = ((long)10);
     }
-    if (values[9]) {
-      __pyx_v_threads = __Pyx_PyInt_As_int(values[9]); if (unlikely((__pyx_v_threads == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
+    if (values[8]) {
+      __pyx_v_threads = __Pyx_PyInt_As_int(values[8]); if (unlikely((__pyx_v_threads == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 467, __pyx_L3_error)
     } else {
       __pyx_v_threads = ((int)-1);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getJointSnapshotsPerDistNodes", 0, 3, 10, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 466, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getJointSnapshotsPerDistNodes", 0, 2, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 466, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Toolbox.infcy.getJointSnapshotsPerDistNodes", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_model), __pyx_ptype_6Models_6models_Model, 1, "model", 0))) __PYX_ERR(0, 466, __pyx_L1_error)
-  __pyx_r = __pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(__pyx_self, __pyx_v_model, __pyx_v_nodes, __pyx_v_allNeighbours_idx, __pyx_v_repeats, __pyx_v_nSamples, __pyx_v_burninSamples, __pyx_v_distSamples, __pyx_v_maxDist, __pyx_v_nBins, __pyx_v_threads);
+  __pyx_r = __pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(__pyx_self, __pyx_v_model, __pyx_v_nodes, __pyx_v_repeats, __pyx_v_nSamples, __pyx_v_burninSamples, __pyx_v_distSamples, __pyx_v_maxDist, __pyx_v_nBins, __pyx_v_threads);
 
   /* function exit code */
   goto __pyx_L0;
@@ -10923,7 +10898,7 @@ static PyObject *__pyx_pw_7Toolbox_5infcy_19getJointSnapshotsPerDistNodes(PyObje
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_nodes, std::unordered_map<long,std::vector<long> >  __pyx_v_allNeighbours_idx, long __pyx_v_repeats, long __pyx_v_nSamples, long __pyx_v_burninSamples, long __pyx_v_distSamples, int __pyx_v_maxDist, long __pyx_v_nBins, int __pyx_v_threads) {
+static PyObject *__pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(CYTHON_UNUSED PyObject *__pyx_self, struct __pyx_obj_6Models_6models_Model *__pyx_v_model, __Pyx_memviewslice __pyx_v_nodes, long __pyx_v_repeats, long __pyx_v_nSamples, long __pyx_v_burninSamples, long __pyx_v_distSamples, int __pyx_v_maxDist, long __pyx_v_nBins, int __pyx_v_threads) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -10938,7 +10913,7 @@ static PyObject *__pyx_pf_7Toolbox_5infcy_18getJointSnapshotsPerDistNodes(CYTHON
   __pyx_t_2.maxDist = __pyx_v_maxDist;
   __pyx_t_2.nBins = __pyx_v_nBins;
   __pyx_t_2.threads = __pyx_v_threads;
-  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(__pyx_v_model, __pyx_v_nodes, __pyx_v_allNeighbours_idx, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_7Toolbox_5infcy_getJointSnapshotsPerDistNodes(__pyx_v_model, __pyx_v_nodes, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -50349,7 +50324,7 @@ if (!__Pyx_RefNanny) {
   /* "Toolbox/infcy.pyx":466
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
  *     """
  */
@@ -50361,7 +50336,7 @@ if (!__Pyx_RefNanny) {
 
   /* "Toolbox/infcy.pyx":467
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):             # <<<<<<<<<<<<<<
  *     """
  *     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
@@ -50380,7 +50355,7 @@ if (!__Pyx_RefNanny) {
   /* "Toolbox/infcy.pyx":466
  * @cython.cdivision(True)
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \             # <<<<<<<<<<<<<<
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
  *     """
  */
@@ -50392,7 +50367,7 @@ if (!__Pyx_RefNanny) {
 
   /* "Toolbox/infcy.pyx":467
  * @cython.initializedcheck(False)
- * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
+ * cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \
  *           long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):             # <<<<<<<<<<<<<<
  *     """
  *     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
