@@ -45,6 +45,17 @@ def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples
     return MI
 
 
+def computeMI_joint(jointSnapshots, d, Z):
+    P_XY = np.array(sorted([v/Z for s in jointSnapshots[d].keys() for v in jointSnapshots[d][s].values()]))
+    P_X = np.array([sum(list(dict_s.values()))/Z for dict_s in jointSnapshots[d].values()])
+    all_keys = set.union(*[set(dict_s.keys()) for dict_s in jointSnapshots[d].values()])
+    P_Y = np.array([jointSnapshots[d][1][k]/Z if k in jointSnapshots[d][1] else 0 for k in all_keys]) + \
+            np.array([jointSnapshots[d][-1][k]/Z if k in jointSnapshots[d][-1] else 0 for k in all_keys])
+
+    MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
+    return MI
+
+
 
 if __name__ == '__main__':
 
@@ -58,11 +69,11 @@ if __name__ == '__main__':
 
 
     # load network
-    z = 2
-    maxDist = 6
+    z = 3
+    maxDist = 5
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(z,maxDist, create_using=graph)
-    graph = nx.balanced_tree(2,6)
+    graph = nx.balanced_tree(z,6)
     path = f'nx.balanced_tree({z},{maxDist})'
 
     #path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
@@ -89,7 +100,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 0.7, \
+        temperature     = 1.0, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -131,36 +142,42 @@ if __name__ == '__main__':
     IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')
 
 
-    # collect neighbourhood snapshots
-    nSnapshots = 100
-    snapshotSettingsCond = dict( \
-        nSamples    = nSnapshots, \
+    nBins = np.linspace(2,100,20).astype(int)
+    np.save(f'{targetDirectory}/nBins.npy', nBins)
+
+    mixingTime = min(mixingTime, 5000)
+    distSamples = min(distSamples, 100)
+
+
+    #for i, nBins in enumerate(nBins_range):
+    #    print(f'------------- nBins = {nBins} -------------')
+    # 1e4, 100
+    snapshotSettingsJoint = dict( \
+        nSamples    = int(1e3), \
+        repeats     = 100, \
         burninSamples = mixingTime, \
+        distSamples   = distSamples, \
         maxDist     = maxDist
     )
-    IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
+    IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
+    reps = 1
+    MIs = np.zeros((reps, nBins.size))
+    for r in range(reps):
+        for bins in [10, 100, 200, 300]:
+            avgSnapshots, Z = infcy.getJointSnapshotsPerDistNodes(model, np.array([0]), **snapshotSettingsJoint, nBins=bins, threads = nthreads)
+            #print(avgSnapshots)
+            print([computeMI_joint(avgSnapshots[n], 4, Z) for n in range(1)])
+        #avgSnapshots, Z = infcy.getJointSnapshotsPerDistBins(model, node, allNeighbours_idx, **snapshotSettingsJoint, nBins=nBins, threads = nthreads)
+        #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 
+        #print(avgSnapshots)
 
+        #MIs_avg = [computeMI_joint(avgSnapshots[bins], maxDist-1, Z) for bins in nBins]
+        #print(MIs_avg)
+        #MIs[r] = np.array(MIs_avg)
 
-    snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
-    #state = list(snapshots[maxDist-1].keys())[0]
-    #mixingTime, meanMag, distSamples, _ = infcy.determineCorrTime(model, **corrTimeSettings)
-    #print(f'correlation time = {distSamples}')
-    #print(f'mixing time      = {mixingTime}')
-
-    nTrials = 10
-    nSamples = 1000
-    reps = 5
-    dist = 3
-
-    for distSamples in np.logspace(0, 3, 7).astype(int):
-        print(f'------------- distSamples = {distSamples} -------------')
-        MIs = np.zeros(reps)
-        for rep in range(reps):
-            snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
-            MIs[rep] = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples)
-        np.save(f'{targetDirectory}/MI_cond_T={model.t}_distSamples={distSamples}.npy', np.array(MIs))
+    #np.save(f'{targetDirectory}/MI_avg_T={model.t}.npy', MIs)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 
