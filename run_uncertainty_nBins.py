@@ -69,11 +69,11 @@ if __name__ == '__main__':
 
 
     # load network
-    z = 2
+    z = 3
     maxDist = 5
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(z,maxDist, create_using=graph)
-    graph = nx.balanced_tree(2,6)
+    graph = nx.balanced_tree(z,6)
     path = f'nx.balanced_tree({z},{maxDist})'
 
     #path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
@@ -100,7 +100,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 0.7, \
+        temperature     = 1.0, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     #    print(f'------------- nBins = {nBins} -------------')
     # 1e4, 100
     snapshotSettingsJoint = dict( \
-        nSamples    = int(1e2), \
+        nSamples    = int(1e3), \
         repeats     = 100, \
         burninSamples = mixingTime, \
         distSamples   = distSamples, \
@@ -164,18 +164,20 @@ if __name__ == '__main__':
     reps = 1
     MIs = np.zeros((reps, nBins.size))
     for r in range(reps):
-
-        avgSnapshots, Z = infcy.getJointSnapshotsPerDistNodes(model, np.array([0,1,2]), **snapshotSettingsJoint, nBins=10, threads = nthreads)
-        avgSnapshots, Z = infcy.getJointSnapshotsPerDistBins(model, node, allNeighbours_idx, **snapshotSettingsJoint, nBins=nBins, threads = nthreads)
+        for bins in [10, 100, 200, 300]:
+            avgSnapshots, Z = infcy.getJointSnapshotsPerDistNodes(model, np.array([0]), **snapshotSettingsJoint, nBins=bins, threads = nthreads)
+            #print(avgSnapshots)
+            print([computeMI_joint(avgSnapshots[n], 4, Z) for n in range(1)])
+        #avgSnapshots, Z = infcy.getJointSnapshotsPerDistBins(model, node, allNeighbours_idx, **snapshotSettingsJoint, nBins=nBins, threads = nthreads)
         #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 
         #print(avgSnapshots)
 
-        MIs_avg = [computeMI_joint(avgSnapshots[bins], maxDist-1, Z) for bins in nBins]
-        print(MIs_avg)
-        MIs[r] = np.array(MIs_avg)
+        #MIs_avg = [computeMI_joint(avgSnapshots[bins], maxDist-1, Z) for bins in nBins]
+        #print(MIs_avg)
+        #MIs[r] = np.array(MIs_avg)
 
-    np.save(f'{targetDirectory}/MI_avg_T={model.t}.npy', MIs)
+    #np.save(f'{targetDirectory}/MI_avg_T={model.t}.npy', MIs)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

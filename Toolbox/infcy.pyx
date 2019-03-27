@@ -471,7 +471,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long rep
     """
     cdef:
         long nNodes = nodes.shape[0]
-        long[::1] nodesIdx = np.zeros(nNodes)
+        long[::1] nodesIdx = np.zeros(nNodes, 'int')
 
         vector[vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots = vector[vector[unordered_map[int, unordered_map[int, double]]]](nNodes)
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
