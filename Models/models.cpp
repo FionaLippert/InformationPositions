@@ -7480,7 +7480,7 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
  *         for i in range(N):
  *             avg += self._states[nodes[i]]             # <<<<<<<<<<<<<<
  * 
- *         for i in range(nBins):
+ *         avg /= N
  */
     __pyx_t_4 = (__pyx_v_nodes[__pyx_v_i]);
     __pyx_v_avg = (__pyx_v_avg + (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_self->_states.data) + __pyx_t_4)) ))));
@@ -7488,6 +7488,15 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
 
   /* "Models/models.pyx":375
  *             avg += self._states[nodes[i]]
+ * 
+ *         avg /= N             # <<<<<<<<<<<<<<
+ * 
+ *         for i in range(nBins):
+ */
+  __pyx_v_avg = (__pyx_v_avg / __pyx_v_N);
+
+  /* "Models/models.pyx":377
+ *         avg /= N
  * 
  *         for i in range(nBins):             # <<<<<<<<<<<<<<
  *             if avg <= bins[i]:
@@ -7498,7 +7507,7 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "Models/models.pyx":376
+    /* "Models/models.pyx":378
  * 
  *         for i in range(nBins):
  *             if avg <= bins[i]:             # <<<<<<<<<<<<<<
@@ -7509,7 +7518,7 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
     __pyx_t_6 = ((__pyx_v_avg <= (*((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_bins.data) + __pyx_t_5)) )))) != 0);
     if (__pyx_t_6) {
 
-      /* "Models/models.pyx":377
+      /* "Models/models.pyx":379
  *         for i in range(nBins):
  *             if avg <= bins[i]:
  *                 avg = i             # <<<<<<<<<<<<<<
@@ -7518,16 +7527,16 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
  */
       __pyx_v_avg = __pyx_v_i;
 
-      /* "Models/models.pyx":378
+      /* "Models/models.pyx":380
  *             if avg <= bins[i]:
  *                 avg = i
  *                 break             # <<<<<<<<<<<<<<
  * 
- *         return <int>avg
+ *         #with gil: print(avg, i, bins.base)
  */
       goto __pyx_L6_break;
 
-      /* "Models/models.pyx":376
+      /* "Models/models.pyx":378
  * 
  *         for i in range(nBins):
  *             if avg <= bins[i]:             # <<<<<<<<<<<<<<
@@ -7538,8 +7547,8 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
   }
   __pyx_L6_break:;
 
-  /* "Models/models.pyx":380
- *                 break
+  /* "Models/models.pyx":384
+ *         #with gil: print(avg, i, bins.base)
  * 
  *         return <int>avg             # <<<<<<<<<<<<<<
  * 
@@ -7561,7 +7570,7 @@ static int __pyx_f_6Models_6models_5Model_encodeStateToAvg(struct __pyx_obj_6Mod
   return __pyx_r;
 }
 
-/* "Models/models.pyx":388
+/* "Models/models.pyx":392
  *     @cython.cdivision(True)
  *     @cython.initializedcheck(False)
  *     cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes):             # <<<<<<<<<<<<<<
@@ -7595,10 +7604,10 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_loadStatesFromString); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_loadStatesFromString); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 392, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_6Models_6models_5Model_19loadStatesFromString)) {
-        __pyx_t_3 = __pyx_convert_vector_to_py_long(__pyx_v_nodes); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 388, __pyx_L1_error)
+        __pyx_t_3 = __pyx_convert_vector_to_py_long(__pyx_v_nodes); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 392, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_4 = __pyx_t_1; __pyx_t_5 = NULL;
@@ -7616,7 +7625,7 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_4)) {
           PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_statesString, __pyx_t_3};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 388, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 392, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -7625,14 +7634,14 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_4)) {
           PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_statesString, __pyx_t_3};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 388, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_4, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 392, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         } else
         #endif
         {
-          __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 388, __pyx_L1_error)
+          __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 392, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           if (__pyx_t_5) {
             __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -7643,7 +7652,7 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
           __Pyx_GIVEREF(__pyx_t_3);
           PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_t_3);
           __pyx_t_3 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 388, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_7, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 392, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         }
@@ -7665,7 +7674,7 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
     #endif
   }
 
-  /* "Models/models.pyx":391
+  /* "Models/models.pyx":395
  *         """Maps string back to system state. States of nodes not included in the snapshot remain the same (--> burnin samples needed to forget them)"""
  *         cdef:
  *             int N = nodes.size()             # <<<<<<<<<<<<<<
@@ -7674,16 +7683,16 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
  */
   __pyx_v_N = __pyx_v_nodes.size();
 
-  /* "Models/models.pyx":394
+  /* "Models/models.pyx":398
  *             long i, n
  * 
  *         dec = np.frombuffer(statesString).astype(int)             # <<<<<<<<<<<<<<
  *         #print(f'decoded string: {dec}')
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 394, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 394, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_frombuffer); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -7698,10 +7707,10 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
   }
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_4, __pyx_v_statesString) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_v_statesString);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 394, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 394, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -7716,13 +7725,13 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_2, ((PyObject *)(&PyInt_Type))) : __Pyx_PyObject_CallOneArg(__pyx_t_7, ((PyObject *)(&PyInt_Type)));
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 394, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 398, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_v_dec = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "Models/models.pyx":399
+  /* "Models/models.pyx":403
  *         #self.reset() # assign random states
  * 
  *         for i in range(N):             # <<<<<<<<<<<<<<
@@ -7734,7 +7743,7 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
   for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_8; __pyx_t_9+=1) {
     __pyx_v_i = __pyx_t_9;
 
-    /* "Models/models.pyx":400
+    /* "Models/models.pyx":404
  * 
  *         for i in range(N):
  *             n = nodes[i]             # <<<<<<<<<<<<<<
@@ -7743,23 +7752,23 @@ static void __pyx_f_6Models_6models_5Model_loadStatesFromString(struct __pyx_obj
  */
     __pyx_v_n = (__pyx_v_nodes[__pyx_v_i]);
 
-    /* "Models/models.pyx":401
+    /* "Models/models.pyx":405
  *         for i in range(N):
  *             n = nodes[i]
  *             self.states[n] = dec[i]             # <<<<<<<<<<<<<<
  *         #print(f'reconstructed state: {self._states.base}')
  * 
  */
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dec, __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 401, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_dec, __pyx_v_i, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 405, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_states); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 401, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_states); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 405, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    if (unlikely(__Pyx_SetItemInt(__pyx_t_7, __pyx_v_n, __pyx_t_1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0) < 0)) __PYX_ERR(0, 401, __pyx_L1_error)
+    if (unlikely(__Pyx_SetItemInt(__pyx_t_7, __pyx_v_n, __pyx_t_1, long, 1, __Pyx_PyInt_From_long, 0, 0, 0) < 0)) __PYX_ERR(0, 405, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "Models/models.pyx":388
+  /* "Models/models.pyx":392
  *     @cython.cdivision(True)
  *     @cython.initializedcheck(False)
  *     cpdef void loadStatesFromString(self, bytes statesString, vector[long] nodes):             # <<<<<<<<<<<<<<
@@ -7814,11 +7823,11 @@ static PyObject *__pyx_pw_6Models_6models_5Model_19loadStatesFromString(PyObject
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_nodes)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("loadStatesFromString", 1, 2, 2, 1); __PYX_ERR(0, 388, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("loadStatesFromString", 1, 2, 2, 1); __PYX_ERR(0, 392, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "loadStatesFromString") < 0)) __PYX_ERR(0, 388, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "loadStatesFromString") < 0)) __PYX_ERR(0, 392, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -7827,17 +7836,17 @@ static PyObject *__pyx_pw_6Models_6models_5Model_19loadStatesFromString(PyObject
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_statesString = ((PyObject*)values[0]);
-    __pyx_v_nodes = __pyx_convert_vector_from_py_long(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 388, __pyx_L3_error)
+    __pyx_v_nodes = __pyx_convert_vector_from_py_long(values[1]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 392, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("loadStatesFromString", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 388, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("loadStatesFromString", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 392, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("Models.models.Model.loadStatesFromString", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_statesString), (&PyBytes_Type), 1, "statesString", 1))) __PYX_ERR(0, 388, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_statesString), (&PyBytes_Type), 1, "statesString", 1))) __PYX_ERR(0, 392, __pyx_L1_error)
   __pyx_r = __pyx_pf_6Models_6models_5Model_18loadStatesFromString(((struct __pyx_obj_6Models_6models_Model *)__pyx_v_self), __pyx_v_statesString, __pyx_v_nodes);
 
   /* function exit code */
@@ -7855,7 +7864,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_18loadStatesFromString(struct _
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("loadStatesFromString", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6Models_6models_5Model_loadStatesFromString(__pyx_v_self, __pyx_v_statesString, __pyx_v_nodes, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 388, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_void_to_None(__pyx_f_6Models_6models_5Model_loadStatesFromString(__pyx_v_self, __pyx_v_statesString, __pyx_v_nodes, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 392, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -7872,7 +7881,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_18loadStatesFromString(struct _
   return __pyx_r;
 }
 
-/* "Models/models.pyx":411
+/* "Models/models.pyx":415
  *     @cython.cdivision(True)
  *     @cython.initializedcheck(False)
  *     cdef void _loadStatesFromString(self, long[::1] snapshot, vector[long] nodes) nogil:             # <<<<<<<<<<<<<<
@@ -7892,7 +7901,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
   Py_ssize_t __pyx_t_6;
   Py_ssize_t __pyx_t_7;
 
-  /* "Models/models.pyx":414
+  /* "Models/models.pyx":418
  *         """Maps string back to system state. States of nodes not included in the snapshot remain the same (--> burnin samples needed to forget them)"""
  *         cdef:
  *             int N = nodes.size()             # <<<<<<<<<<<<<<
@@ -7901,7 +7910,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
  */
   __pyx_v_N = __pyx_v_nodes.size();
 
-  /* "Models/models.pyx":422
+  /* "Models/models.pyx":426
  *         #self.reset() # assign random states
  * 
  *         for i in range(N):             # <<<<<<<<<<<<<<
@@ -7913,7 +7922,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "Models/models.pyx":423
+    /* "Models/models.pyx":427
  * 
  *         for i in range(N):
  *             n = nodes[i]             # <<<<<<<<<<<<<<
@@ -7922,7 +7931,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
  */
     __pyx_v_n = (__pyx_v_nodes[__pyx_v_i]);
 
-    /* "Models/models.pyx":424
+    /* "Models/models.pyx":428
  *         for i in range(N):
  *             n = nodes[i]
  *             self._newstates[n] = snapshot[i]             # <<<<<<<<<<<<<<
@@ -7933,7 +7942,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
     __pyx_t_5 = __pyx_v_n;
     *((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_self->_newstates.data) + __pyx_t_5)) )) = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_snapshot.data) + __pyx_t_4)) )));
 
-    /* "Models/models.pyx":425
+    /* "Models/models.pyx":429
  *             n = nodes[i]
  *             self._newstates[n] = snapshot[i]
  *             self._states[n]    = snapshot[i]             # <<<<<<<<<<<<<<
@@ -7945,7 +7954,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
     *((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_self->_states.data) + __pyx_t_7)) )) = (*((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_snapshot.data) + __pyx_t_6)) )));
   }
 
-  /* "Models/models.pyx":411
+  /* "Models/models.pyx":415
  *     @cython.cdivision(True)
  *     @cython.initializedcheck(False)
  *     cdef void _loadStatesFromString(self, long[::1] snapshot, vector[long] nodes) nogil:             # <<<<<<<<<<<<<<
@@ -7956,7 +7965,7 @@ static void __pyx_f_6Models_6models_5Model__loadStatesFromString(struct __pyx_ob
   /* function exit code */
 }
 
-/* "Models/models.pyx":432
+/* "Models/models.pyx":436
  *     # hence the wrappers
  *     @property
  *     def adj(self)       : return self._adj             # <<<<<<<<<<<<<<
@@ -7983,7 +7992,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_3adj___get__(struct __pyx_obj_6
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert_unordered_map_to_py_long____struct____pyx_t_6Models_6models_Connection(__pyx_v_self->_adj); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 432, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert_unordered_map_to_py_long____struct____pyx_t_6Models_6models_Connection(__pyx_v_self->_adj); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 436, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8000,7 +8009,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_3adj___get__(struct __pyx_obj_6
   return __pyx_r;
 }
 
-/* "Models/models.pyx":440
+/* "Models/models.pyx":444
  *     def nudgeType(self) : return self._nudgeType
  *     @property #return mem view of states
  *     def states(self)    : return self._states             # <<<<<<<<<<<<<<
@@ -8027,8 +8036,8 @@ static PyObject *__pyx_pf_6Models_6models_5Model_6states___get__(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 440, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_states, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 440, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 444, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_states, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 444, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8045,7 +8054,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_6states___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "Models/models.pyx":523
+/* "Models/models.pyx":527
  * 
  *     @states.setter # TODO: expand
  *     def states(self, value):             # <<<<<<<<<<<<<<
@@ -8081,7 +8090,7 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
   __Pyx_RefNannySetupContext("__set__", 0);
   __Pyx_INCREF(__pyx_v_value);
 
-  /* "Models/models.pyx":524
+  /* "Models/models.pyx":528
  *     @states.setter # TODO: expand
  *     def states(self, value):
  *         if isinstance(value, int):             # <<<<<<<<<<<<<<
@@ -8092,15 +8101,15 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "Models/models.pyx":525
+    /* "Models/models.pyx":529
  *     def states(self, value):
  *         if isinstance(value, int):
  *             self._newstates[:] = value             # <<<<<<<<<<<<<<
  *             self._states   [:] = value
  *             #print('changed node state')
  */
-    __pyx_t_3 = __Pyx_PyInt_As_long(__pyx_v_value); if (unlikely((__pyx_t_3 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 525, __pyx_L1_error)
-    if (unlikely(!__pyx_v_self->_newstates.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 525, __pyx_L1_error)}
+    __pyx_t_3 = __Pyx_PyInt_As_long(__pyx_v_value); if (unlikely((__pyx_t_3 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 529, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->_newstates.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 529, __pyx_L1_error)}
     {
         long __pyx_temp_scalar = __pyx_t_3;
         {
@@ -8114,15 +8123,15 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
         }
     }
 
-    /* "Models/models.pyx":526
+    /* "Models/models.pyx":530
  *         if isinstance(value, int):
  *             self._newstates[:] = value
  *             self._states   [:] = value             # <<<<<<<<<<<<<<
  *             #print('changed node state')
  *         elif isinstance(value, np.ndarray) or isinstance(value, list):
  */
-    __pyx_t_3 = __Pyx_PyInt_As_long(__pyx_v_value); if (unlikely((__pyx_t_3 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 526, __pyx_L1_error)
-    if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 526, __pyx_L1_error)}
+    __pyx_t_3 = __Pyx_PyInt_As_long(__pyx_v_value); if (unlikely((__pyx_t_3 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 530, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 530, __pyx_L1_error)}
     {
         long __pyx_temp_scalar = __pyx_t_3;
         {
@@ -8136,7 +8145,7 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
         }
     }
 
-    /* "Models/models.pyx":524
+    /* "Models/models.pyx":528
  *     @states.setter # TODO: expand
  *     def states(self, value):
  *         if isinstance(value, int):             # <<<<<<<<<<<<<<
@@ -8146,7 +8155,7 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
     goto __pyx_L3;
   }
 
-  /* "Models/models.pyx":528
+  /* "Models/models.pyx":532
  *             self._states   [:] = value
  *             #print('changed node state')
  *         elif isinstance(value, np.ndarray) or isinstance(value, list):             # <<<<<<<<<<<<<<
@@ -8166,7 +8175,7 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_2) {
 
-    /* "Models/models.pyx":529
+    /* "Models/models.pyx":533
  *             #print('changed node state')
  *         elif isinstance(value, np.ndarray) or isinstance(value, list):
  *             assert len(value) == self.nNodes             # <<<<<<<<<<<<<<
@@ -8175,33 +8184,33 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
  */
     #ifndef CYTHON_WITHOUT_ASSERTIONS
     if (unlikely(!Py_OptimizeFlag)) {
-      __pyx_t_5 = PyObject_Length(__pyx_v_value); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 529, __pyx_L1_error)
-      __pyx_t_6 = PyInt_FromSsize_t(__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 529, __pyx_L1_error)
+      __pyx_t_5 = PyObject_Length(__pyx_v_value); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(0, 533, __pyx_L1_error)
+      __pyx_t_6 = PyInt_FromSsize_t(__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 533, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_nNodes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 529, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_nNodes); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 533, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      __pyx_t_8 = PyObject_RichCompare(__pyx_t_6, __pyx_t_7, Py_EQ); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 529, __pyx_L1_error)
+      __pyx_t_8 = PyObject_RichCompare(__pyx_t_6, __pyx_t_7, Py_EQ); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 533, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 529, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 533, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       if (unlikely(!__pyx_t_2)) {
         PyErr_SetNone(PyExc_AssertionError);
-        __PYX_ERR(0, 529, __pyx_L1_error)
+        __PYX_ERR(0, 533, __pyx_L1_error)
       }
     }
     #endif
 
-    /* "Models/models.pyx":530
+    /* "Models/models.pyx":534
  *         elif isinstance(value, np.ndarray) or isinstance(value, list):
  *             assert len(value) == self.nNodes
  *             value = np.asarray(value) # enforce             # <<<<<<<<<<<<<<
  *             self._newstates = value
  *             self._states    = value
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 530, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 530, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_asarray); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __pyx_t_7 = NULL;
@@ -8216,39 +8225,39 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
     }
     __pyx_t_8 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_6, __pyx_t_7, __pyx_v_value) : __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_value);
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 530, __pyx_L1_error)
+    if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 534, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_DECREF_SET(__pyx_v_value, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "Models/models.pyx":531
+    /* "Models/models.pyx":535
  *             assert len(value) == self.nNodes
  *             value = np.asarray(value) # enforce
  *             self._newstates = value             # <<<<<<<<<<<<<<
  *             self._states    = value
  *             #print('changed all node states')
  */
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_v_value, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 531, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_v_value, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 535, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->_newstates, 0);
     __pyx_v_self->_newstates = __pyx_t_9;
     __pyx_t_9.memview = NULL;
     __pyx_t_9.data = NULL;
 
-    /* "Models/models.pyx":532
+    /* "Models/models.pyx":536
  *             value = np.asarray(value) # enforce
  *             self._newstates = value
  *             self._states    = value             # <<<<<<<<<<<<<<
  *             #print('changed all node states')
  *     # TODOL move this back ^
  */
-    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_v_value, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 532, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_v_value, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 536, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->_states, 0);
     __pyx_v_self->_states = __pyx_t_9;
     __pyx_t_9.memview = NULL;
     __pyx_t_9.data = NULL;
 
-    /* "Models/models.pyx":528
+    /* "Models/models.pyx":532
  *             self._states   [:] = value
  *             #print('changed node state')
  *         elif isinstance(value, np.ndarray) or isinstance(value, list):             # <<<<<<<<<<<<<<
@@ -8258,7 +8267,7 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
   }
   __pyx_L3:;
 
-  /* "Models/models.pyx":523
+  /* "Models/models.pyx":527
  * 
  *     @states.setter # TODO: expand
  *     def states(self, value):             # <<<<<<<<<<<<<<
@@ -8282,7 +8291,7 @@ static int __pyx_pf_6Models_6models_5Model_6states_2__set__(struct __pyx_obj_6Mo
   return __pyx_r;
 }
 
-/* "Models/models.pyx":436
+/* "Models/models.pyx":440
  *     def states(self)    : return self._states
  *     @property
  *     def updateType(self): return self._updateType             # <<<<<<<<<<<<<<
@@ -8319,7 +8328,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_10updateType___get__(struct __p
   return __pyx_r;
 }
 
-/* "Models/models.pyx":494
+/* "Models/models.pyx":498
  * 
  *     @updateType.setter
  *     def updateType(self, value):             # <<<<<<<<<<<<<<
@@ -8351,7 +8360,7 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
   PyObject *__pyx_t_6 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "Models/models.pyx":503
+  /* "Models/models.pyx":507
  *             - serial: like like scan
  *         """
  *         assert value in 'sync async single serial'             # <<<<<<<<<<<<<<
@@ -8360,22 +8369,22 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(!Py_OptimizeFlag)) {
-    __pyx_t_1 = (__Pyx_PyUnicode_ContainsTF(__pyx_v_value, __pyx_kp_u_sync_async_single_serial, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 503, __pyx_L1_error)
+    __pyx_t_1 = (__Pyx_PyUnicode_ContainsTF(__pyx_v_value, __pyx_kp_u_sync_async_single_serial, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 507, __pyx_L1_error)
     if (unlikely(!(__pyx_t_1 != 0))) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(0, 503, __pyx_L1_error)
+      __PYX_ERR(0, 507, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "Models/models.pyx":504
+  /* "Models/models.pyx":508
  *         """
  *         assert value in 'sync async single serial'
  *         self._updateType = value             # <<<<<<<<<<<<<<
  *         # allow for mutation if async else independent updates
  *         if value == 'async':
  */
-  if (!(likely(PyUnicode_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "unicode", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 504, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "unicode", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 508, __pyx_L1_error)
   __pyx_t_2 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
@@ -8384,24 +8393,24 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
   __pyx_v_self->_updateType = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Models/models.pyx":506
+  /* "Models/models.pyx":510
  *         self._updateType = value
  *         # allow for mutation if async else independent updates
  *         if value == 'async':             # <<<<<<<<<<<<<<
  *             self._newstates = self._states
  *         else:
  */
-  __pyx_t_1 = (__Pyx_PyUnicode_Equals(__pyx_v_value, __pyx_n_u_async, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 506, __pyx_L1_error)
+  __pyx_t_1 = (__Pyx_PyUnicode_Equals(__pyx_v_value, __pyx_n_u_async, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 510, __pyx_L1_error)
   if (__pyx_t_1) {
 
-    /* "Models/models.pyx":507
+    /* "Models/models.pyx":511
  *         # allow for mutation if async else independent updates
  *         if value == 'async':
  *             self._newstates = self._states             # <<<<<<<<<<<<<<
  *         else:
  *             if value == 'serial':
  */
-    if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 507, __pyx_L1_error)}
+    if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 511, __pyx_L1_error)}
     __pyx_t_3 = __pyx_v_self->_states;
     __PYX_INC_MEMVIEW(&__pyx_t_3, 1);
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->_newstates, 0);
@@ -8409,7 +8418,7 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
     __pyx_t_3.memview = NULL;
     __pyx_t_3.data = NULL;
 
-    /* "Models/models.pyx":506
+    /* "Models/models.pyx":510
  *         self._updateType = value
  *         # allow for mutation if async else independent updates
  *         if value == 'async':             # <<<<<<<<<<<<<<
@@ -8419,7 +8428,7 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
     goto __pyx_L3;
   }
 
-  /* "Models/models.pyx":509
+  /* "Models/models.pyx":513
  *             self._newstates = self._states
  *         else:
  *             if value == 'serial':             # <<<<<<<<<<<<<<
@@ -8427,23 +8436,23 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
  *             self._newstates = self._states.copy()
  */
   /*else*/ {
-    __pyx_t_1 = (__Pyx_PyUnicode_Equals(__pyx_v_value, __pyx_n_u_serial, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 509, __pyx_L1_error)
+    __pyx_t_1 = (__Pyx_PyUnicode_Equals(__pyx_v_value, __pyx_n_u_serial, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 513, __pyx_L1_error)
     if (__pyx_t_1) {
 
-      /* "Models/models.pyx":510
+      /* "Models/models.pyx":514
  *         else:
  *             if value == 'serial':
  *                 self._nodeids = np.sort(self._nodeids) # enforce  for sampler             # <<<<<<<<<<<<<<
  *             self._newstates = self._states.copy()
  * 
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 510, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 514, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sort); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 510, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_sort); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 514, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_v_self->_nodeids.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 510, __pyx_L1_error)}
-      __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_self->_nodeids, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 510, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->_nodeids.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 514, __pyx_L1_error)}
+      __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_self->_nodeids, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 514, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __pyx_t_6 = NULL;
       if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
@@ -8458,17 +8467,17 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
       __pyx_t_2 = (__pyx_t_6) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_6, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4);
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 510, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 514, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 510, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_to_MemoryviewSlice_dc_long(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 514, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __PYX_XDEC_MEMVIEW(&__pyx_v_self->_nodeids, 0);
       __pyx_v_self->_nodeids = __pyx_t_3;
       __pyx_t_3.memview = NULL;
       __pyx_t_3.data = NULL;
 
-      /* "Models/models.pyx":509
+      /* "Models/models.pyx":513
  *             self._newstates = self._states
  *         else:
  *             if value == 'serial':             # <<<<<<<<<<<<<<
@@ -8477,15 +8486,15 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
  */
     }
 
-    /* "Models/models.pyx":511
+    /* "Models/models.pyx":515
  *             if value == 'serial':
  *                 self._nodeids = np.sort(self._nodeids) # enforce  for sampler
  *             self._newstates = self._states.copy()             # <<<<<<<<<<<<<<
  * 
  *     @nudgeType.setter
  */
-    if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 511, __pyx_L1_error)}
-    __pyx_t_3 = __pyx_memoryview_copy_slice_dc_long_c(__pyx_v_self->_states); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 511, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->_states.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 515, __pyx_L1_error)}
+    __pyx_t_3 = __pyx_memoryview_copy_slice_dc_long_c(__pyx_v_self->_states); if (unlikely(!__pyx_t_3.memview)) __PYX_ERR(0, 515, __pyx_L1_error)
     __PYX_XDEC_MEMVIEW(&__pyx_v_self->_newstates, 0);
     __pyx_v_self->_newstates = __pyx_t_3;
     __pyx_t_3.memview = NULL;
@@ -8493,7 +8502,7 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
   }
   __pyx_L3:;
 
-  /* "Models/models.pyx":494
+  /* "Models/models.pyx":498
  * 
  *     @updateType.setter
  *     def updateType(self, value):             # <<<<<<<<<<<<<<
@@ -8517,7 +8526,7 @@ static int __pyx_pf_6Models_6models_5Model_10updateType_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "Models/models.pyx":438
+/* "Models/models.pyx":442
  *     def updateType(self): return self._updateType
  *     @property
  *     def nudgeType(self) : return self._nudgeType             # <<<<<<<<<<<<<<
@@ -8554,7 +8563,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_9nudgeType___get__(struct __pyx
   return __pyx_r;
 }
 
-/* "Models/models.pyx":514
+/* "Models/models.pyx":518
  * 
  *     @nudgeType.setter
  *     def nudgeType(self, value):             # <<<<<<<<<<<<<<
@@ -8582,7 +8591,7 @@ static int __pyx_pf_6Models_6models_5Model_9nudgeType_2__set__(struct __pyx_obj_
   PyObject *__pyx_t_2 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "Models/models.pyx":515
+  /* "Models/models.pyx":519
  *     @nudgeType.setter
  *     def nudgeType(self, value):
  *         assert value in 'constant pulse'             # <<<<<<<<<<<<<<
@@ -8591,22 +8600,22 @@ static int __pyx_pf_6Models_6models_5Model_9nudgeType_2__set__(struct __pyx_obj_
  */
   #ifndef CYTHON_WITHOUT_ASSERTIONS
   if (unlikely(!Py_OptimizeFlag)) {
-    __pyx_t_1 = (__Pyx_PyUnicode_ContainsTF(__pyx_v_value, __pyx_kp_u_constant_pulse, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 515, __pyx_L1_error)
+    __pyx_t_1 = (__Pyx_PyUnicode_ContainsTF(__pyx_v_value, __pyx_kp_u_constant_pulse, Py_EQ)); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(0, 519, __pyx_L1_error)
     if (unlikely(!(__pyx_t_1 != 0))) {
       PyErr_SetNone(PyExc_AssertionError);
-      __PYX_ERR(0, 515, __pyx_L1_error)
+      __PYX_ERR(0, 519, __pyx_L1_error)
     }
   }
   #endif
 
-  /* "Models/models.pyx":516
+  /* "Models/models.pyx":520
  *     def nudgeType(self, value):
  *         assert value in 'constant pulse'
  *         self._nudgeType = value             # <<<<<<<<<<<<<<
  * 
  *     cdef void _setStates(self, long[::1] newStates) nogil:
  */
-  if (!(likely(PyUnicode_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "unicode", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 516, __pyx_L1_error)
+  if (!(likely(PyUnicode_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "unicode", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 520, __pyx_L1_error)
   __pyx_t_2 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_2);
@@ -8615,7 +8624,7 @@ static int __pyx_pf_6Models_6models_5Model_9nudgeType_2__set__(struct __pyx_obj_
   __pyx_v_self->_nudgeType = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "Models/models.pyx":514
+  /* "Models/models.pyx":518
  * 
  *     @nudgeType.setter
  *     def nudgeType(self, value):             # <<<<<<<<<<<<<<
@@ -8635,7 +8644,7 @@ static int __pyx_pf_6Models_6models_5Model_9nudgeType_2__set__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "Models/models.pyx":450
+/* "Models/models.pyx":454
  *     def nStates(self)   : return self._nStates
  *     @property
  *     def nodeids(self)   : return self._nodeids             # <<<<<<<<<<<<<<
@@ -8662,8 +8671,8 @@ static PyObject *__pyx_pf_6Models_6models_5Model_7nodeids___get__(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_self->_nodeids.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 450, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_nodeids, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 450, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->_nodeids.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 454, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_nodeids, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 454, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8680,7 +8689,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_7nodeids___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "Models/models.pyx":444
+/* "Models/models.pyx":448
  *     def nodeids(self)   : return self._nodeids
  *     @property
  *     def nudges(self)    : return self._nudges             # <<<<<<<<<<<<<<
@@ -8707,8 +8716,8 @@ static PyObject *__pyx_pf_6Models_6models_5Model_6nudges___get__(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  if (unlikely(!__pyx_v_self->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 444, __pyx_L1_error)}
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_nudges, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 444, __pyx_L1_error)
+  if (unlikely(!__pyx_v_self->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 448, __pyx_L1_error)}
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_self->_nudges, 1, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 448, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8725,7 +8734,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_6nudges___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "Models/models.pyx":471
+/* "Models/models.pyx":475
  *     # TODO: reset all after new?
  *     @nudges.setter
  *     def nudges(self, vals):             # <<<<<<<<<<<<<<
@@ -8766,14 +8775,14 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
   Py_ssize_t __pyx_t_12;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "Models/models.pyx":475
+  /* "Models/models.pyx":479
  *         Set nudge value based on dict using the node labels
  *         """
  *         self._nudges[:] =  0             # <<<<<<<<<<<<<<
  *         if isinstance(vals, dict):
  *             for k, v in vals.items():
  */
-  if (unlikely(!__pyx_v_self->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 475, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 479, __pyx_L1_error)}
   {
       double __pyx_temp_scalar = 0.0;
       {
@@ -8787,7 +8796,7 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
       }
   }
 
-  /* "Models/models.pyx":476
+  /* "Models/models.pyx":480
  *         """
  *         self._nudges[:] =  0
  *         if isinstance(vals, dict):             # <<<<<<<<<<<<<<
@@ -8798,7 +8807,7 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "Models/models.pyx":477
+    /* "Models/models.pyx":481
  *         self._nudges[:] =  0
  *         if isinstance(vals, dict):
  *             for k, v in vals.items():             # <<<<<<<<<<<<<<
@@ -8808,9 +8817,9 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
     __pyx_t_4 = 0;
     if (unlikely(__pyx_v_vals == Py_None)) {
       PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "items");
-      __PYX_ERR(0, 477, __pyx_L1_error)
+      __PYX_ERR(0, 481, __pyx_L1_error)
     }
-    __pyx_t_7 = __Pyx_dict_iterator(__pyx_v_vals, 0, __pyx_n_s_items, (&__pyx_t_5), (&__pyx_t_6)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 477, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_dict_iterator(__pyx_v_vals, 0, __pyx_n_s_items, (&__pyx_t_5), (&__pyx_t_6)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 481, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_XDECREF(__pyx_t_3);
     __pyx_t_3 = __pyx_t_7;
@@ -8818,7 +8827,7 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
     while (1) {
       __pyx_t_9 = __Pyx_dict_iter_next(__pyx_t_3, __pyx_t_5, &__pyx_t_4, &__pyx_t_7, &__pyx_t_8, NULL, __pyx_t_6);
       if (unlikely(__pyx_t_9 == 0)) break;
-      if (unlikely(__pyx_t_9 == -1)) __PYX_ERR(0, 477, __pyx_L1_error)
+      if (unlikely(__pyx_t_9 == -1)) __PYX_ERR(0, 481, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_XDECREF_SET(__pyx_v_k, __pyx_t_7);
@@ -8826,31 +8835,31 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
       __Pyx_XDECREF_SET(__pyx_v_v, __pyx_t_8);
       __pyx_t_8 = 0;
 
-      /* "Models/models.pyx":478
+      /* "Models/models.pyx":482
  *         if isinstance(vals, dict):
  *             for k, v in vals.items():
  *                 idx = self.mapping[k]             # <<<<<<<<<<<<<<
  *                 self._nudges[idx] = v
  * 
  */
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_mapping); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_mapping); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 482, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_v_k); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 478, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_8, __pyx_v_k); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 482, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_XDECREF_SET(__pyx_v_idx, __pyx_t_7);
       __pyx_t_7 = 0;
 
-      /* "Models/models.pyx":479
+      /* "Models/models.pyx":483
  *             for k, v in vals.items():
  *                 idx = self.mapping[k]
  *                 self._nudges[idx] = v             # <<<<<<<<<<<<<<
  * 
  *     @fixedNodes.setter
  */
-      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_v_v); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 479, __pyx_L1_error)
-      if (unlikely(!__pyx_v_self->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 479, __pyx_L1_error)}
-      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idx); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 479, __pyx_L1_error)
+      __pyx_t_10 = __pyx_PyFloat_AsDouble(__pyx_v_v); if (unlikely((__pyx_t_10 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 483, __pyx_L1_error)
+      if (unlikely(!__pyx_v_self->_nudges.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 483, __pyx_L1_error)}
+      __pyx_t_11 = __Pyx_PyIndex_AsSsize_t(__pyx_v_idx); if (unlikely((__pyx_t_11 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 483, __pyx_L1_error)
       __pyx_t_12 = __pyx_t_11;
       __pyx_t_9 = -1;
       if (__pyx_t_12 < 0) {
@@ -8859,13 +8868,13 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
       } else if (unlikely(__pyx_t_12 >= __pyx_v_self->_nudges.shape[0])) __pyx_t_9 = 0;
       if (unlikely(__pyx_t_9 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_9);
-        __PYX_ERR(0, 479, __pyx_L1_error)
+        __PYX_ERR(0, 483, __pyx_L1_error)
       }
       *((double *) ( /* dim=0 */ ((char *) (((double *) __pyx_v_self->_nudges.data) + __pyx_t_12)) )) = __pyx_t_10;
     }
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "Models/models.pyx":476
+    /* "Models/models.pyx":480
  *         """
  *         self._nudges[:] =  0
  *         if isinstance(vals, dict):             # <<<<<<<<<<<<<<
@@ -8874,7 +8883,7 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
  */
   }
 
-  /* "Models/models.pyx":471
+  /* "Models/models.pyx":475
  *     # TODO: reset all after new?
  *     @nudges.setter
  *     def nudges(self, vals):             # <<<<<<<<<<<<<<
@@ -8899,7 +8908,7 @@ static int __pyx_pf_6Models_6models_5Model_6nudges_2__set__(struct __pyx_obj_6Mo
   return __pyx_r;
 }
 
-/* "Models/models.pyx":446
+/* "Models/models.pyx":450
  *     def nudges(self)    : return self._nudges
  *     @property
  *     def nNodes(self)    : return self._nNodes             # <<<<<<<<<<<<<<
@@ -8926,7 +8935,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_6nNodes___get__(struct __pyx_ob
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_nNodes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 446, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_nNodes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 450, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8943,7 +8952,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_6nNodes___get__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "Models/models.pyx":448
+/* "Models/models.pyx":452
  *     def nNodes(self)    : return self._nNodes
  *     @property
  *     def nStates(self)   : return self._nStates             # <<<<<<<<<<<<<<
@@ -8970,7 +8979,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_7nStates___get__(struct __pyx_o
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_nStates); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 448, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->_nStates); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 452, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -8987,7 +8996,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_7nStates___get__(struct __pyx_o
   return __pyx_r;
 }
 
-/* "Models/models.pyx":452
+/* "Models/models.pyx":456
  *     def nodeids(self)   : return self._nodeids
  *     @property
  *     def seed(self)      : return self._seed             # <<<<<<<<<<<<<<
@@ -9014,7 +9023,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_4seed___get__(struct __pyx_obj_
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_unsigned_long(__pyx_v_self->_seed); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 452, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_unsigned_long(__pyx_v_self->_seed); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 456, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9031,7 +9040,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_4seed___get__(struct __pyx_obj_
   return __pyx_r;
 }
 
-/* "Models/models.pyx":457
+/* "Models/models.pyx":461
  * 
  *     @seed.setter
  *     def seed(self, value):             # <<<<<<<<<<<<<<
@@ -9063,7 +9072,7 @@ static int __pyx_pf_6Models_6models_5Model_4seed_2__set__(struct __pyx_obj_6Mode
   unsigned int __pyx_t_6;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "Models/models.pyx":458
+  /* "Models/models.pyx":462
  *     @seed.setter
  *     def seed(self, value):
  *         if isinstance(value, int) and value >= 0:             # <<<<<<<<<<<<<<
@@ -9077,37 +9086,37 @@ static int __pyx_pf_6Models_6models_5Model_4seed_2__set__(struct __pyx_obj_6Mode
     __pyx_t_1 = __pyx_t_3;
     goto __pyx_L4_bool_binop_done;
   }
-  __pyx_t_4 = PyObject_RichCompare(__pyx_v_value, __pyx_int_0, Py_GE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 458, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 458, __pyx_L1_error)
+  __pyx_t_4 = PyObject_RichCompare(__pyx_v_value, __pyx_int_0, Py_GE); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 462, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_1 = __pyx_t_3;
   __pyx_L4_bool_binop_done:;
   if (__pyx_t_1) {
 
-    /* "Models/models.pyx":459
+    /* "Models/models.pyx":463
  *     def seed(self, value):
  *         if isinstance(value, int) and value >= 0:
  *             self._seed = value             # <<<<<<<<<<<<<<
  *             self.gen   = mt19937(self.seed)
  *         else:
  */
-    __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_value); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(0, 459, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_As_unsigned_long(__pyx_v_value); if (unlikely((__pyx_t_5 == (unsigned long)-1) && PyErr_Occurred())) __PYX_ERR(0, 463, __pyx_L1_error)
     __pyx_v_self->_seed = __pyx_t_5;
 
-    /* "Models/models.pyx":460
+    /* "Models/models.pyx":464
  *         if isinstance(value, int) and value >= 0:
  *             self._seed = value
  *             self.gen   = mt19937(self.seed)             # <<<<<<<<<<<<<<
  *         else:
  *             print("Value is not unsigned long")
  */
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_seed); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 460, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_seed); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 464, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_t_4); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 460, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_unsigned_int(__pyx_t_4); if (unlikely((__pyx_t_6 == (unsigned int)-1) && PyErr_Occurred())) __PYX_ERR(0, 464, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_self->gen = std::mt19937(__pyx_t_6);
 
-    /* "Models/models.pyx":458
+    /* "Models/models.pyx":462
  *     @seed.setter
  *     def seed(self, value):
  *         if isinstance(value, int) and value >= 0:             # <<<<<<<<<<<<<<
@@ -9117,7 +9126,7 @@ static int __pyx_pf_6Models_6models_5Model_4seed_2__set__(struct __pyx_obj_6Mode
     goto __pyx_L3;
   }
 
-  /* "Models/models.pyx":462
+  /* "Models/models.pyx":466
  *             self.gen   = mt19937(self.seed)
  *         else:
  *             print("Value is not unsigned long")             # <<<<<<<<<<<<<<
@@ -9125,13 +9134,13 @@ static int __pyx_pf_6Models_6models_5Model_4seed_2__set__(struct __pyx_obj_6Mode
  *     #cdef void _incrSeed(self, long value) nogil:
  */
   /*else*/ {
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 462, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_print, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 466, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __pyx_L3:;
 
-  /* "Models/models.pyx":457
+  /* "Models/models.pyx":461
  * 
  *     @seed.setter
  *     def seed(self, value):             # <<<<<<<<<<<<<<
@@ -9151,7 +9160,7 @@ static int __pyx_pf_6Models_6models_5Model_4seed_2__set__(struct __pyx_obj_6Mode
   return __pyx_r;
 }
 
-/* "Models/models.pyx":454
+/* "Models/models.pyx":458
  *     def seed(self)      : return self._seed
  *     @property
  *     def fixedNodes(self): return self.fixedNodes             # <<<<<<<<<<<<<<
@@ -9178,7 +9187,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_10fixedNodes___get__(struct __p
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_fixedNodes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 454, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_fixedNodes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 458, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -9195,7 +9204,7 @@ static PyObject *__pyx_pf_6Models_6models_5Model_10fixedNodes___get__(struct __p
   return __pyx_r;
 }
 
-/* "Models/models.pyx":482
+/* "Models/models.pyx":486
  * 
  *     @fixedNodes.setter
  *     def fixedNodes(self, nodes):             # <<<<<<<<<<<<<<
@@ -9229,14 +9238,14 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
   int __pyx_t_7;
   __Pyx_RefNannySetupContext("__set__", 0);
 
-  /* "Models/models.pyx":486
+  /* "Models/models.pyx":490
  *         Set bit in fixedNodes to True for all given nodes (internal index used!)
  *         """
  *         self._fixedNodes[:] =  0             # <<<<<<<<<<<<<<
  *         #if isinstance(nodes, vector[int]): # TODO make this more general. Any type of list, array etc could be passed as long as elements are integers
  *         for n in nodes:
  */
-  if (unlikely(!__pyx_v_self->_fixedNodes.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 486, __pyx_L1_error)}
+  if (unlikely(!__pyx_v_self->_fixedNodes.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 490, __pyx_L1_error)}
   {
       long __pyx_temp_scalar = 0;
       {
@@ -9250,7 +9259,7 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
       }
   }
 
-  /* "Models/models.pyx":488
+  /* "Models/models.pyx":492
  *         self._fixedNodes[:] =  0
  *         #if isinstance(nodes, vector[int]): # TODO make this more general. Any type of list, array etc could be passed as long as elements are integers
  *         for n in nodes:             # <<<<<<<<<<<<<<
@@ -9261,26 +9270,26 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
     __pyx_t_1 = __pyx_v_nodes; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_nodes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 488, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_nodes); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 492, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 488, __pyx_L1_error)
+    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 492, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 488, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 492, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 492, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 488, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(0, 492, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 488, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 492, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -9290,7 +9299,7 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 488, __pyx_L1_error)
+          else __PYX_ERR(0, 492, __pyx_L1_error)
         }
         break;
       }
@@ -9299,15 +9308,15 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
     __Pyx_XDECREF_SET(__pyx_v_n, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "Models/models.pyx":489
+    /* "Models/models.pyx":493
  *         #if isinstance(nodes, vector[int]): # TODO make this more general. Any type of list, array etc could be passed as long as elements are integers
  *         for n in nodes:
  *             self._fixedNodes[n] = 1             # <<<<<<<<<<<<<<
  *         #else:
  *         #    print("Nodes are not given as vector of integers")
  */
-    if (unlikely(!__pyx_v_self->_fixedNodes.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 489, __pyx_L1_error)}
-    __pyx_t_5 = __Pyx_PyIndex_AsSsize_t(__pyx_v_n); if (unlikely((__pyx_t_5 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 489, __pyx_L1_error)
+    if (unlikely(!__pyx_v_self->_fixedNodes.memview)) {PyErr_SetString(PyExc_AttributeError,"Memoryview is not initialized");__PYX_ERR(0, 493, __pyx_L1_error)}
+    __pyx_t_5 = __Pyx_PyIndex_AsSsize_t(__pyx_v_n); if (unlikely((__pyx_t_5 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 493, __pyx_L1_error)
     __pyx_t_6 = __pyx_t_5;
     __pyx_t_7 = -1;
     if (__pyx_t_6 < 0) {
@@ -9316,11 +9325,11 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
     } else if (unlikely(__pyx_t_6 >= __pyx_v_self->_fixedNodes.shape[0])) __pyx_t_7 = 0;
     if (unlikely(__pyx_t_7 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_7);
-      __PYX_ERR(0, 489, __pyx_L1_error)
+      __PYX_ERR(0, 493, __pyx_L1_error)
     }
     *((long *) ( /* dim=0 */ ((char *) (((long *) __pyx_v_self->_fixedNodes.data) + __pyx_t_6)) )) = 1;
 
-    /* "Models/models.pyx":488
+    /* "Models/models.pyx":492
  *         self._fixedNodes[:] =  0
  *         #if isinstance(nodes, vector[int]): # TODO make this more general. Any type of list, array etc could be passed as long as elements are integers
  *         for n in nodes:             # <<<<<<<<<<<<<<
@@ -9330,7 +9339,7 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "Models/models.pyx":482
+  /* "Models/models.pyx":486
  * 
  *     @fixedNodes.setter
  *     def fixedNodes(self, nodes):             # <<<<<<<<<<<<<<
@@ -9352,7 +9361,7 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
   return __pyx_r;
 }
 
-/* "Models/models.pyx":518
+/* "Models/models.pyx":522
  *         self._nudgeType = value
  * 
  *     cdef void _setStates(self, long[::1] newStates) nogil:             # <<<<<<<<<<<<<<
@@ -9362,7 +9371,7 @@ static int __pyx_pf_6Models_6models_5Model_10fixedNodes_2__set__(struct __pyx_ob
 
 static void __pyx_f_6Models_6models_5Model__setStates(struct __pyx_obj_6Models_6models_Model *__pyx_v_self, __Pyx_memviewslice __pyx_v_newStates) {
 
-  /* "Models/models.pyx":519
+  /* "Models/models.pyx":523
  * 
  *     cdef void _setStates(self, long[::1] newStates) nogil:
  *             self._newstates = newStates             # <<<<<<<<<<<<<<
@@ -9373,7 +9382,7 @@ static void __pyx_f_6Models_6models_5Model__setStates(struct __pyx_obj_6Models_6
   __PYX_INC_MEMVIEW(&__pyx_v_newStates, 1);
   __pyx_v_self->_newstates = __pyx_v_newStates;
 
-  /* "Models/models.pyx":520
+  /* "Models/models.pyx":524
  *     cdef void _setStates(self, long[::1] newStates) nogil:
  *             self._newstates = newStates
  *             self._states = newStates             # <<<<<<<<<<<<<<
@@ -9384,7 +9393,7 @@ static void __pyx_f_6Models_6models_5Model__setStates(struct __pyx_obj_6Models_6
   __PYX_INC_MEMVIEW(&__pyx_v_newStates, 1);
   __pyx_v_self->_states = __pyx_v_newStates;
 
-  /* "Models/models.pyx":518
+  /* "Models/models.pyx":522
  *         self._nudgeType = value
  * 
  *     cdef void _setStates(self, long[::1] newStates) nogil:             # <<<<<<<<<<<<<<
@@ -26373,7 +26382,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 243, __pyx_L1_error)
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 466, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
@@ -26403,14 +26412,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_slice__3);
   __Pyx_GIVEREF(__pyx_slice__3);
 
-  /* "Models/models.pyx":462
+  /* "Models/models.pyx":466
  *             self.gen   = mt19937(self.seed)
  *         else:
  *             print("Value is not unsigned long")             # <<<<<<<<<<<<<<
  * 
  *     #cdef void _incrSeed(self, long value) nogil:
  */
-  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Value_is_not_unsigned_long); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 462, __pyx_L1_error)
+  __pyx_tuple__4 = PyTuple_Pack(1, __pyx_kp_u_Value_is_not_unsigned_long); if (unlikely(!__pyx_tuple__4)) __PYX_ERR(0, 466, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 

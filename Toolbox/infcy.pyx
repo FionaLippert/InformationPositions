@@ -395,7 +395,7 @@ cpdef tuple getSnapshotsPerDist2(Model model, long node, unordered_map[long, vec
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
-          long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, int nBins=10, int threads = -1):
+          long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
     Only take snapshots of the specified node subset, ignore all others
@@ -406,8 +406,10 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
         vector[unordered_map[int, unordered_map[int, double]]] avgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
         #vector[unordered_map[int, unordered_map[int, double]]] oldAvgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
 
+        #unordered_map[int, vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots
 
-        long d, i, sample, rep
+
+        long d, i, b, sample, rep
         double Z       = 0#= <double> nSamples
         #double part = 1/Z
         string state
@@ -422,9 +424,9 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
 
         #unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
 
-    node = model.mapping[node]
+    #print(bins)
 
-    #allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
+    node = model.mapping[node]
 
     for rep in range(nThreads):
         tmp = copy.deepcopy(model)
@@ -449,12 +451,145 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
             nodeSpin = (<Model> modelptr)._states[node]
             for d in range(maxDist):
                 #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
-                avg = (<Model> modelptr).encodeStateToAvg(allNeighbours_idx[d+1], bins)
                 #snapshots[d][nodeSpin][state] += 1
+                avg = (<Model> modelptr).encodeStateToAvg(allNeighbours_idx[d+1], bins)
                 avgSnapshots[d][nodeSpin][avg] +=1
-                with gil: print(rep, avgSnapshots[d])
+                #with gil: print(rep, avgSnapshots[d])
 
     return snapshots, avgSnapshots
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
+          long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, long nBins=10, int threads = -1):
+    """
+    Extract snapshots from MC for large network, for which the decimal encoding causes overflows
+    Only take snapshots of the specified node subset, ignore all others
+    """
+    cdef:
+        long nNodes = nodes.shape[0]
+        long[::1] nodesIdx = np.zeros(nNodes)
+
+        vector[vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots = vector[vector[unordered_map[int, unordered_map[int, double]]]](nNodes)
+        vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
+
+        long d, i, b, sample, rep, n
+        long Z = repeats * nSamples
+        #double part = 1/Z
+        string state
+        double past    = timer()
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nodeSpin, s, avg
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+        #np.ndarray KL = np.ones(maxDist)
+        #double KL_d
+        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
+
+
+    for n in range(nNodes):
+        avgSnapshots[n] = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+        nodesIdx[n] = model.mapping[nodes[n]]
+        neighboursIdx[n] = model.neighboursAtDist(nodesIdx[n], maxDist)[1]
+
+
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    i = repeats
+
+    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        with gil:
+            (<Model>modelptr).seed += rep # enforce different seeds
+            #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
+            (<Model>modelptr).reset()
+            #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for sample in range(nSamples):
+            (<Model>modelptr).simulateNSteps(distSamples)
+
+            for n in range(nNodes):
+                nodeSpin = (<Model> modelptr)._states[nodesIdx[n]]
+                for d in range(maxDist):
+                    avg = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
+                    avgSnapshots[n][d][nodeSpin][avg] +=1
+
+    return avgSnapshots, Z
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef tuple getJointSnapshotsPerDistBins(Model model, long node, unordered_map[long, vector[long]] allNeighbours_idx, long repeats=int(1e2), \
+          long nSamples = int(1e3), long burninSamples = int(1e3), long distSamples=100, int maxDist = 1, np.ndarray nBins=np.array([10]), int threads = -1):
+    """
+    Extract snapshots from MC for large network, for which the decimal encoding causes overflows
+    Only take snapshots of the specified node subset, ignore all others
+    """
+    cdef:
+        vector[unordered_map[int, unordered_map[string, double]]] snapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
+        unordered_map[int, vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots
+
+
+        long d, i, b, sample, rep
+        long Z = repeats * nSamples
+        string state
+        double past    = timer()
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nodeSpin, s, avg
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+        int len = nBins.shape[0]
+        long[::1] nBins_cview = nBins
+        vector[double[::1]] bins = [np.linspace(np.min(model.agentStates), np.max(model.agentStates), b) for b in nBins]
+
+    node = model.mapping[node]
+
+    # initialization
+    for b in range(len):
+        avgSnapshots[nBins[b]] = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+    #print([np.linspace(np.min(model.agentStates), np.max(model.agentStates), b) for b in nBins])
+
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    i = repeats
+
+    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        with gil:
+            (<Model>modelptr).seed += rep # enforce different seeds
+            #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
+            (<Model>modelptr).reset()
+            #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for sample in range(nSamples):
+            (<Model>modelptr).simulateNSteps(distSamples)
+
+            nodeSpin = (<Model> modelptr)._states[node]
+            for d in range(maxDist):
+                #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
+                #snapshots[d][nodeSpin][state] += 1
+                for b in range(len):
+                    avg = (<Model> modelptr).encodeStateToAvg(allNeighbours_idx[d+1], bins[b])
+                    avgSnapshots[nBins_cview[b]][d][nodeSpin][avg] +=1
+                    #with gil: print(rep, avgSnapshots[d])
+
+    return avgSnapshots, Z
 
 
 @cython.boundscheck(False)

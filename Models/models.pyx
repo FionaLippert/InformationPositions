@@ -372,10 +372,14 @@ cdef class Model: # see pxd
         for i in range(N):
             avg += self._states[nodes[i]]
 
+        avg /= N
+
         for i in range(nBins):
             if avg <= bins[i]:
                 avg = i
                 break
+
+        #with gil: print(avg, i, bins.base)
 
         return <int>avg
 

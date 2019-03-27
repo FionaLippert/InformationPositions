@@ -68,8 +68,8 @@ if __name__ == '__main__':
     now = time.time()
     targetDirectory = f'{os.getcwd()}/networkData'
 
-    undirected_2 = create_undirected_tree(2, 10, targetDirectory)
-    undirected_3 = create_undirected_tree(3, 10, targetDirectory)
+    #undirected_2 = create_undirected_tree(2, 10, targetDirectory)
+    #undirected_3 = create_undirected_tree(3, 10, targetDirectory)
 
     """
     undirected_2 = create_undirected_tree(2, 6, targetDirectory)
@@ -82,10 +82,10 @@ if __name__ == '__main__':
     directed_4 = create_directed_tree(4, 6, targetDirectory)
     directed_5 = create_directed_tree(5, 6, targetDirectory)
 
-    cayley_2 = create_cayley_tree(2, 6, targetDirectory)
-    cayley_3 = create_cayley_tree(3, 6, targetDirectory)
-    cayley_4 = create_cayley_tree(4, 6, targetDirectory)
-    cayley_5 = create_cayley_tree(5, 6, targetDirectory)
+    cayley_2 = create_cayley_tree(2, 8, targetDirectory)
+    cayley_3 = create_cayley_tree(3, 8, targetDirectory)
+    cayley_4 = create_cayley_tree(4, 8, targetDirectory)
+    cayley_5 = create_cayley_tree(5, 8, targetDirectory)
 
     ER_N100_k15 = create_erdos_renyi_graph(100, 1.5, targetDirectory)
     ER_N100_k2 = create_erdos_renyi_graph(100, 2.0, targetDirectory)
@@ -98,5 +98,8 @@ if __name__ == '__main__':
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
     """
 
-    graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.0_N=500.gpickle')
+    graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.5_N=500.gpickle')
     print(graph.degree)
+
+    node = 0
+    #print(nx.clustering(graph, [0,37]))

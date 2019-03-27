@@ -16,11 +16,11 @@ from scipy import stats
 
 
 nthreads = mp.cpu_count() - 1 # leave one thread for coordination tasks
-nthreads = 1
+#nthreads = 1
 
 
 
-def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples, reps=1):
+def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples):
     MIs = []
     corrTimes = []
     subgraph_nodes = [node]
@@ -31,20 +31,18 @@ def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples
             subgraph = graph.subgraph(subgraph_nodes)
 
 
-    for r in range(reps):
-        print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, num states = {len(snapshots[d-1])} -----------------------')
-        model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
-        model_subgraph.reset()
-        print(f'mean mag = {np.mean(model_subgraph.states)}')
+    #for r in range(reps):
+    print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, num states = {len(snapshots[d-1])} -----------------------')
+    model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
+    model_subgraph.reset()
+    print(f'mean mag = {np.mean(model_subgraph.states)}')
 
-        threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
+    threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
 
-        snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
-                  nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
+    snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
+              nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
 
-        MIs.append(MI)
-
-    return MIs
+    return MI
 
 
 
@@ -61,14 +59,14 @@ if __name__ == '__main__':
 
     # load network
     z = 2
-    maxDist = 3
+    maxDist = 6
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(z,maxDist, create_using=graph)
     graph = nx.balanced_tree(2,6)
     path = f'nx.balanced_tree({z},{maxDist})'
 
-    path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
-    graph = nx.read_gpickle(path)
+    #path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
+    #graph = nx.read_gpickle(path)
 
 
     N = len(graph)
@@ -91,7 +89,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 1.6, \
+        temperature     = 0.7, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -153,12 +151,15 @@ if __name__ == '__main__':
 
     nTrials = 10
     nSamples = 1000
-    reps = 10
-    dist = 2
+    reps = 5
+    dist = 3
 
     for distSamples in np.logspace(0, 3, 7).astype(int):
         print(f'------------- distSamples = {distSamples} -------------')
-        MIs = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples, reps=reps)
+        MIs = np.zeros(reps)
+        for rep in range(reps):
+            snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
+            MIs[rep] = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples)
         np.save(f'{targetDirectory}/MI_cond_T={model.t}_distSamples={distSamples}.npy', np.array(MIs))
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
