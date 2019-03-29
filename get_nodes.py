@@ -7,7 +7,7 @@ import numpy as np
 import os
 import glob
 
-for filepath in glob.iglob('networkData/*.gpickle'):
+for filepath in glob.iglob('networkData/ER/*.gpickle'):
     G = nx.read_gpickle(filepath)
     nodes = list(G)
     path = filepath.strip('.gpickle')

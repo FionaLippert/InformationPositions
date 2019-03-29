@@ -35,7 +35,7 @@ def create_cayley_tree(z, depth, path=None):
     return graph
 
 
-def create_erdos_renyi_graph(N, avg_deg=2., path=None):
+def create_erdos_renyi_graph(N, avg_deg=2., path=None, version=''):
 
     p = avg_deg/N
 
@@ -44,7 +44,8 @@ def create_erdos_renyi_graph(N, avg_deg=2., path=None):
     graph = graph.subgraph(connected_nodes)
     #N = len(graph)
     if path is not None: nx.write_gpickle(graph,
-                f'{path}/ER_k={avg_deg}_N={N}.gpickle', 2)
+                f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
+    return graph
 
 def create_powerlaw_graph(N, gamma=1.6, path=None):
     seq = nx.utils.powerlaw_sequence(N, gamma)
@@ -98,8 +99,14 @@ if __name__ == '__main__':
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
     """
 
-    graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.5_N=500.gpickle')
-    print(graph.degree)
+    targetDirectory = f'{os.getcwd()}/networkData/ER'
+    for N in [250, 500, 750, 1000]:
+        for k in [1.5, 2.0, 2.5, 3.0, 3.5, 4.0]:
+            for i in range(10):
+                create_erdos_renyi_graph(N, k, targetDirectory, f'_v{i}')
 
-    node = 0
+    #graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.5_N=500.gpickle')
+    #print(graph.degree)
+
+    #node = 0
     #print(nx.clustering(graph, [0,37]))
