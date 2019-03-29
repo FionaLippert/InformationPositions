@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# __author__ = 'Fiona Lippert'
+
+
+from Models import fastIsing
+from Toolbox import infcy
+from Utils import IO
+import networkx as nx, itertools, scipy, time, \
+                os, pickle, sys, argparse, multiprocessing as mp
+import itertools
+import numpy as np
+from tqdm import tqdm
+from timeit import default_timer as timer
+from scipy import stats
+
+nthreads = mp.cpu_count() - 1
+#nthreads = 1
+
+parser = argparse.ArgumentParser(description='run MC chain and compute MI based on the joint PDF of the central node and its neighbours')
+parser.add_argument('T', type=float, help='temperature')
+parser.add_argument('dir', type=str, help='target directory')
+parser.add_argument('graph', type=str, help='path to pickled graph')
+parser.add_argument('node', type=int, help='central node ID')
+parser.add_argument('maxD', type=int, help='max distance to central node')
+parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
+parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
+
+def computeMI_joint(jointSnapshots, maxDist, Z):
+    MIs = []
+    for d in tqdm(range(maxDist)):
+        P_XY = np.array(sorted([v/Z for s in jointSnapshots[d].keys() for v in jointSnapshots[d][s].values()]))
+        P_X = np.array([sum(list(dict_s.values()))/Z for dict_s in jointSnapshots[d].values()])
+        all_keys = set.union(*[set(dict_s.keys()) for dict_s in jointSnapshots[d].values()])
+        P_Y = np.array([jointSnapshots[d][1][k]/Z if k in jointSnapshots[d][1] else 0 for k in all_keys]) + \
+                np.array([jointSnapshots[d][-1][k]/Z if k in jointSnapshots[d][-1] else 0 for k in all_keys])
+
+        #print(P_XY, P_Y, P_X)
+
+        MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
+        MIs.append(MI)
+    return MIs
+
+
+
+
+if __name__ == '__main__':
+
+    start = timer()
+
+    args = parser.parse_args()
+
+    T = args.T
+    targetDirectory = args.dir
+
+    # load network
+    maxDist = args.maxD
+    graph = nx.read_gpickle(args.graph)
+    N = len(graph)
+    
+    node = args.node
+    deg = graph.degree[node]
+
+    networkSettings = dict( \
+        path = args.graph, \
+        nNodes = N, \
+        node = node, \
+        degree = deg
+    )
+    IO.saveSettings(targetDirectory, networkSettings, 'network')
+
+
+    # setup Ising model with nNodes spin flip attempts per simulation step
+    modelSettings = dict( \
+        temperature     = T, \
+        updateType      = 'async' ,\
+        magSide         = ''
+    )
+    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    model = fastIsing.Ising(graph, **modelSettings)
+
+    try:
+        mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
+        corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
+        burninSteps = mixingResulst['burninSteps']
+        distSamples = mixingResults['distSamples']
+
+    except:
+        raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+
+        """
+        # determine mixing/correlation time
+        mixingTimeSettings = dict( \
+            nInitialConfigs = 10, \
+            burninSteps  = 10, \
+            nStepsRegress   = int(1e3), \
+            nStepsCorr      = int(1e4), \
+            thresholdReg    = 0.05, \
+            thresholdCorr   = 0.01
+        )
+        IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
+        mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
+        print(f'correlation time = {distSamples}')
+        print(f'mixing time      = {mixingTime}')
+        print(f'mag level        = {meanMag}')
+        
+        mixingTime = min(mixingTime, 10000)
+
+        mixingResults = dict(\
+            mixingTime = mixingTime, \
+            corrTime = distSamples, \
+            magLevel = meanMag
+        )
+        IO.saveResults(targetDirectory, mixingResults, 'mixingResults')
+
+        mixingTime = min(mixingTime, 5000)
+
+
+        corrTimeSettings = dict( \
+            nInitialConfigs = 10, \
+            burninSteps  = mixingTime, \
+            nStepsCorr      = int(1e4), \
+            thresholdCorr   = 0.01, \
+            checkMixing     = 0
+        )
+        IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')
+        """
+
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
+    
+    
+    snapshotSettingsJoint = dict( \
+        nSamples    = int(1e3), \
+        repeats     = int(1e2), \
+        burninSamples = burninSteps, \
+        distSamples   = distSamples, \
+        maxDist     = maxDist, \
+        nBins       = args.bins
+    )
+    IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
+
+    #joint_dir = os.path.join(targetDirectory, f'MI_joint_T={model.t}')
+    #avg_dir = os.path.join(targetDirectory, f'MI_avg')
+    #if not os.path.isdir(joint_dir): os.mkdir(joint_dir)
+    #if not os.path.isdir(avg_dir): os.mkdir(avg_dir)
+
+    for r in range(args.runs):
+
+        jointSnapshots, avgSnapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=nthreads)
+        #print(f'Z={Z}')
+        Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
+
+        #with open(f'{targetDirectory}/jointSnapshots_node={node}.pickle', 'wb') as f:
+        #    pickle.dump(jointSnapshots, f)
+        #with open(f'{targetDirectory}/avgSnapshots_node={node}.pickle', 'wb') as f:
+        #    pickle.dump(avgSnapshots, f)
+    
+        now = time.time()
+
+        #MIs = computeMI_joint(jointSnapshots, maxDist, Z)
+        #np.save(os.path.join(joint_dir, f'{now}.npy'), np.array(MIs))
+        MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
+        np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), np.array(MIs_avg))
+        #print(MIs)
+        print(MIs_avg)
+    
+
+    print(f'time elapsed: {timer()-start : .2f} seconds')
+
+    print(targetDirectory)
