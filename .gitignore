@@ -5,5 +5,7 @@ __pycache__*
 Data/*
 *.pickle
 LISA*
-*.cpp
-*.so
+Models/*.cpp
+Toolbox/*.cpp
+Models/*.so
+Toolbox/*.so
