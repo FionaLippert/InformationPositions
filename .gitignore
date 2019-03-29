@@ -4,3 +4,6 @@ __pycache__/
 __pycache__*
 Data/*
 *.pickle
+LISA*
+*.cpp
+*.so
