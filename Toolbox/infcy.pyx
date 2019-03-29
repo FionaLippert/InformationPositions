@@ -388,6 +388,64 @@ cpdef tuple getSnapshotsPerDist2(Model model, long node, unordered_map[long, vec
 
     return snapshots, allNeighbours_idx #, allNeighbours_G, allNeighbours_idx
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodes, long repeats=int(1e2), \
+          long nSamples = int(1e3), long burninSamples = int(1e3), int maxDist = 1, int threads = -1):
+    """
+    Extract snapshots from MC for large network, for which the decimal encoding causes overflows
+    Only take snapshots of neighbourhoods, ignore all others
+    """
+    cdef:
+        long nNodes = nodes.shape[0]
+        long[::1] nodesIdx = np.zeros(nNodes, 'int')
+
+        vector[vector[unordered_map[string, double]]] snapshots = vector[vector[unordered_map[string, double]]](nNodes)
+        vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
+
+        long d, i, b, sample, rep, n
+        double part = 1 / (<double> nSamples)
+        string state
+        double past    = timer()
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nodeSpin, s, avg
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+
+
+    for n in range(nNodes):
+        snapshots[n] = vector[unordered_map[string, double]](maxDist)
+        nodesIdx[n] = model.mapping[nodes[n]]
+        neighboursIdx[n] = model.neighboursAtDist(nodesIdx[n], maxDist)[1]
+
+
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.reset()
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+
+    for sample in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        # when a thread has finished its first loop iteration, it will continue running and sampling from the MC chain of the same model, without resetting
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for n in range(nNodes):
+            nodeSpin = (<Model> modelptr)._states[nodesIdx[n]]
+            for d in range(maxDist):
+                with gil: state = (<Model> modelptr).encodeStateToString(neighboursIdx[n][d+1])
+                snapshots[n][d][state] += part # each index corresponds to one system state, the array contains the probability of each state
+
+
+    return snapshots, neighboursIdx
+
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -1559,7 +1617,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         vector[double] mag_sum
         #double[::1] betas = np.array([1.0 / float(t) if t != 0 else np.inf for t in temps])
         double[::1] temps_cview = temps
-        double[:,::1] results = np.zeros((2, nTemps))
+        double[:,::1] results = np.zeros((3, nTemps))
 
 
 
@@ -1585,7 +1643,8 @@ cpdef np.ndarray magnetizationParallel(Model model,\
 
         m = mag_sum[0] / n
         results[0][t] = m if m > 0 else -m
-        results[1][t] = ((mag_sum[1] / n) - (m * m)) / temps_cview[t]#betas[t] #* (<Model> models_[t].ptr).beta
+        results[1][t] = ((mag_sum[1] / n) - (m * m)) / temps_cview[t] # susceptibility
+        results[2][t] = 1 - (mag_sum[3]/n) / (3 * (mag_sum[1]/n)**2) # Binder's cumulant
 
         with gil:
             pbar.update(1)
@@ -1792,19 +1851,25 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     cdef:
         long[:, ::1] r = model.sampleNodes(nSamples)
         long step
-        double sum, sum_square
-        vector[double] out = vector[double](2,0)
+        double sum, sum_2, sum_3, sum_4
+        vector[double] out = vector[double](4,0)
 
     sum = 0
-    sum_square = 0
+    sum_2 = 0
+    sum_3 = 0
+    sum_4 = 0
     # collect magnetizations
     for step in range(nSamples):
         m = mean(model._updateState(r[step]), model._nNodes)
         sum = sum + m
-        sum_square = sum_square + (m*m)
+        sum_2 = sum_2 + (m*m)
+        sum_3 = sum_3 + (m**3)
+        sum_4 = sum_4 + (m**4)
 
     out[0] = sum
-    out[1] = sum_square
+    out[1] = sum_2
+    out[2] = sum_3
+    out[3] = sum_4
 
     return out
 

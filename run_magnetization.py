@@ -41,7 +41,7 @@ def create_erdos_renyi_graph(N, avg_deg=2.):
     graph = nx.erdos_renyi_graph(N, p)
     connected_nodes = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(connected_nodes)
-    nx.write_gpickle(graph, f'networkData/ER_avgDeg={avg_deg}_N={N}.gpickle', 2)
+    nx.write_gpickle(graph, f'networkData/ER_k={avg_deg}_N={N}.gpickle', 2)
 
 def create_powerlaw_graph(N, gamma=1.6):
     seq = nx.utils.powerlaw_sequence(N, gamma)
@@ -163,9 +163,13 @@ if __name__ == '__main__':
     updateType    = ''
 
     #network_path = "networkData/ER_k=3.0_N=500.gpickle"
-    network_path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
+    #network_path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
     #network_path = "networkData/undirected_tree_z=4_depth=6.gpickle"
     #network_path = "networkData/unweighted_person-person_projection_anonymous_combined_GC_stringToInt.gpickle"
+    #graph = nx.read_gpickle(network_path)
+
+    #create_erdos_renyi_graph(1000, 2.5)
+    network_path = "networkData/ER_k=2.5_N=100.gpickle"
     graph = nx.read_gpickle(network_path)
 
     #graph = create_undirected_tree(2,6)
@@ -214,9 +218,9 @@ if __name__ == '__main__':
     else:
 
         #magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
-        temps = linspace(0.05, 4, 100)
+        temps = linspace(0.5, 4, 50)
 
-        mag, sus = infcy.magnetizationParallel(model,       \
+        mag, sus, binder = infcy.magnetizationParallel(model,       \
                             temps           = temps,        \
                             n               = nSamples,     \
                             burninSamples   = burninSamples)
@@ -224,6 +228,7 @@ if __name__ == '__main__':
         fig, ax = subplots(figsize=(10,6))
         ax.scatter(temps, mag, alpha = .2, label='magnetization')
         ax.scatter(temps, sus, alpha = .2, label='susceptibility')
+        ax.scatter(temps, binder, alpha = .2, label='Binder cumulant')
         ax.legend()
         setp(ax, **dict(xlabel = 'Temperature', ylabel = '<M>'))
         savefig(f'{targetDirectory}/temp_vs_mag.png')
@@ -233,5 +238,6 @@ if __name__ == '__main__':
 
         np.save(f'{targetDirectory}/mags.npy', mag)
         np.save(f'{targetDirectory}/susceptibility.npy', sus)
+        np.save(f'{targetDirectory}/binder.npy', binder)
 
     print(targetDirectory)

@@ -20,7 +20,7 @@ nthreads = mp.cpu_count() - 1 # leave one thread for coordination tasks
 
 
 
-def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples):
+def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, threshold):
     MIs = []
     corrTimes = []
     subgraph_nodes = [node]
@@ -37,12 +37,15 @@ def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples
     model_subgraph.reset()
     print(f'mean mag = {np.mean(model_subgraph.states)}')
 
+    mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **corrTimeSettings, thresholdCorr=threshold)
+    print(f'distSamples = {distSamples}')
+
     threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
 
     snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
               nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
 
-    return MI
+    return pCond
 
 
 
@@ -89,7 +92,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 0.7, \
+        temperature     = 1.0, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -107,7 +110,7 @@ if __name__ == '__main__':
         burninSteps  = 10, \
         nStepsRegress   = int(1e3), \
         nStepsCorr      = int(1e4), \
-        thresholdReg    = 0.05, \
+        thresholdReg    = 0.1, \
         thresholdCorr   = 0.01
     )
     IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
@@ -124,7 +127,6 @@ if __name__ == '__main__':
         nInitialConfigs = 10, \
         burninSteps  = mixingTime, \
         nStepsCorr      = int(1e4), \
-        thresholdCorr   = 0.01, \
         checkMixing     = 0, \
         node            = node
     )
@@ -132,7 +134,7 @@ if __name__ == '__main__':
 
 
     # collect neighbourhood snapshots
-    nSnapshots = 100
+    nSnapshots = 50
     snapshotSettingsCond = dict( \
         nSamples    = nSnapshots, \
         burninSamples = mixingTime, \
@@ -144,23 +146,35 @@ if __name__ == '__main__':
 
 
     snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
+
     #state = list(snapshots[maxDist-1].keys())[0]
     #mixingTime, meanMag, distSamples, _ = infcy.determineCorrTime(model, **corrTimeSettings)
     #print(f'correlation time = {distSamples}')
     #print(f'mixing time      = {mixingTime}')
 
-    nTrials = 10
+    nTrials = 1 # 10
     nSamples = 1000
-    reps = 5
-    dist = 3
+    reps = 10
 
-    for distSamples in np.logspace(0, 3, 7).astype(int):
-        print(f'------------- distSamples = {distSamples} -------------')
-        MIs = np.zeros(reps)
-        for rep in range(reps):
-            snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
-            MIs[rep] = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, distSamples)
-        np.save(f'{targetDirectory}/MI_cond_T={model.t}_distSamples={distSamples}.npy', np.array(MIs))
+    thresholds = np.linspace(0.9, 0.01, 10)
+    np.save(f'{targetDirectory}/corrThresholds.npy', np.array(thresholds))
+
+    #for dist in [1, 2, 3, 4]:
+    for dist in [5,6]:
+
+        numStates = len(snapshots[dist-1])
+
+        #distances = np.logspace(0,3,13).astype(int)
+
+        p = np.zeros((thresholds.size, reps, numStates))
+
+        for i, t in enumerate(thresholds):
+            print(f'------------- threshold = {t} -------------')
+
+            for rep in range(reps):
+                #snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
+                p[i, rep,:] = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, t)[:,0]
+            np.save(f'{targetDirectory}/p_cond_T={model.t}_d={dist}.npy', np.array(p))
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 
