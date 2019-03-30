@@ -55,11 +55,11 @@ def create_powerlaw_graph(N, gamma=1.6, path=None):
     if path is not None: nx.write_gpickle(graph,
                 f'{path}/scaleFree_gamma={gamma}_N={N}.gpickle')
 
-def create_2D_grid(L, path=None):
+def create_2D_grid(L, path=None, version=''):
 
     graph = nx.grid_2d_graph(L, L, periodic=True)
     if path is not None: nx.write_gpickle(graph,
-                f'{path}/2D_grid_L={L}.gpickle', 2)
+                f'{path}/2D_grid_L={L}{version}.gpickle', 2)
 
 
 
@@ -99,12 +99,19 @@ if __name__ == '__main__':
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
     """
 
+    targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
+    os.makedirs(targetDirectory, exist_ok=True)
+    create_2D_grid(10, targetDirectory, '_v0')
+    create_2D_grid(50, targetDirectory, '_v0')
+    create_2D_grid(100, targetDirectory, '_v0')
+
+    """
     targetDirectory = f'{os.getcwd()}/networkData/ER'
     for N in [250, 500, 750, 1000]:
         for k in [1.5, 2.0, 2.5, 3.0, 3.5, 4.0]:
             for i in range(10):
                 create_erdos_renyi_graph(N, k, targetDirectory, f'_v{i}')
-
+    """
     #graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.5_N=500.gpickle')
     #print(graph.degree)
 

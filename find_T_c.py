@@ -14,7 +14,7 @@ import timeit
 from matplotlib.pyplot import *
 from numpy import *
 from tqdm import tqdm
-from scipy import sparse
+from scipy import optimize
 import glob
 close('all')
 
@@ -34,11 +34,14 @@ def find_Tc(sus, temps, n=10, f=1):
 if __name__ == '__main__':
 
     network_path = sys.argv[1] # e.g. 'ER/ER_k=2.5_N=500'
-    ensemble_size = len([g for g in glob.iglob(f'networkData/{network_path}*.gpickle')])
-    #ensemble_size = 10
-    all_Tc = np.zeros(ensemble_size)
+    print(network_path)
 
-    temps = linspace(0.5, 4, 10)
+    ensemble = [g for g in glob.iglob(f'networkData/{network_path}*.gpickle')]
+    print(ensemble)
+    #ensemble_size = 10
+    all_Tc = np.zeros(len(ensemble))
+
+    temps = linspace(0.1, 4, 500)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
@@ -56,9 +59,10 @@ if __name__ == '__main__':
     IO.saveSettings(targetDirectory, settings)
 
     #for file in glob.iglob(f'networkData/{network_path}*.gpickle'):
-    for i in range(ensemble_size):
-        file = f'networkData/{network_path}_v{i}.gpickle'
-        graph = nx.read_gpickle(file)
+    for i, g in enumerate(ensemble):
+        #file = f'networkData/{network_path}_v{i}.gpickle'
+        graph = nx.read_gpickle(g)
+        filename = os.path.split(g)[-1].strip('.gpickle')
 
         modelSettings = dict(\
                              graph       = graph,\
@@ -77,7 +81,16 @@ if __name__ == '__main__':
         #np.save(f'{targetDirectory}/susceptibility_v{i}.npy', sus)
         #np.save(f'{targetDirectory}/binder_v{i}.npy', binder)
 
-        Tc = find_Tc(sus, temps)
+        func = lambda x, a, b, c:  a / (1 + np.exp(b * (x - c)))
+        try:
+            params, _ = optimize.curve_fit(func, temps, binder, p0=[0.7, 5., 2.])
+            idx = np.where(func(temps, *params) < params[0] - 0.05)[0][0]
+            T_c_estimate = temps[idx]
+            idx = np.where(np.abs(temps - T_c_estimate) < 0.5)
+
+            Tc = find_Tc(sus[idx], temps[idx])
+        except:
+            Tc = np.nan
         print(Tc)
         all_Tc[i] = Tc
 
@@ -87,7 +100,7 @@ if __name__ == '__main__':
                 susceptibility = sus, \
                 binder = binder, \
                 Tc = Tc)
-        IO.savePickle(f'{targetDirectory}/results_v{i}.pickle', tmp)
+        IO.savePickle(os.path.join(targetDirectory, f'results_{filename}.pickle'), tmp)
 
         #fig, ax = subplots(figsize=(10,6))
         #ax.scatter(temps, mag, alpha = .2, label='magnetization')

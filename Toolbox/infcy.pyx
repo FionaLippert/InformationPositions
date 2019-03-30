@@ -538,7 +538,9 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long rep
         long nNodes = nodes.shape[0]
         long[::1] nodesIdx = np.zeros(nNodes, 'int')
 
-        vector[vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots = vector[vector[unordered_map[int, unordered_map[int, double]]]](nNodes)
+        #vector[vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots = vector[vector[unordered_map[int, unordered_map[int, double]]]](nNodes)
+        long[:,:,:,::1] avgSnapshots = np.zeros((nNodes, maxDist, model.agentStates.shape[0], nBins), int)
+        unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
 
         long d, i, b, sample, rep, n
@@ -554,9 +556,12 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long rep
         #double KL_d
         double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
 
+    for idx in range(model.agentStates.shape[0]):
+        idxer[model.agentStates[idx]] = idx
+
 
     for n in range(nNodes):
-        avgSnapshots[n] = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+        #avgSnapshots[n] = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
         nodesIdx[n] = model.mapping[nodes[n]]
         neighboursIdx[n] = model.neighboursAtDist(nodesIdx[n], maxDist)[1]
 
@@ -585,7 +590,8 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodes, long rep
                 nodeSpin = (<Model> modelptr)._states[nodesIdx[n]]
                 for d in range(maxDist):
                     avg = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
-                    avgSnapshots[n][d][nodeSpin][avg] +=1
+                    #avgSnapshots[n][d][nodeSpin][avg] +=1
+                    avgSnapshots[n][d][idxer[nodeSpin]][avg] +=1
 
     return avgSnapshots, Z
 
