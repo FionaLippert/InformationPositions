@@ -28,12 +28,10 @@ parser.add_argument('--bins', type=int, default=10, help='number of bins for ave
 
 def computeMI_joint(jointSnapshots, maxDist, Z):
     MIs = []
-    for d in tqdm(range(maxDist)):
-        P_XY = np.array(sorted([v/Z for s in jointSnapshots[d].keys() for v in jointSnapshots[d][s].values()]))
-        P_X = np.array([sum(list(dict_s.values()))/Z for dict_s in jointSnapshots[d].values()])
-        all_keys = set.union(*[set(dict_s.keys()) for dict_s in jointSnapshots[d].values()])
-        P_Y = np.array([jointSnapshots[d][1][k]/Z if k in jointSnapshots[d][1] else 0 for k in all_keys]) + \
-                np.array([jointSnapshots[d][-1][k]/Z if k in jointSnapshots[d][-1] else 0 for k in all_keys])
+    for d in range(maxDist):
+        P_XY = jointSnapshots[d].flatten()/Z
+        P_X = np.sum(jointSnapshots[d], axis=1)/Z # sum over all bins
+        P_Y = np.sum(jointSnapshots[d], axis=0)/Z # sum over all spin states
 
         #print(P_XY, P_Y, P_X)
 
