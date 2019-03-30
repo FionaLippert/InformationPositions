@@ -82,7 +82,7 @@ if __name__ == '__main__':
     try:
         mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
         corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
-        burninSteps = mixingResulst['burninSteps']
+        burninSteps = mixingResults['burninSteps']
         distSamples = mixingResults['distSamples']
 
     except:
