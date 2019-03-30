@@ -461,12 +461,15 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
     cdef:
         vector[unordered_map[int, unordered_map[string, double]]] snapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
         #vector[unordered_map[int, unordered_map[string, double]]] oldSnapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
-        vector[unordered_map[int, unordered_map[int, double]]] avgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+        #vector[unordered_map[int, unordered_map[int, double]]] avgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
         #vector[unordered_map[int, unordered_map[int, double]]] oldAvgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
 
         #unordered_map[int, vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots
 
+        long[:,:,::1] avgSnapshots = np.zeros((maxDist, model.agentStates.shape[0], nBins), int)
+        unordered_map[int, int] idxer
 
+        int idx
         long d, i, b, sample, rep
         double Z       = 0#= <double> nSamples
         #double part = 1/Z
@@ -483,6 +486,9 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
         #unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
 
     #print(bins)
+
+    for idx in range(model.agentStates.shape[0]):
+        idxer[model.agentStates[idx]] = idx
 
     node = model.mapping[node]
 
@@ -511,10 +517,11 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long node, unordered_map[long
                 #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
                 #snapshots[d][nodeSpin][state] += 1
                 avg = (<Model> modelptr).encodeStateToAvg(allNeighbours_idx[d+1], bins)
-                avgSnapshots[d][nodeSpin][avg] +=1
+                #avgSnapshots[d][nodeSpin][avg] +=1
+                avgSnapshots[d][idxer[nodeSpin]][avg] += 1
                 #with gil: print(rep, avgSnapshots[d])
 
-    return snapshots, avgSnapshots
+    return snapshots, avgSnapshots.base
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
