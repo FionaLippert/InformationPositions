@@ -57,9 +57,16 @@ def create_powerlaw_graph(N, gamma=1.6, path=None):
 
 def create_2D_grid(L, path=None, version=''):
 
-    graph = nx.grid_2d_graph(L, L, periodic=True)
+    G = nx.grid_2d_graph(L, L, periodic=True)
+    mapping = {n : idx for idx, n in enumerate(list(G))}
+    edges = [(mapping[e[0]], mapping[e[1]]) for e in G.edges]
+
+    graph = nx.Graph()
+    graph.add_nodes_from(list(mapping.values()))
+    graph.add_edges_from(edges)
     if path is not None: nx.write_gpickle(graph,
                 f'{path}/2D_grid_L={L}{version}.gpickle', 2)
+    return graph
 
 
 
@@ -101,9 +108,10 @@ if __name__ == '__main__':
 
     targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
     os.makedirs(targetDirectory, exist_ok=True)
-    create_2D_grid(10, targetDirectory, '_v0')
-    create_2D_grid(50, targetDirectory, '_v0')
-    create_2D_grid(100, targetDirectory, '_v0')
+    create_2D_grid(10, targetDirectory)
+    create_2D_grid(50, targetDirectory)
+    create_2D_grid(100, targetDirectory)
+
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'
