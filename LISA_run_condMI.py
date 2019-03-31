@@ -151,7 +151,7 @@ if __name__ == '__main__':
         """
 
 
-    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
     
     
     """
@@ -179,10 +179,10 @@ if __name__ == '__main__':
     )
     IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
 
-    snapshots, neighbours_idx = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
+    #snapshots, neighbours_idx = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=nthreads)
 
-    with open(f'{targetDirectory}/snapshots_node={node}_nSamples={nSnapshots}.pickle', 'wb') as f:
-        pickle.dump(snapshots, f)
+    #with open(f'{targetDirectory}/snapshots_node={node}_nSamples={nSnapshots}.pickle', 'wb') as f:
+    #    pickle.dump(snapshots, f)
     with open(f'{targetDirectory}/neighboursG_node={node}.pickle', 'wb') as f:
         pickle.dump(allNeighbours_G, f)
     """
@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
     for i in range(args.runs):
         threads = nthreads if len(model.graph) > 20 else 1
-        snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=threads)
+        snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads)
         #with open(f'{targetDirectory}/snapshots_node={node}_nSamples={nSnapshots}_{i}.pickle', 'wb') as f:
         #    pickle.dump(snapshots, f)
         MI = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, maxCorrTime=args.maxCorrTime)

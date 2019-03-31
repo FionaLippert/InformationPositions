@@ -24,6 +24,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--maxcorrtime', type=int, default=5000, help='max correlation time to be used as sample distance')
 parser.add_argument('--maxmixing', type=int, default=5000, help='max mixing time to be used for burn-in samples')
+parser.add_argument('--corrthreshold', type=float, default=0.1, help='threshold for autocorrelation of system magnetization to determine correlation time')
 
 
 
@@ -60,12 +61,12 @@ if __name__ == '__main__':
 
     # determine mixing/correlation time
     mixingTimeSettings = dict( \
-        nInitialConfigs = 10, \
+        nInitialConfigs = 50, \
         burninSteps  = 10, \
         nStepsRegress   = int(1e3), \
         nStepsCorr      = int(1e4), \
         thresholdReg    = 0.1, \
-        thresholdCorr   = 0.01
+        thresholdCorr   = args.corrthreshold
     )
     IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
     mixingTime, meanMag, corrTime, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
@@ -88,12 +89,12 @@ if __name__ == '__main__':
     #for key, values in mags.items():
     #    np.save(f'{targetDirectory}/magSeries_{key}.npy', np.array(values))
 
-
+    # settings to be used for fixed neighbours MC approach
     corrTimeSettings = dict( \
         nInitialConfigs = 10, \
         burninSteps  = burninSteps, \
         nStepsCorr      = int(1e4), \
-        thresholdCorr   = 0.01, \
+        thresholdCorr   = 0.1, \
         checkMixing     = 0
     )
     IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')

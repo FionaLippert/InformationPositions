@@ -124,7 +124,7 @@ if __name__ == '__main__':
         IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')
         """
 
-    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
     
     
     snapshotSettingsJoint = dict( \
@@ -144,9 +144,9 @@ if __name__ == '__main__':
 
     for r in range(args.runs):
 
-        jointSnapshots, avgSnapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsJoint, threads=nthreads)
+        avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         #print(f'Z={Z}')
-        Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
+        #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 
         #with open(f'{targetDirectory}/jointSnapshots_node={node}.pickle', 'wb') as f:
         #    pickle.dump(jointSnapshots, f)

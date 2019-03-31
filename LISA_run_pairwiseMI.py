@@ -116,7 +116,7 @@ if __name__ == '__main__':
         """
 
 
-    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
     
     
     pairwiseMISettings = dict( \
