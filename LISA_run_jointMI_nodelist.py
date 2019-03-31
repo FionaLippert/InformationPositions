@@ -143,7 +143,7 @@ if __name__ == '__main__':
 
     for r in range(args.runs):
 
-        avgSnapshots, Z = infcy.getJointSnapshotsPerDistNodes(model, nodes, **snapshotSettingsJoint, threads=nthreads)
+        avgSnapshots, Z, neighbours_G = infcy.getJointSnapshotsPerDistNodes(model, nodes, **snapshotSettingsJoint, threads=nthreads)
         #print(f'Z={Z}')
         #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 
