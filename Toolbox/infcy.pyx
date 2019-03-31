@@ -1401,8 +1401,8 @@ cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef tuple runMI(Model model, long repeats, long burninSamples, long nSamples, \
-                  long distSamples, np.ndarray nodesG, int distMax, \
+cpdef tuple runMI(Model model, np.ndarray nodesG, long repeats=10, long burninSamples=100, long nSamples=100, \
+                  long distSamples=100, int distMax=1, \
                   double magThreshold=0, int threads = -1):
 
     cdef:

@@ -131,7 +131,7 @@ if __name__ == '__main__':
     #if not os.path.isdir(result_dir): os.mkdir(result_dir)
     
     for i in range(args.runs):
-        _, MI, corr, degrees = infcy.runMI(model, nodes = nodes, **pairwiseMISettings)
+        _, MI, corr = infcy.runMI(model, nodes, **pairwiseMISettings)
         MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
         print(MIs_pairwise)
         #np.save(f'{targetDirectory}/MI_pairwise_T={model.t}.npy', MIs_pairwise[0])
