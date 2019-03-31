@@ -47,10 +47,10 @@ def computeMI_joint_array(jointSnapshots, maxDist, Z):
 
 
 
-def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, threshold):
+def computeMI_cond(model, nodeIdx, dist, neighbours_G, neighbours_idx, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, threshold):
     MIs = []
     corrTimes = []
-    subgraph_nodes = [node]
+    subgraph_nodes = [model.rmapping[nodeIdx]]
     for d in range(1, dist+1):
         # get subgraph and outer neighbourhood at distance d
         if d in neighbours_G.keys():
@@ -69,7 +69,7 @@ def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples
 
     threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
 
-    snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
+    snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, nodeIdx, neighbours_idx[dist], snapshots[dist-1], \
               nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
 
     return pCond
@@ -92,11 +92,12 @@ if __name__ == '__main__':
     maxDist = 6
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(z,maxDist, create_using=graph)
-    graph = nx.balanced_tree(2,6)
-    path = f'nx.balanced_tree({z},{maxDist})'
+    #graph = nx.balanced_tree(2,6)
+    #path = f'nx.balanced_tree({z},{maxDist})'
 
     #path = f'{os.getcwd()}/networkData/ER_k=2.5_N=100.gpickle'
-    #graph = nx.read_gpickle(path)
+    path = f'{os.getcwd()}/networkData/2D_grid/2D_grid_L=10_v0.gpickle'
+    graph = nx.read_gpickle(path)
 
 
     N = len(graph)
@@ -119,7 +120,7 @@ if __name__ == '__main__':
 
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
-        temperature     = 0.75, \
+        temperature     = 2.2, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -127,8 +128,10 @@ if __name__ == '__main__':
     model = fastIsing.Ising(graph, **modelSettings)
 
     # central node and its neighbour shells
-    node = list(graph)[0]
-    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
+    #node = list(graph)[0]
+    node = 0
+    #allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(model.mapping[node], maxDist)
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(0, maxDist)
 
 
     if sys.argv[1] == 'cond':
@@ -155,10 +158,10 @@ if __name__ == '__main__':
 
         corrTimeSettings = dict( \
             nInitialConfigs = 10, \
-            burninSteps  = mixingTime, \
+            burninSteps     = mixingTime, \
             nStepsCorr      = int(1e4), \
             checkMixing     = 0, \
-            node            = node
+            nodeIdx         = nodeIdx
         )
         IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')
 
@@ -197,7 +200,7 @@ if __name__ == '__main__':
 
                 for rep in range(reps):
                     #snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
-                    p[i, rep,:] = computeMI_cond(model, node, dist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, t)[:,0]
+                    p[i, rep,:] = computeMI_cond(model, node, dist, allNeighbours_G, allNeighbours_idx, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, t)[:,0]
                 np.save(f'{targetDirectory}/p_cond_T={model.t}_d={dist}.npy', np.array(p))
 
     elif sys.argv[1] == 'avg':

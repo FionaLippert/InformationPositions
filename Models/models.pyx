@@ -262,30 +262,34 @@ cdef class Model: # see pxd
                 self.agentStates, size = self._nNodes)
 
 
-    cpdef tuple neighboursAtDist(self, long node_idx, int maxDist):
-        assert node_idx < self._nNodes and node_idx >= 0
+    cpdef tuple neighboursAtDist(self, long nodeG, int maxDist):
+        #assert nodeIdx < self._nNodes and nodeIdx >= 0
 
         cdef:
             #long[::1] neighbours
-            unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
+            #unordered_map[long, vector[long]] allNeighbours_G, allNeighbours_idx
+            dict allNeighboursG = {d : [] for d in range(1, maxDist+1)}
+            dict allNeighboursIdx = {d : [] for d in range(1, maxDist+1)}
             int undir = not nx.is_directed(self.graph)
-            long node = self.rmapping[node_idx]
+            #long node = self.rmapping[node_idx]
             #nx.Graph total, inner
             int d
 
-        total = nx.ego_graph(self.graph, node, radius=0, undirected=undir)
+        total = nx.ego_graph(self.graph, nodeG, radius=0, undirected=undir)
 
         for d in range(1, maxDist+1):
             inner = total
-            total = nx.ego_graph(self.graph, node, radius=d, undirected=undir)
+            total = nx.ego_graph(self.graph, nodeG, radius=d, undirected=undir)
             for n in (set(total.nodes()) - set(inner.nodes())):
-                allNeighbours_G[d].push_back(n)
-                allNeighbours_idx[d].push_back(self.mapping[n])
+                #allNeighbours_G[d].push_back(n)
+                allNeighboursG[d].append(n)
+                allNeighboursIdx[d].append(self.mapping[n])
+                #allNeighbours_idx[d].push_back(self.mapping[n])
             #allNeighbours[d] = np.array([self.mapping[n] for n in (set(total.nodes()) - set(inner.nodes()))], dtype=np.intc)
             #allNeighbours[d].push_back(neighbours)
         #print("neighbors: {}".format(neighbors))
 
-        return allNeighbours_G, allNeighbours_idx
+        return allNeighboursG, allNeighboursIdx
 
 
     def removeAllNudges(self):
@@ -489,6 +493,8 @@ cdef class Model: # see pxd
         """
         self._fixedNodes[:] =  0
         #if isinstance(nodes, vector[int]): # TODO make this more general. Any type of list, array etc could be passed as long as elements are integers
+        #print(self._fixedNodes.shape[0])
+        #print(nodes)
         for n in nodes:
             self._fixedNodes[n] = 1
         #else:
