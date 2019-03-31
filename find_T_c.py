@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     temps = linspace(0.1, 4, 500)
     nSamples      = int(1e4) #int(1e6)
-    burninSamples = int(1e4) # int(1e6)
+    burninSamples = int(1e3) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
 
@@ -82,15 +82,19 @@ if __name__ == '__main__':
         #np.save(f'{targetDirectory}/binder_v{i}.npy', binder)
 
         func = lambda x, a, b, c:  a / (1 + np.exp(b * (x - c)))
-        try:
-            params, _ = optimize.curve_fit(func, temps, binder, p0=[0.7, 5., 2.])
-            idx = np.where(func(temps, *params) < params[0] - 0.05)[0][0]
-            T_c_estimate = temps[idx]
-            idx = np.where(np.abs(temps - T_c_estimate) < 0.5)
+        #try:
+        binder_finite = binder
+        binder_finite[np.where(~np.isfinite(binder_finite))] = np.nanmean(binder_finite)
+        binder_finite[np.where(binder_finite<0)] = np.nanmean(binder_finite)
+        params, _ = optimize.curve_fit(func, temps, binder, p0=[0.7, 5., 2.])
+        idx = np.where(func(temps, *params) < params[0] - params[0]/10.)[0][0]
+        T_c_estimate = temps[idx]
+        idx = np.where(np.abs(temps - T_c_estimate) < 0.5)
+        print(idx)
 
-            Tc = find_Tc(sus[idx], temps[idx])
-        except:
-            Tc = np.nan
+        Tc = find_Tc(sus[idx], temps[idx])
+        #except:
+        #    Tc = np.nan
         print(Tc)
         all_Tc[i] = Tc
 
@@ -100,7 +104,11 @@ if __name__ == '__main__':
                 susceptibility = sus, \
                 binder = binder, \
                 Tc = Tc)
-        IO.savePickle(os.path.join(targetDirectory, f'results_{filename}.pickle'), tmp)
+        IO.savePickle(os.path.join(targetDirectory, f'{filename}_results.pickle'), tmp)
+
+        with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
+            f.write(f'{Tc:.2f}')
+
 
         #fig, ax = subplots(figsize=(10,6))
         #ax.scatter(temps, mag, alpha = .2, label='magnetization')
@@ -112,7 +120,7 @@ if __name__ == '__main__':
         #savefig(f'{targetDirectory}/temp_vs_mag.png')
 
     with open(f'{targetDirectory}/avg_Tc.txt', 'w') as f:
-        f.write(f'{np.mean(all_Tc):.2f}')
+        f.write(f'{np.nanmean(all_Tc):.2f}')
 
     np.save(f'{targetDirectory}/all_Tc.npy', all_Tc)
 
