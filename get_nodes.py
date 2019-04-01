@@ -14,4 +14,5 @@ for filepath in glob.iglob('networkData/ER/*.gpickle'):
     #np.save(path + '_nodes.npy', np.array(nodes))
 
     with open(path + '_sample_nodes.txt', 'w') as f:
-        f.write(f'{nodes[0]} {nodes[1]}')
+        for i in range(2):
+            f.write(f'{nodes[i]}\n')
