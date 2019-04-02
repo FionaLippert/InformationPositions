@@ -74,10 +74,15 @@ def create_2D_grid(L, path=None, version=''):
 if __name__ == '__main__':
 
     now = time.time()
-    targetDirectory = f'{os.getcwd()}/networkData'
+    targetDirectory = f'{os.getcwd()}/networkData/trees'
+    os.makedirs(targetDirectory, exist_ok=True)
 
     #undirected_2 = create_undirected_tree(2, 10, targetDirectory)
     #undirected_3 = create_undirected_tree(3, 10, targetDirectory)
+
+    undirected_2 = create_undirected_tree(2, 8, targetDirectory)
+    undirected_3 = create_undirected_tree(3, 8, targetDirectory)
+    undirected_4 = create_undirected_tree(4, 8, targetDirectory)
 
     """
     undirected_2 = create_undirected_tree(2, 6, targetDirectory)
