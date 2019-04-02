@@ -44,7 +44,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph_nodes)}, num states = {len(snapshots[d-1])} -----------------------')
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
                 # determine correlation time for subgraph Ising model
-                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
+                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, nodeG=node, **corrTimeSettings)
                 #distSamples_subgraph = max(distSamples_subgraph, 10)
                 if maxCorrTime > 0: distSamples_subgraph = min(distSamples_subgraph, maxCorrTime)
                 print(f'correlation time = {distSamples_subgraph}')

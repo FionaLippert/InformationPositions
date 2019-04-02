@@ -44,6 +44,8 @@ def computeMI_joint(jointSnapshots, maxDist, Z):
 
 if __name__ == '__main__':
 
+    print("starting with average neighbour MI approach")
+
     start = timer()
 
     args = parser.parse_args()
@@ -127,8 +129,8 @@ if __name__ == '__main__':
     
     
     snapshotSettingsJoint = dict( \
-        nSamples    = int(1e3), \
-        repeats     = int(1e2), \
+        nSamples    = int(1e4), \
+        repeats     = int(1e1), \
         burninSamples = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist, \
@@ -147,8 +149,8 @@ if __name__ == '__main__':
         #print(f'Z={Z}')
         #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
 
-        #with open(f'{targetDirectory}/jointSnapshots_node={node}.pickle', 'wb') as f:
-        #    pickle.dump(jointSnapshots, f)
+        #with open(f'{targetDirectory}/neighbours.pickle', 'wb') as f:
+        #    pickle.dump(neighbours_G, f)
         #with open(f'{targetDirectory}/avgSnapshots_node={node}.pickle', 'wb') as f:
         #    pickle.dump(avgSnapshots, f)
     
@@ -160,6 +162,9 @@ if __name__ == '__main__':
         np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
         #print(MIs)
         #print(MIs_avg)
+
+    with open(f'{targetDirectory}/neighbours.pickle', 'wb') as f:
+        pickle.dump(neighbours_G, f)
     
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

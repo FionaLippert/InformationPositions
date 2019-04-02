@@ -122,7 +122,7 @@ if __name__ == '__main__':
     pairwiseMISettings = dict( \
         repeats    = 10, \
         burninSamples = burninSteps, \
-        nSamples     = int(1e3), \
+        nSamples     = int(1e4), \
         distSamples   = distSamples, \
         distMax = maxDist
     )

@@ -30,6 +30,8 @@ parser.add_argument('--runs', type=int, default=1, help='number of repetitive ru
 
 if __name__ == '__main__':
 
+    print("starting with pairwise MI approach")
+
     start = timer()
 
     args = parser.parse_args()
@@ -121,7 +123,7 @@ if __name__ == '__main__':
     pairwiseMISettings = dict( \
         repeats    = 10, \
         burninSamples = burninSteps, \
-        nSamples     = int(1e3), \
+        nSamples     = int(1e4), \
         distSamples   = distSamples, \
         distMax = maxDist
     )
@@ -139,6 +141,8 @@ if __name__ == '__main__':
         now = time.time()
         np.save(f'{targetDirectory}/MI_pairwise_{now}.npy', MI)
         np.save(f'{targetDirectory}/corr_pairwise_{now}.npy', corr)
+
+
     
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

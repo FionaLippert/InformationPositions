@@ -128,8 +128,8 @@ if __name__ == '__main__':
     
     
     snapshotSettingsJoint = dict( \
-        nSamples    = int(1e3), \
-        repeats     = int(1e2), \
+        nSamples    = int(1e4), \
+        repeats     = int(1e1), \
         burninSamples = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist, \
