@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     temps = linspace(0.1, 4, 500)
     nSamples      = int(1e4) #int(1e6)
-    burninSamples = int(1e3) # int(1e6)
+    burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
 
@@ -83,10 +83,9 @@ if __name__ == '__main__':
 
         func = lambda x, a, b, c:  a / (1 + np.exp(b * (x - c)))
         #try:
-        binder_finite = binder
-        binder_finite[np.where(~np.isfinite(binder_finite))] = np.nanmean(binder_finite)
-        binder_finite[np.where(binder_finite<0)] = np.nanmean(binder_finite)
-        params, _ = optimize.curve_fit(func, temps, binder, p0=[0.7, 5., 2.])
+        binder[np.where(binder < 0)] = np.nan
+        valid = np.where(np.isfinite(binder))
+        params, _ = optimize.curve_fit(func, temps[valid], binder[valid], p0=[0.7, 5., 2.])
         idx = np.where(func(temps, *params) < params[0] - params[0]/10.)[0][0]
         T_c_estimate = temps[idx]
         idx = np.where(np.abs(temps - T_c_estimate) < 0.5)
