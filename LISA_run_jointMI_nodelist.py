@@ -22,7 +22,7 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('nodes', type=str, help='path to numpy array of node IDs')
-parser.add_argument('maxD', type=int, help='max distance to central node')
+parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
 parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
 
@@ -53,10 +53,14 @@ if __name__ == '__main__':
     T = args.T
     targetDirectory = args.dir
 
-    # load network
-    maxDist = args.maxD
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
+
+    # load network
+    if args.maxDist > 0:
+        maxDist = args.maxDist
+    else:
+        maxDist = nx.diameter(graph)
     
     nodes = np.load(args.nodes)
     #deg = graph.degree[node]
