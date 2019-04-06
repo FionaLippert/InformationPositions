@@ -44,14 +44,17 @@ def computeMI_cond(model, node, minDist, maxDist, neighboursG, snapshots, nTrial
 
             if d >= minDist:
                 print(f'------------------- distance d={d}, num neighbours = {len(neighboursG[d])}, num states = {len(snapshots[d-1])}, size subgraph = {len(subgraph)} -----------------------')
+                print(neighboursG[d])
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
                 # determine correlation time for subgraph Ising model
                 mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
+                distSamples_subgraph = min(distSamples_subgraph, 100)
 
-                _, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
+                _, probs, MI = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7)
+                #print(probs)
                 MIs.append(MI)
     return MIs
 
@@ -60,14 +63,16 @@ def computeMI_cond(model, node, minDist, maxDist, neighboursG, snapshots, nTrial
 if __name__ == '__main__':
 
     # create data directory
-    #now = time.time()
-    #targetDirectory = f'{os.getcwd()}/Data/{now}'
-    #os.mkdir(targetDirectory)
+    now = time.time()
+    targetDirectory = f'{os.getcwd()}/Data/{now}'
+    os.mkdir(targetDirectory)
     #print(targetDirectory)
 
     # load network
     graph_path = "networkData/ER_avgDeg=1.5_N=100.gpickle"
+    graph_path = "networkData/2D_grid/2D_grid_L=60.gpickle"
     graph = nx.read_gpickle(graph_path)
+    #graph = nx.path_graph(50)
     #graph = nx.DiGraph()
     #graph = nx.balanced_tree(2,3, create_using=graph)
     #graph.add_edge(2,4)
@@ -79,7 +84,7 @@ if __name__ == '__main__':
     #diameter = nx.diameter(graph)
     #print("diameter = {}".format(diameter))
 
-    maxDist = 2
+    maxDist = 30
 
     networkSettings = dict( \
         path = graph_path, \
@@ -90,7 +95,7 @@ if __name__ == '__main__':
     # setup Ising model with nNodes spin flip attempts per simulation step
     # set temp to np.infty --> completely random
     modelSettings = dict( \
-        temperature     = 2.0, \
+        temperature     = 2.3, \
         updateType      = 'async' ,\
         magSide         = ''
     )
@@ -142,17 +147,18 @@ if __name__ == '__main__':
     """
     one node
     """
-    avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7)
-    MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
-    print(MIs_avg)
+
+    #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7)
+    #MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
+    #print(MIs_avg)
 
     """
     all nodes
     """
-    avgSnapshotsAllNodes, Z, neighboursGAllNodes = infcy.getJointSnapshotsPerDistNodes(model, np.array(list(graph)), **snapshotSettingsJoint, threads=7)
-    for n in range(avgSnapshotsAllNodes.shape[0]):
-        MIs_avg = computeMI_joint(avgSnapshotsAllNodes[n], maxDist, Z)
-        print(MIs_avg)
+    #avgSnapshotsAllNodes, Z, neighboursGAllNodes = infcy.getJointSnapshotsPerDistNodes(model, np.array(list(graph)), **snapshotSettingsJoint, threads=7)
+    #for n in range(avgSnapshotsAllNodes.shape[0]):
+#        MIs_avg = computeMI_joint(avgSnapshotsAllNodes[n], maxDist, Z)
+#        print(MIs_avg)
 
 
     """
@@ -166,18 +172,21 @@ if __name__ == '__main__':
         maxDist     = maxDist
     )
     minDist = 1
-    nTrials = 100
-    nSamples = int(1e2)
+    maxDist = 30
+    nTrials = 1
+    nSamples = int(1e3)
 
     """
     for one node
     """
-    snapshots, neighbours_idx = infcy.getSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsCond, threads=7)
+    snapshots, neighbours_idx, spins = infcy.getSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsCond, threads=7)
+    np.save(f'{targetDirectory}/states.npy', spins)
     MIs = computeMI_cond(model, node, minDist, maxDist, allNeighboursG, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
     print(MIs)
 
     """
     for all nodes
+    """
     """
     allNodes = np.array(list(graph))
     snapshotsAllNodes, neighboursGAllNodes = infcy.getSnapshotsPerDistNodes(model, allNodes, **snapshotSettingsCond, threads=7)
@@ -193,3 +202,4 @@ if __name__ == '__main__':
         )
         MIs = computeMI_cond(model, node, minDist, maxDist, neighboursGAllNodes[n], snapshotsAllNodes[n], nTrials, nSamples, modelSettings, corrTimeSettings)
         print(MIs)
+    """
