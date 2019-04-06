@@ -350,6 +350,7 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, unordered_map[long, ve
         int tid, nodeSpin
         int nThreads = mp.cpu_count() if threads == -1 else threads
         double mse = 1, KL = 1
+        long[:, ::1] spins = np.zeros((nSamples, model._nNodes), int)
 
         #unordered_map[long, vector[long]] allNeighbours_G
         unordered_map[long, vector[long]] allNeighboursIdx
@@ -386,8 +387,10 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, unordered_map[long, ve
             with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
             snapshots[d][state] += part #part # each index corresponds to one system state, the array contains the probability of each state
 
+        spins[sample] = (<Model>modelptr)._states
 
-    return snapshots, allNeighboursIdx #, allNeighbours_G, allNeighbours_idx
+
+    return snapshots, allNeighboursIdx, spins.base #, allNeighbours_G, allNeighbours_idx
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -781,6 +784,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
         for sample in range(nSamples):
             model.simulateNSteps(distSamples)
             nodeState = model._states[nodeIdx]
+            #with gil: print([model._states[n] for n in neighboursIdx])
 
             #with gil: print(nodeState, model._states[neighbours[0]])
             #probCond[nodeState] += part

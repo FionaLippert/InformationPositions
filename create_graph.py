@@ -73,17 +73,17 @@ def create_2D_grid(L, path=None, version=''):
 
 if __name__ == '__main__':
 
-    now = time.time()
-    targetDirectory = f'{os.getcwd()}/networkData/trees'
-    os.makedirs(targetDirectory, exist_ok=True)
+    #now = time.time()
+    #targetDirectory = f'{os.getcwd()}/networkData/trees'
+    #os.makedirs(targetDirectory, exist_ok=True)
 
     #undirected_2 = create_undirected_tree(2, 10, targetDirectory)
     #undirected_3 = create_undirected_tree(3, 10, targetDirectory)
-
+    """
     undirected_2 = create_undirected_tree(2, 8, targetDirectory)
     undirected_3 = create_undirected_tree(3, 8, targetDirectory)
     undirected_4 = create_undirected_tree(4, 8, targetDirectory)
-
+    """
     """
     undirected_2 = create_undirected_tree(2, 6, targetDirectory)
     undirected_3 = create_undirected_tree(3, 6, targetDirectory)
@@ -110,13 +110,18 @@ if __name__ == '__main__':
     ER_N500_k25 = create_erdos_renyi_graph(500, 2.5, targetDirectory)
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
     """
-    """
+
     targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
     os.makedirs(targetDirectory, exist_ok=True)
-    create_2D_grid(10, targetDirectory)
-    create_2D_grid(50, targetDirectory)
-    create_2D_grid(100, targetDirectory)
-    """
+    #create_2D_grid(10, targetDirectory)
+    #create_2D_grid(20, targetDirectory)
+    #create_2D_grid(30, targetDirectory)
+    create_2D_grid(32, targetDirectory)
+    #create_2D_grid(40, targetDirectory)
+    #create_2D_grid(50, targetDirectory)
+    #create_2D_grid(100, targetDirectory)
+    #create_2D_grid(60, targetDirectory)
+
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'
