@@ -23,7 +23,7 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('nodes', type=str, help='path to numpy array of node IDs')
-parser.add_argument('maxDist', type=int, help='max distance to central node')
+parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     T = args.T
     targetDirectory = args.dir
-    maxDist = args.maxDist
+    #maxDist = args.maxDist
 
     # load network
     #z = 2
@@ -50,6 +50,11 @@ if __name__ == '__main__':
     N = len(graph)
     nodes = np.load(args.nodes)
     #degrees = [graph.degree[n] for n in nodes]
+
+    if args.maxDist > 0:
+        maxDist = args.maxDist
+    else:
+        maxDist = nx.diameter(graph)
 
     #path = f'nx.balanced_tree({z},{maxDist})'
     #path = 'nx.path_graph'
@@ -123,7 +128,7 @@ if __name__ == '__main__':
     pairwiseMISettings = dict( \
         repeats    = 10, \
         burninSamples = burninSteps, \
-        nSamples     = int(1e4), \
+        nSamples     = int(1e3), \
         distSamples   = distSamples, \
         distMax = maxDist
     )
