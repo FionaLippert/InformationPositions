@@ -918,7 +918,7 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
 
     print(f'MI= {MI}, H(X|Y) = {HXgivenY}, H(X) = {entropyFromProbs(pX)}')
 
-    return snapshotsDict, container.base, MI, states.base
+    return snapshotsDict, container.base, MI
 
 """
 cpdef double[::1] runNeighbourhoodMI(Model model, long node, long nSamples, long distSample, int maxDist, \
