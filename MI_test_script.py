@@ -42,19 +42,24 @@ def computeMI_cond(model, node, minDist, maxDist, neighboursG, snapshots, nTrial
             subgraph_nodes.extend(neighboursG[d])
             subgraph = graph.subgraph(subgraph_nodes)
 
+
             if d >= minDist:
                 print(f'------------------- distance d={d}, num neighbours = {len(neighboursG[d])}, num states = {len(snapshots[d-1])}, size subgraph = {len(subgraph)} -----------------------')
                 print(neighboursG[d])
+                #print(list(subgraph))
+                #print(subgraph_nodes)
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
+                #print(model_subgraph.mapping)
                 # determine correlation time for subgraph Ising model
                 mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
                 distSamples_subgraph = min(distSamples_subgraph, 100)
 
-                _, probs, MI = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
+                _, probs, MI, states = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7)
                 #print(probs)
+                np.save(f'{targetDirectory}/states_d={d}.npy', states)
                 MIs.append(MI)
     return MIs
 
@@ -101,7 +106,7 @@ if __name__ == '__main__':
     )
     #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
-    node = list(graph)[0]
+    node = 1230 #list(graph)[0]
     nodeIdx = model.mapping[node]
     allNeighboursG, allNeighboursIdx = model.neighboursAtDist(node, maxDist)
     nNeighbours = np.array([len(allNeighboursG[d]) for d in sorted(allNeighboursG.keys())])
@@ -117,6 +122,7 @@ if __name__ == '__main__':
         thresholdCorr   = 0.1
     )
 
+    print('Determining mixing time...')
     mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
     print(f'correlation time = {distSamples}')
     print(f'mixing time      = {mixingTime}')
@@ -172,7 +178,7 @@ if __name__ == '__main__':
         maxDist     = maxDist
     )
     minDist = 1
-    maxDist = 30
+    maxDist = 16
     nTrials = 1
     nSamples = int(1e3)
 

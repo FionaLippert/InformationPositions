@@ -14,7 +14,7 @@ import timeit
 from matplotlib.pyplot import *
 from numpy import *
 from tqdm import tqdm
-from scipy import optimize
+from scipy import optimize, ndimage
 import glob
 close('all')
 
@@ -29,6 +29,9 @@ def remove_outliers(data, f=1):
 def find_Tc(sus, temps, n=10, f=1):
     idx = np.argsort(sus)[-n:]
     return np.nanmean(remove_outliers(temps[idx], f))
+
+def find_Tc_gaussian(sus, temps, sigma=5):
+    return temps[np.argmax(ndimage.filters.gaussian_filter1d(sus, sigma))]
 
 
 if __name__ == '__main__':
@@ -94,6 +97,8 @@ if __name__ == '__main__':
         Tc = find_Tc(sus[idx], temps[idx])
         #except:
         #    Tc = np.nan
+        print(Tc)
+        Tc = find_Tc_gaussian(sus, temps)
         print(Tc)
         all_Tc[i] = Tc
 

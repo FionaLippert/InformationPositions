@@ -743,6 +743,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
        #vector[double] probCondVec = vector[double](model.agentStates.shape[0], 0)
        long[::1] decodedStates
        long[::1] initialState
+       long[:,::1] sampledStates
 
     for idx in range(model.agentStates.shape[0]):
         idxer[model.agentStates[idx]] = idx
@@ -750,6 +751,8 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
     with gil: decodedStates = np.frombuffer(snapshot).astype(int)
 
     with gil: probCondArr = np.zeros(idxer.size())
+
+    with gil: sampledStates = np.zeros((nSamples, model._nNodes), int)
 
     #for idx in range(length):
     #    n = neighbours[idx]
@@ -793,12 +796,15 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
             #with gil: print(f'after: {probCondArr.base}, {part}')
             #probCondVec[idxer[nodeState]] += part
 
+            sampledStates[sample] = model._states
+
     #print(f"time for sampling = {timer() - past: .2f} sec")
     #model.releaseFixedNodes()
 
     #with gil: print(f'{timer() - past} sec')
 
     return probCondArr
+    #return sampledStates
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -876,7 +882,11 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         double[::1] probs = np.array([snapshots[k] for k in keys])
         double[:,::1] container = np.zeros((keys.size(), model.agentStates.shape[0]))
 
+        long[:,:,::1] states = np.zeros((keys.size(), nSamples, model._nNodes), int)
+
     #print(f'Found {len(snapshots)} states')
+    print(neighboursG)
+    print(list(model.graph))
 
     # fix neighbour states
     #for tid in range(nThreads):
@@ -890,9 +900,13 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         #with gil: past = timer()
         container[idx] = _monteCarloFixedNeighbours((<Model>modelptr), \
                         keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples)
+
+        #states[idx] = _monteCarloFixedNeighbours((<Model>modelptr), \
+        #                keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples)
         #with gil: print(f'{timer() - past} sec')
         #with gil: print(np.fromstring(keys[idx]), container.base[idx])
         HXgiveny = entropyFromProbs(container[idx])
+        #with gil: print(HXgiveny, probs[idx])
         HXgivenY -= probs[idx] * HXgiveny
 
         with gil: pbar.update(1)
@@ -902,9 +916,9 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
     #print(pX.base)
     MI = HXgivenY + entropyFromProbs(pX)
 
-    print(f'MI= {MI}')
+    print(f'MI= {MI}, H(X|Y) = {HXgivenY}, H(X) = {entropyFromProbs(pX)}')
 
-    return snapshotsDict, container.base, MI
+    return snapshotsDict, container.base, MI, states.base
 
 """
 cpdef double[::1] runNeighbourhoodMI(Model model, long node, long nSamples, long distSample, int maxDist, \

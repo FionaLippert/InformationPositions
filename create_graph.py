@@ -34,6 +34,15 @@ def create_cayley_tree(z, depth, path=None):
 
     return graph
 
+def create_regular_graph(N, d, path=None):
+    graph = nx.random_regular_graph(d, N)
+    connected_nodes = max(nx.connected_components(graph), key=len)
+    graph = graph.subgraph(connected_nodes)
+
+    if path is not None: nx.write_gpickle(graph,
+                f'{path}/regular_graph_d={d}_N={N}.gpickle', 2)
+    return graph
+
 
 def create_erdos_renyi_graph(N, avg_deg=2., path=None, version=''):
 
@@ -111,16 +120,22 @@ if __name__ == '__main__':
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
     """
 
-    targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
-    os.makedirs(targetDirectory, exist_ok=True)
+    #targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
+    #os.makedirs(targetDirectory, exist_ok=True)
     #create_2D_grid(10, targetDirectory)
     #create_2D_grid(20, targetDirectory)
     #create_2D_grid(30, targetDirectory)
-    create_2D_grid(32, targetDirectory)
+    #create_2D_grid(32, targetDirectory)
     #create_2D_grid(40, targetDirectory)
     #create_2D_grid(50, targetDirectory)
     #create_2D_grid(100, targetDirectory)
     #create_2D_grid(60, targetDirectory)
+
+    targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
+    os.makedirs(targetDirectory, exist_ok=True)
+    create_regular_graph(1000, 2, targetDirectory)
+    create_regular_graph(1000, 3, targetDirectory)
+    create_regular_graph(1000, 4, targetDirectory)
 
 
     """
