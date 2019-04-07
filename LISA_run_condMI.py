@@ -203,7 +203,7 @@ if __name__ == '__main__':
 
     for i in range(args.runs):
         threads = nthreads if len(model.graph) > 20 else 1
-        snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads)
+        snapshots, _ , _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads)
         #with open(f'{targetDirectory}/snapshots_node={node}_nSamples={nSnapshots}_{i}.pickle', 'wb') as f:
         #    pickle.dump(snapshots, f)
         MI = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, maxCorrTime=args.maxCorrTime)
