@@ -44,7 +44,7 @@ if __name__ == '__main__':
     #ensemble_size = 10
     all_Tc = np.zeros(len(ensemble))
 
-    temps = linspace(0.1, 4, 500)
+    temps = linspace(0.5, 4, 500)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
