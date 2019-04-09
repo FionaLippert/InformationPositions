@@ -56,6 +56,14 @@ def create_erdos_renyi_graph(N, avg_deg=2., path=None, version=''):
                 f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
     return graph
 
+def create_watts_strogatz(N, k, beta, path=None, version=''):
+    graph = nx.watts_strogatz_graph(N, k, beta)
+    connected_nodes = max(nx.connected_components(graph), key=len)
+    graph = graph.subgraph(connected_nodes)
+    if path is not None: nx.write_gpickle(graph,
+                f'{path}/WS_k={k}_N={N}{version}.gpickle', 2)
+    return graph
+
 def create_powerlaw_graph(N, gamma=1.6, path=None):
     seq = nx.utils.powerlaw_sequence(N, gamma)
     graph = nx.expected_degree_graph(seq, selfloops = False)
@@ -131,12 +139,17 @@ if __name__ == '__main__':
     #create_2D_grid(100, targetDirectory)
     #create_2D_grid(60, targetDirectory)
 
+    """
     targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
     os.makedirs(targetDirectory, exist_ok=True)
     create_regular_graph(1000, 2, targetDirectory)
     create_regular_graph(1000, 3, targetDirectory)
     create_regular_graph(1000, 4, targetDirectory)
-
+    """
+    targetDirectory = f'{os.getcwd()}/networkData/WS'
+    os.makedirs(targetDirectory, exist_ok=True)
+    for i in range(10):
+        create_watts_strogatz(1000, 4, 0.04, targetDirectory, f'_v{i}')
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'
