@@ -44,7 +44,8 @@ if __name__ == '__main__':
     #ensemble_size = 10
     all_Tc = np.zeros(len(ensemble))
 
-    temps = linspace(0.5, 4, 500)
+    temps = linspace(1, 50, 500)
+    #temps = linspace(0.5, 4, 500)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
@@ -84,20 +85,21 @@ if __name__ == '__main__':
         #np.save(f'{targetDirectory}/susceptibility_v{i}.npy', sus)
         #np.save(f'{targetDirectory}/binder_v{i}.npy', binder)
 
-        func = lambda x, a, b, c:  a / (1 + np.exp(b * (x - c)))
+        #func = lambda x, a, b, c:  a / (1 + np.exp(b * (x - c)))
         #try:
-        binder[np.where(binder < 0)] = np.nan
-        valid = np.where(np.isfinite(binder))
-        params, _ = optimize.curve_fit(func, temps[valid], binder[valid], p0=[0.7, 5., 2.])
-        idx = np.where(func(temps, *params) < params[0] - params[0]/10.)[0][0]
-        T_c_estimate = temps[idx]
-        idx = np.where(np.abs(temps - T_c_estimate) < 0.5)
-        print(idx)
+        #binder[np.where(binder < 0)] = np.nan
+        #valid = np.where(np.isfinite(binder))
+        #np.save(f'{targetDirectory}/sus.npy', sus)
+        #params, _ = optimize.curve_fit(func, temps[valid], binder[valid], p0=[0.7, 5., 2.])
+        #idx = np.where(func(temps, *params) < params[0] - params[0]/10.)[0][0]
+        #T_c_estimate = temps[idx]
+        #idx = np.where(np.abs(temps - T_c_estimate) < 0.5)
+        #print(idx)
 
-        Tc = find_Tc(sus[idx], temps[idx])
+        #Tc = find_Tc(sus[idx], temps[idx])
         #except:
         #    Tc = np.nan
-        print(Tc)
+        #print(Tc)
         Tc = find_Tc_gaussian(sus, temps)
         print(Tc)
         all_Tc[i] = Tc
@@ -113,6 +115,33 @@ if __name__ == '__main__':
         with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
             f.write(f'{Tc:.2f}')
 
+
+        """
+        temps_Tc = linspace(Tc - 0.25, Tc + 0.25, 500)
+        mag_Tc, sus_Tc, binder_Tc = infcy.magnetizationParallel(model,       \
+                            temps           = temps_Tc,        \
+                            n               = nSamples,     \
+                            burninSamples   = burninSamples)
+
+        Tc_refined = find_Tc_gaussian(sus_Tc, temps_Tc)
+        print(Tc_refined)
+
+        tmp = dict( \
+                temps = temps, \
+                magnetization = mag, \
+                susceptibility = sus, \
+                binder = binder, \
+                Tc = Tc, \
+                temps_refined = temps_Tc, \
+                magnetization_refined = mag_Tc, \
+                susceptibility_refined = sus_Tc, \
+                binder_refined = binder_Tc, \
+                Tc_refined = Tc_refined)
+        IO.savePickle(os.path.join(targetDirectory, f'{filename}_results.pickle'), tmp)
+
+        with open(os.path.join(targetDirectory, f'{filename}_Tc_refined.txt'), 'w') as f:
+            f.write(f'{Tc_refined:.2f}')
+        """
 
         #fig, ax = subplots(figsize=(10,6))
         #ax.scatter(temps, mag, alpha = .2, label='magnetization')

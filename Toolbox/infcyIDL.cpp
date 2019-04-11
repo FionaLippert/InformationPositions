@@ -1730,6 +1730,7 @@ struct __pyx_vtabstruct_6Models_6models_Model {
   void (*loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, PyObject *, std::vector<long> , int __pyx_skip_dispatch);
   void (*_loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, std::vector<long> );
   void (*reset)(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch);
+  void (*resetAllToAgentState)(struct __pyx_obj_6Models_6models_Model *, int, int __pyx_skip_dispatch);
   PyObject *(*neighboursAtDist)(struct __pyx_obj_6Models_6models_Model *, long, int, int __pyx_skip_dispatch);
   void (*_setStates)(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice);
 };
