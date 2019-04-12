@@ -20,21 +20,18 @@ from threading import Thread
 close('all')
 
 
+def computeMI_jointPDF(snapshots, Z):
+    P_XY = snapshots.flatten()/Z
+    P_X = np.sum(snapshots, axis=1)/Z # sum over all bins
+    P_Y = np.sum(snapshots, axis=0)/Z # sum over all spin states
 
-def computeMI_joint(jointSnapshots, maxDist, Z):
+    MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
+    return MI
+
+
+def computeMI_condPDF(model, node, minDist, maxDist, neighboursG, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, initStateIdx=-1):
     MIs = []
-    for d in range(maxDist):
-        P_XY = jointSnapshots[d].flatten()/Z
-        P_X = np.sum(jointSnapshots[d], axis=1)/Z # sum over all bins
-        P_Y = np.sum(jointSnapshots[d], axis=0)/Z # sum over all spin states
-
-        MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
-        MIs.append(MI)
-    return MIs
-
-
-def computeMI_cond(model, node, minDist, maxDist, neighboursG, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings):
-    MIs = []
+    HXs = []
     subgraph_nodes = [node]
     for d in range(1, maxDist+1):
         # get subgraph and outer neighbourhood at distance d
@@ -55,13 +52,15 @@ def computeMI_cond(model, node, minDist, maxDist, neighboursG, snapshots, nTrial
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
                 distSamples_subgraph = min(distSamples_subgraph, 100)
+                distSamples_subgraph = 1
 
-                _, probs, MI, states = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7)
+                _, probs, MI, HX = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
+                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7, initStateIdx=initStateIdx)
                 #print(probs)
-                np.save(f'{targetDirectory}/states_d={d}.npy', states)
+                #np.save(f'{targetDirectory}/states_d={d}.npy', states)
                 MIs.append(MI)
-    return MIs
+                HXs.append(HX)
+    return MIs, HXs
 
 
 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
 
     # load network
     graph_path = "networkData/ER_avgDeg=1.5_N=100.gpickle"
-    graph_path = "networkData/2D_grid/2D_grid_L=60.gpickle"
+    graph_path = "networkData/2D_grid/2D_grid_L=32.gpickle"
     graph = nx.read_gpickle(graph_path)
     #graph = nx.path_graph(50)
     #graph = nx.DiGraph()
@@ -100,13 +99,13 @@ if __name__ == '__main__':
     # setup Ising model with nNodes spin flip attempts per simulation step
     # set temp to np.infty --> completely random
     modelSettings = dict( \
-        temperature     = 2.3, \
+        temperature     = 2.27, \
         updateType      = 'async' ,\
         magSide         = ''
     )
     #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
-    node = 1230 #list(graph)[0]
+    node = 528 #1230 #list(graph)[0]
     nodeIdx = model.mapping[node]
     allNeighboursG, allNeighboursIdx = model.neighboursAtDist(node, maxDist)
     nNeighbours = np.array([len(allNeighboursG[d]) for d in sorted(allNeighboursG.keys())])
@@ -128,6 +127,9 @@ if __name__ == '__main__':
     print(f'mixing time      = {mixingTime}')
     print(f'magnetization    = {meanMag}')
 
+    mixingTime = min(mixingTime, int(5e3))
+    distSamples = min(distSamples, int(5e3))
+
     corrTimeSettings = dict( \
         nInitialConfigs = 10, \
         burninSteps  = mixingTime, \
@@ -137,26 +139,39 @@ if __name__ == '__main__':
         nodeG         = node
     )
 
+    snapshotSettingsJoint = dict( \
+        nSamples    = int(1e3), \
+        repeats     = 1, \
+        burninSamples = mixingTime, \
+        distSamples   = 1, \
+        maxDist     = maxDist, \
+        nBins       = 100
+    )
+
+    """
+    pairwise MI
+    """
+
+    avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7, initStateIdx=1, getFullSnapshots=1)
+    MI, corr = infcy.runMI(model, np.array([node]), snapshots, repeats=snapshotSettingsJoint['repeats'], distMax=maxDist)
+    MIs_pairwise = np.array([np.nanmean(MI[:,i,:,:], axis=1) for i in range(MI.shape[1])])
+    print(MIs_pairwise)
+
 
     """
     avg neighbour spin MI approach
     """
-    snapshotSettingsJoint = dict( \
-        nSamples    = int(1e3), \
-        repeats     = 10, \
-        burninSamples = mixingTime, \
-        distSamples   = distSamples, \
-        maxDist     = maxDist, \
-        nBins       = 100
-    )
 
     """
     one node
     """
 
     #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7)
-    #MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
-    #print(MIs_avg)
+    for rep in range(snapshotSettingsJoint['repeats']):
+        MIs_avg = [computeMI_jointPDF(avgSnapshots[rep][d], snapshotSettingsJoint['nSamples']) for d in range(maxDist)]
+        print(MIs_avg)
+        MI_system = computeMI_jointPDF(avgSystemSnapshots[rep], snapshotSettingsJoint['nSamples'])
+        print(MI_system)
 
     """
     all nodes
@@ -178,17 +193,21 @@ if __name__ == '__main__':
         maxDist     = maxDist
     )
     minDist = 1
-    maxDist = 16
+    maxDist = 10
     nTrials = 1
-    nSamples = int(1e3)
+    nSamples = int(1e4)
 
     """
     for one node
     """
-    snapshots, neighbours_idx, spins = infcy.getSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsCond, threads=7)
-    np.save(f'{targetDirectory}/states.npy', spins)
-    MIs = computeMI_cond(model, node, minDist, maxDist, allNeighboursG, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
+
+
+    snapshots, neighbours_idx, spins = infcy.getSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsCond, threads=7, initStateIdx=1)
+    #np.save(f'{targetDirectory}/states.npy', spins)
+    MIs, HXs = computeMI_condPDF(model, node, minDist, maxDist, allNeighboursG, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, initStateIdx=1)
     print(MIs)
+    print(np.mean(HXs))
+
 
     """
     for all nodes
@@ -206,6 +225,6 @@ if __name__ == '__main__':
             checkMixing     = 0, \
             nodeG         = node
         )
-        MIs = computeMI_cond(model, node, minDist, maxDist, neighboursGAllNodes[n], snapshotsAllNodes[n], nTrials, nSamples, modelSettings, corrTimeSettings)
+        MIs, HXs = computeMI_condPDF(model, node, minDist, maxDist, neighboursGAllNodes[n], snapshotsAllNodes[n], nTrials, nSamples, modelSettings, corrTimeSettings)
         print(MIs)
     """

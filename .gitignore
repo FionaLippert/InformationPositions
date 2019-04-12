@@ -5,6 +5,7 @@ __pycache__*
 Data/*
 *.pickle
 *.cpp
+output/*
 Models/*.cpp
 Toolbox/*.cpp
 *.so

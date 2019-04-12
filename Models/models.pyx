@@ -259,7 +259,17 @@ cdef class Model: # see pxd
 
     cpdef void reset(self):
         self.states = np.random.choice(\
+            self.agentStates, size = self._nNodes)
+
+    cpdef void resetAllToAgentState(self, int stateIdx):
+        if stateIdx < 0:
+            # uniformly random
+            self.states = np.random.choice(\
                 self.agentStates, size = self._nNodes)
+        else:
+            # all nodes the same
+            assert stateIdx < self.agentStates.shape[0]
+            self.states = np.ones(self._nNodes, int) * self.agentStates[stateIdx]
 
 
     cpdef tuple neighboursAtDist(self, long nodeG, int maxDist):

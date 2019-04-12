@@ -6,7 +6,7 @@ import networkx as nx, itertools, scipy,\
         os, pickle, h5py, sys, multiprocessing as mp, json,\
         datetime, sys
 import time
-from numpy import *
+import numpy as np
 
 def create_undirected_tree(z, depth, path=None):
     graph = nx.balanced_tree(z, depth)
@@ -64,13 +64,24 @@ def create_watts_strogatz(N, k, beta, path=None, version=''):
                 f'{path}/WS_k={k}_N={N}{version}.gpickle', 2)
     return graph
 
-def create_powerlaw_graph(N, gamma=1.6, path=None):
+def create_powerlaw_graph(N, gamma=1.6, path=None, version=''):
     seq = nx.utils.powerlaw_sequence(N, gamma)
     graph = nx.expected_degree_graph(seq, selfloops = False)
     graph = sorted(nx.connected_component_subgraphs(graph), key=len, reverse=True)[0]
     #N = len(graph)
     if path is not None: nx.write_gpickle(graph,
-                f'{path}/scaleFree_gamma={gamma}_N={N}.gpickle')
+                f'{path}/SF_gamma={gamma}_N={N}{version}.gpickle')
+    return graph
+
+
+def create_barabasi_albert_graph(N, m, path=None, version=''):
+    graph=nx.barabasi_albert_graph(N, m)
+    graph = sorted(nx.connected_component_subgraphs(graph), key=len, reverse=True)[0]
+    #N = len(graph)
+    if path is not None: nx.write_gpickle(graph,
+                f'{path}/BA_m={m}_N={N}{version}.gpickle')
+    return graph
+
 
 def create_2D_grid(L, path=None, version=''):
 
@@ -146,10 +157,13 @@ if __name__ == '__main__':
     create_regular_graph(1000, 3, targetDirectory)
     create_regular_graph(1000, 4, targetDirectory)
     """
+
+    """
     targetDirectory = f'{os.getcwd()}/networkData/WS'
     os.makedirs(targetDirectory, exist_ok=True)
     for i in range(10):
         create_watts_strogatz(1000, 4, 0.04, targetDirectory, f'_v{i}')
+    """
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'
@@ -163,3 +177,29 @@ if __name__ == '__main__':
 
     #node = 0
     #print(nx.clustering(graph, [0,37]))
+
+    targetDirectory = f'{os.getcwd()}/networkData/BA'
+    os.makedirs(targetDirectory, exist_ok=True)
+    N=1000
+    m=3
+    for i in range(10):
+        G = create_barabasi_albert_graph(N, m, targetDirectory, f'_v{i}')
+        nodes = list(G)
+        np.save(f'{targetDirectory}/BA_m={m}_N={N}_v{i}_nodes.npy', np.array(nodes))
+        with open(f'{targetDirectory}/BA_m={m}_N={N}_v{i}_sample_nodes.txt', 'w') as f:
+            sample_nodes = np.random.choice(nodes, size=10, replace=False)
+            for n in sample_nodes:
+                f.write(f'{n}\n')
+
+    targetDirectory = f'{os.getcwd()}/networkData/SF'
+    os.makedirs(targetDirectory, exist_ok=True)
+    N=1000
+    gamma=1.8
+    for i in range(10):
+        G = create_powerlaw_graph(N, gamma, targetDirectory, f'_v{i}')
+        nodes = list(G)
+        np.save(f'{targetDirectory}/SF_gamma={gamma}_N={N}_v{i}_nodes.npy', np.array(nodes))
+        with open(f'{targetDirectory}/SF_gamma={gamma}_N={N}_v{i}_sample_nodes.txt', 'w') as f:
+            sample_nodes = np.random.choice(nodes, size=10, replace=False)
+            for n in sample_nodes:
+                f.write(f'{n}\n')

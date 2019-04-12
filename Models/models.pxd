@@ -73,6 +73,7 @@ cdef class Model:
     #cdef void _incrSeed(self, long value) nogil
 
     cpdef void reset(self)
+    cpdef void resetAllToAgentState(self, int initStateIdx)
 
     cpdef tuple neighboursAtDist(self, long node_idx, int maxDist)
   #  cpdef dict neighboursAtDist(self, int node, int maxDist)

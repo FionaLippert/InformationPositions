@@ -98,7 +98,7 @@ if __name__ == '__main__':
         print(f'correlation time = {distSamples}')
         print(f'mixing time      = {mixingTime}')
         print(f'mag level        = {meanMag}')
-    
+
 
         mixingResults = dict(\
             mixingTime = mixingTime, \
@@ -122,8 +122,8 @@ if __name__ == '__main__':
 
 
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
-    
-    
+
+
     pairwiseMISettings = dict( \
         repeats    = 10, \
         burninSamples = burninSteps, \
@@ -135,7 +135,7 @@ if __name__ == '__main__':
 
     #result_dir = f'{targetDirectory}/MI_pairwise'
     #if not os.path.isdir(result_dir): os.mkdir(result_dir)
-    
+
     for i in range(args.runs):
         _, MI, corr = infcy.runMI(model, np.array([node]), **pairwiseMISettings)
         MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         now = time.time()
         np.save(f'{targetDirectory}/MI_pairwise_{now}.npy', MI)
         np.save(f'{targetDirectory}/corr_pairwise_{now}.npy', corr)
-    
+
     print(f'time elapsed: {timer()-start : .2f} seconds')
 
     print(targetDirectory)
