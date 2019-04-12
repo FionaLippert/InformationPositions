@@ -24,21 +24,9 @@ parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('node', type=int, help='central node ID')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
-parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
-
-def computeMI_joint(jointSnapshots, maxDist, Z):
-    MIs = []
-    for d in range(maxDist):
-        P_XY = jointSnapshots[d].flatten()/Z
-        P_X = np.sum(jointSnapshots[d], axis=1)/Z # sum over all bins
-        P_Y = np.sum(jointSnapshots[d], axis=0)/Z # sum over all spin states
-
-        #print(P_XY, P_Y, P_X)
-
-        MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
-        MIs.append(MI)
-    return MIs
-
+parser.add_argument('--bins', type=int, default=100, help='number of bins for average magnetization of neighbours')
+parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
+parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
 
 
 
@@ -60,7 +48,7 @@ if __name__ == '__main__':
         maxDist = args.maxDist
     else:
         maxDist = nx.diameter(graph)
-    
+
     node = args.node
     deg = graph.degree[node]
 
@@ -90,51 +78,12 @@ if __name__ == '__main__':
 
     except:
         raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
-
-        """
-        # determine mixing/correlation time
-        mixingTimeSettings = dict( \
-            nInitialConfigs = 10, \
-            burninSteps  = 10, \
-            nStepsRegress   = int(1e3), \
-            nStepsCorr      = int(1e4), \
-            thresholdReg    = 0.05, \
-            thresholdCorr   = 0.01
-        )
-        IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
-        mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
-        print(f'correlation time = {distSamples}')
-        print(f'mixing time      = {mixingTime}')
-        print(f'mag level        = {meanMag}')
-        
-        mixingTime = min(mixingTime, 10000)
-
-        mixingResults = dict(\
-            mixingTime = mixingTime, \
-            corrTime = distSamples, \
-            magLevel = meanMag
-        )
-        IO.saveResults(targetDirectory, mixingResults, 'mixingResults')
-
-        mixingTime = min(mixingTime, 5000)
-
-
-        corrTimeSettings = dict( \
-            nInitialConfigs = 10, \
-            burninSteps  = mixingTime, \
-            nStepsCorr      = int(1e4), \
-            thresholdCorr   = 0.01, \
-            checkMixing     = 0
-        )
-        IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')
-        """
-
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
-    
-    
+
+
     snapshotSettingsJoint = dict( \
-        nSamples    = int(1e4), \
-        repeats     = int(1e1), \
+        nSamples    = args.numSamples, \
+        repeats     = args.repeats, \
         burninSamples = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist, \
@@ -142,31 +91,32 @@ if __name__ == '__main__':
     )
     IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
-    #joint_dir = os.path.join(targetDirectory, f'MI_joint_T={model.t}')
-    #avg_dir = os.path.join(targetDirectory, f'MI_avg')
-    #if not os.path.isdir(joint_dir): os.mkdir(joint_dir)
-    #if not os.path.isdir(avg_dir): os.mkdir(avg_dir)
+
 
     for r in range(args.runs):
 
-        avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
-        #print(f'Z={Z}')
-        #Z = snapshotSettingsJoint['nSamples'] * snapshotSettingsJoint['repeats']
+        #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
 
-        #with open(f'{targetDirectory}/jointSnapshots_node={node}.pickle', 'wb') as f:
-        #    pickle.dump(jointSnapshots, f)
-        #with open(f'{targetDirectory}/avgSnapshots_node={node}.pickle', 'wb') as f:
-        #    pickle.dump(avgSnapshots, f)
-    
+        avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=1, getFullSnapshots=1)
+
+        MI, corr = infcy.runMI(model, np.array([node]), snapshots, repeats=args.repeats, distMax=maxDist)
+        MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
         now = time.time()
+        np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
+        np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
-        #MIs = computeMI_joint(jointSnapshots, maxDist, Z)
-        #np.save(os.path.join(joint_dir, f'{now}.npy'), np.array(MIs))
-        MIs_avg = computeMI_joint(avgSnapshots, maxDist, Z)
+
+        Z = args.numSamples*args.repeats
+        MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z) for d in range(maxDist)]
+        MI_system = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
+        H = infcy.compute_spin_entropy(np.sum(avgSystemSnapshots, axis=0), Z)
+
+        now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), np.array(MIs_avg))
-        #print(MIs)
-        print(MIs_avg)
-    
+        np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), np.array(MI_system))
+        np.save(os.path.join(targetDirectory, f'H_node_{now}.npy'), np.array(H))
+
+
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

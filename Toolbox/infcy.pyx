@@ -485,13 +485,13 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
 
         #unordered_map[int, vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots
 
-        long[:,:,::1] avgSnapshots = np.zeros((maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,::1] avgSystemSnapshots = np.zeros((model.agentStates.shape[0], nBins), int)
+        long[:,:,:,::1] avgSnapshots = np.zeros((repeats, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,::1] avgSystemSnapshots = np.zeros((repeats, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
 
         int idx
         long nodeIdx, d, i, b, sample, rep, start
-        long Z = repeats * nSamples
+        #long Z = repeats * nSamples
         #double part = 1/Z
         string state
         double past    = timer()
@@ -506,10 +506,10 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
 
         unordered_map[long, vector[long]] allNeighboursIdx
 
-        long[:,::1] fullSnapshots
+        long[:,:,::1] fullSnapshots
 
 
-    if getFullSnapshots: fullSnapshots = np.zeros((repeats * nSamples, model._nNodes), int)
+    if getFullSnapshots: fullSnapshots = np.zeros((repeats, nSamples, model._nNodes), int)
 
     #print(bins)
 
@@ -524,8 +524,9 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
         tmp = copy.deepcopy(model)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
-    i = repeats
+    i = repeats # somehow it doesn't work when I directly use repeats
 
+    pbar = tqdm(total = i * nSamples)
     for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
@@ -547,21 +548,23 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
                 #snapshots[d][nodeSpin][state] += 1
                 avg = (<Model> modelptr).encodeStateToAvg(allNeighboursIdx[d+1], bins)
                 #avgSnapshots[d][nodeSpin][avg] +=1
-                avgSnapshots[d][nodeSpin][avg] += 1
+                avgSnapshots[rep][d][nodeSpin][avg] += 1
                 #with gil: print(rep, avgSnapshots[d])
 
             avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
-            avgSystemSnapshots[nodeSpin][avgSystem] += 1
+            avgSystemSnapshots[rep][nodeSpin][avgSystem] += 1
 
             if getFullSnapshots:
-                start = rep * nSamples
+                #start = rep * nSamples
                 # raw system states are stored, because for large systems encoding of snapshots does not work (overflow)
-                fullSnapshots[start + sample] = (<Model>modelptr)._states
+                fullSnapshots[rep][sample] = (<Model>modelptr)._states
+
+            with gil: pbar.update(1)
 
     if getFullSnapshots:
-        return avgSnapshots.base, avgSystemSnapshots.base, Z, fullSnapshots.base
+        return avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
     else:
-        return avgSnapshots.base, avgSystemSnapshots.base, Z
+        return avgSnapshots.base, avgSystemSnapshots.base
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -572,7 +575,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
               long repeats=int(1e2), long nSamples = int(1e3), \
               long burninSamples = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
-              int initStateIdx = -1):
+              int initStateIdx = -1, int getFullSnapshots = 0):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
     Only take snapshots of the specified node subset, ignore all others
@@ -582,23 +585,29 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         long[::1] nodesIdx = np.zeros(nNodes, 'int')
 
         #vector[vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots = vector[vector[unordered_map[int, unordered_map[int, double]]]](nNodes)
-        long[:,:,:,::1] avgSnapshots = np.zeros((nNodes, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshots = np.zeros((repeats, nNodes, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,::1] avgSystemSnapshots = np.zeros((repeats, nNodes, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
         vector[unordered_map[long, vector[long]]] neighboursG = vector[unordered_map[long, vector[long]]](nNodes)
+        vector[long] allNodes = list(model.mapping.values())
 
         long d, i, b, sample, rep, n
-        long Z = repeats * nSamples
+        #long Z = repeats * nSamples
         #double part = 1/Z
         string state
         double past    = timer()
         PyObject *modelptr
         vector[PyObjectHolder] models_
-        int tid, nodeSpin, s, avg
+        int tid, nodeSpin, s, avg, avgSystem
         int nThreads = mp.cpu_count() if threads == -1 else threads
         #np.ndarray KL = np.ones(maxDist)
         #double KL_d
         double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
+
+        long[:,:,::1] fullSnapshots
+
+    if getFullSnapshots: fullSnapshots = np.zeros((repeats, nSamples, model._nNodes), int)
 
     for idx in range(model.agentStates.shape[0]):
         idxer[model.agentStates[idx]] = idx
@@ -615,7 +624,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
     i = repeats
-
+    pbar = tqdm(total = i * nSamples)
     for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
@@ -629,15 +638,28 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 
         for sample in range(nSamples):
             (<Model>modelptr).simulateNSteps(distSamples)
+            avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
 
             for n in range(nNodes):
-                nodeSpin = (<Model> modelptr)._states[nodesIdx[n]]
+                nodeSpin = idxer[(<Model> modelptr)._states[nodesIdx[n]]]
                 for d in range(maxDist):
                     avg = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
                     #avgSnapshots[n][d][nodeSpin][avg] +=1
-                    avgSnapshots[n][d][idxer[nodeSpin]][avg] +=1
+                    avgSnapshots[rep][n][d][nodeSpin][avg] +=1
 
-    return avgSnapshots.base, Z, neighboursG
+                avgSystemSnapshots[rep][n][nodeSpin][avgSystem] += 1
+
+            if getFullSnapshots:
+                # raw system states are stored, because for large systems encoding of snapshots does not work (overflow).
+                # TODO: use string coding?
+                fullSnapshots[rep][sample] = (<Model>modelptr)._states
+
+            with gil: pbar.update(1)
+
+    if getFullSnapshots:
+        return neighboursG, avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
+    else:
+        return neighboursG, avgSnapshots.base, avgSystemSnapshots.base
 
 
 
@@ -880,8 +902,8 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         #double part = 1 / (<double> totalSnapshots)
         #unordered_map[string, double] snapshots
         string state
-        double[::1] pY, pX, HX
-        double HXgiveny, HXgivenY = 0, MI = 0
+        double[::1] pY, pX
+        double HX, HXgiveny, HXgivenY = 0, MI = 0
 
     for idx in range(nNeighbours):
         n = neighboursG[idx]
@@ -927,8 +949,8 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         long[:,:,::1] states = np.zeros((keys.size(), nSamples, model._nNodes), int)
 
     #print(f'Found {len(snapshots)} states')
-    print(neighboursG)
-    print(list(model.graph))
+    #print(neighboursG)
+    #print(list(model.graph))
 
     # fix neighbour states
     #for tid in range(nThreads):
@@ -1287,7 +1309,8 @@ cpdef double[::1] binaryEntropies(long[:,::1] snapshots):
         long length = snapshots.shape[0]
         double[::1] cview_H
 
-
+    #print(snapshots.base.shape)
+    #print(H)
     H = (length - np.abs(H))/2. + np.abs(H)
     H = H/length
 
@@ -1361,6 +1384,43 @@ cpdef double entropy(vector[long] samples):
     return entropy
 
 
+cpdef double computeMI_jointPDF(np.ndarray snapshots, long Z):
+    cdef:
+        np.ndarray P_XY, P_X, P_Y
+        double MI
+
+    P_XY = snapshots.flatten()/Z
+    P_X = np.sum(snapshots, axis=1)/Z # sum over all bins
+    P_Y = np.sum(snapshots, axis=0)/Z # sum over all spin states
+    MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
+    return MI
+
+cpdef double compute_spin_entropy(np.ndarray snapshots, long Z):
+    cdef:
+        np.ndarray P_X
+        double H
+    P_X = np.sum(snapshots, axis=1)/Z # sum over all bins
+    H = stats.entropy(P_X, base=2)
+    return H
+
+
+cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, long nNodes, long maxDist):
+
+    cdef:
+        np.ndarray MIs_avg = np.zeros((nNodes, maxDist))
+        np.ndarray MIs_system = np.zeros(nNodes)
+        np.ndarray Hs = np.zeros(nNodes)
+        long n, d
+
+    avgSnapshots = np.sum(avgSnapshots, axis=0)
+    avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
+
+    for n in range(nNodes):
+        MIs_avg[n,:] = [computeMI_jointPDF(avgSnapshots[n][d], Z) for d in range(maxDist)]
+        MIs_system[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+        Hs[n] = compute_spin_entropy(avgSystemSnapshots[n], Z)
+
+    return MIs_avg, MIs_system, Hs
 
 
 @cython.boundscheck(False)
@@ -1465,18 +1525,17 @@ cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
-                  long distSamples=100, int distMax=1, \
-                  int threads = -1, int initStateIdx = -1):
+cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,:,::1] snapshots, \
+                  long repeats, int distMax=1, int threads = -1, int initStateIdx = -1):
 
     cdef:
         #long[::1] cv_nodes = nodes
         #long[:,::1] snapshots
-        double[::1] entropies
-        long n, d, nNodes = nodesG.shape[0]
+        double[:, ::1] entropies
+        long i, rep, n, d, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.array([model.mapping[n] for n in nodesG])
-        double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
-        double[:,:,::1] corr = np.zeros((nNodes, distMax, model._nNodes))
+        double[:,:,:,::1] MI = np.zeros((repeats, nNodes, distMax, model._nNodes))
+        double[:,:,:,::1] corr = np.zeros((repeats, nNodes, distMax, model._nNodes))
         int nThreads = mp.cpu_count() if threads == -1 else threads
         unordered_map[long, vector[long]] allNeighboursIdx
         int[::1] neighbours
@@ -1491,21 +1550,23 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
     #  # only sample snapshots with abs avg mag smaller than magThreshold
     #    snapshots = equilibriumSamplingMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=1, threshold=np.abs(magThreshold), threads=threads, initStateIdx=initStateIdx)
 
-    entropies = binaryEntropies(snapshots)
+    #print(snapshots.base.shape)
+    entropies = np.array([binaryEntropies(snapshots.base[i,:,:]) for i in range(snapshots.shape[0])])
 
-    for n in prange(nNodes, nogil = True, \
-                         schedule = 'dynamic', num_threads = nThreads):
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
 
-        with gil: _, allNeighboursIdx = model.neighboursAtDist(nodesG[n], distMax)
+        for n in range(nNodes):
 
-        for d in range(distMax):
-            #with gil: neighbours = allNeighbours[d+1]
-            MI[n][d] = MIAtDist(model, snapshots, entropies, nodesIdx[n], allNeighboursIdx[d+1])
-            corr[n][d] = corrAtDist(model, snapshots, nodesIdx[n], allNeighboursIdx[d+1])
+            with gil: _, allNeighboursIdx = model.neighboursAtDist(nodesG[n], distMax)
+
+            for d in range(distMax):
+                #with gil: neighbours = allNeighbours[d+1]
+                MI[rep][n][d] = MIAtDist(model, snapshots[rep], entropies[rep], nodesIdx[n], allNeighboursIdx[d+1])
+                corr[rep][n][d] = corrAtDist(model, snapshots[rep], nodesIdx[n], allNeighboursIdx[d+1])
 
     #degrees = [model.graph.degree(n) for n in nodes]
 
-    return snapshots.base, MI.base, corr.base #, degrees
+    return MI.base, corr.base #, degrees
 
 
 @cython.boundscheck(False)

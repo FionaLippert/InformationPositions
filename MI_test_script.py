@@ -140,7 +140,7 @@ if __name__ == '__main__':
     )
 
     snapshotSettingsJoint = dict( \
-        nSamples    = int(1e6), \
+        nSamples    = int(1e3), \
         repeats     = 1, \
         burninSamples = mixingTime, \
         distSamples   = 1, \
@@ -152,9 +152,9 @@ if __name__ == '__main__':
     pairwise MI
     """
 
-    avgSnapshots, avgSystemSnapshots, Z, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7, initStateIdx=1, getFullSnapshots=1)
-    _, MI, corr = infcy.runMI(model, np.array([node]), snapshots, distSamples=distSamples, distMax=maxDist)
-    MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
+    avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7, initStateIdx=1, getFullSnapshots=1)
+    MI, corr = infcy.runMI(model, np.array([node]), snapshots, repeats=snapshotSettingsJoint['repeats'], distMax=maxDist)
+    MIs_pairwise = np.array([np.nanmean(MI[:,i,:,:], axis=1) for i in range(MI.shape[1])])
     print(MIs_pairwise)
 
 
@@ -167,10 +167,11 @@ if __name__ == '__main__':
     """
 
     #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7)
-    MIs_avg = [computeMI_jointPDF(avgSnapshots[d], Z) for d in range(maxDist)]
-    print(MIs_avg)
-    MI_system = computeMI_jointPDF(avgSystemSnapshots, Z)
-    print(MI_system)
+    for rep in range(snapshotSettingsJoint['repeats']):
+        MIs_avg = [computeMI_jointPDF(avgSnapshots[rep][d], snapshotSettingsJoint['nSamples']) for d in range(maxDist)]
+        print(MIs_avg)
+        MI_system = computeMI_jointPDF(avgSystemSnapshots[rep], snapshotSettingsJoint['nSamples'])
+        print(MI_system)
 
     """
     all nodes
