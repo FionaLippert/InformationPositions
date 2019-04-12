@@ -9578,7 +9578,7 @@ static PyObject *__pyx_f_7Toolbox_5infcy_neighbourhoodMI(struct __pyx_obj_6Model
   std::vector&lt;std::string&gt;  __pyx_v_keys;
   __Pyx_memviewslice __pyx_v_probs = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_container = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_states = { 0, 0, { 0 }, { 0 }, { 0 } };
+  CYTHON_UNUSED __Pyx_memviewslice __pyx_v_states = { 0, 0, { 0 }, { 0 }, { 0 } };
   PyObject *__pyx_v_pbar = NULL;
   std::string __pyx_8genexpr7__pyx_v_k;
   PyObject *__pyx_r = NULL;
@@ -10636,8 +10636,8 @@ __pyx_v_HXgiveny = __pyx_f_7Toolbox_5infcy_entropyFromProbs(__pyx_t_16);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_19); __pyx_t_19 = 0;
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_28); __pyx_t_28 = 0;
 </pre><pre class="cython line score-0">&#xA0;<span class="">0920</span>: </pre>
-<pre class="cython line score-22" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0921</span>:     return snapshotsDict, container.base, MI, states.base</pre>
-<pre class='cython code score-22 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
+<pre class="cython line score-18" onclick="(function(s){s.display=s.display==='block'?'none':'block'})(this.nextElementSibling.style)">+<span class="">0921</span>:     return snapshotsDict, container.base, MI</pre>
+<pre class='cython code score-18 '>  <span class='pyx_macro_api'>__Pyx_XDECREF</span>(__pyx_r);
   __pyx_t_28 = __pyx_memoryview_fromslice(__pyx_v_container, 2, (PyObject *(*)(char *)) __pyx_memview_get_double, (int (*)(char *, PyObject *)) __pyx_memview_set_double, 0);;<span class='error_goto'> if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_28);
   __pyx_t_19 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_28, __pyx_n_s_base);<span class='error_goto'> if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
@@ -10645,12 +10645,7 @@ __pyx_v_HXgiveny = __pyx_f_7Toolbox_5infcy_entropyFromProbs(__pyx_t_16);
   <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_28); __pyx_t_28 = 0;
   __pyx_t_28 = <span class='py_c_api'>PyFloat_FromDouble</span>(__pyx_v_MI);<span class='error_goto'> if (unlikely(!__pyx_t_28)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_28);
-  __pyx_t_15 = __pyx_memoryview_fromslice(__pyx_v_states, 3, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);;<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
-  __pyx_t_4 = <span class='pyx_c_api'>__Pyx_PyObject_GetAttrStr</span>(__pyx_t_15, __pyx_n_s_base);<span class='error_goto'> if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
-  <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_4);
-  <span class='pyx_macro_api'>__Pyx_DECREF</span>(__pyx_t_15); __pyx_t_15 = 0;
-  __pyx_t_15 = <span class='py_c_api'>PyTuple_New</span>(4);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
+  __pyx_t_15 = <span class='py_c_api'>PyTuple_New</span>(3);<span class='error_goto'> if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 921, __pyx_L1_error)</span>
   <span class='refnanny'>__Pyx_GOTREF</span>(__pyx_t_15);
   <span class='pyx_macro_api'>__Pyx_INCREF</span>(__pyx_v_snapshotsDict);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_v_snapshotsDict);
@@ -10659,11 +10654,8 @@ __pyx_v_HXgiveny = __pyx_f_7Toolbox_5infcy_entropyFromProbs(__pyx_t_16);
   <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_15, 1, __pyx_t_19);
   <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_28);
   <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_15, 2, __pyx_t_28);
-  <span class='refnanny'>__Pyx_GIVEREF</span>(__pyx_t_4);
-  <span class='py_macro_api'>PyTuple_SET_ITEM</span>(__pyx_t_15, 3, __pyx_t_4);
   __pyx_t_19 = 0;
   __pyx_t_28 = 0;
-  __pyx_t_4 = 0;
   __pyx_r = ((PyObject*)__pyx_t_15);
   __pyx_t_15 = 0;
   goto __pyx_L0;

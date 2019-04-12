@@ -7,11 +7,11 @@ import numpy as np
 import os
 import glob
 
-for filepath in glob.iglob('networkData/ER/*.gpickle'):
+for filepath in glob.iglob('networkData/WS/*.gpickle'):
     G = nx.read_gpickle(filepath)
     nodes = list(G)
     path = filepath.strip('.gpickle')
-    #np.save(path + '_nodes.npy', np.array(nodes))
+    np.save(path + '_nodes.npy', np.array(nodes))
 
     with open(path + '_sample_nodes.txt', 'w') as f:
         sample_nodes = np.random.choice(nodes, size=10, replace=False)
