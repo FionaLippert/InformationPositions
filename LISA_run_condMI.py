@@ -76,7 +76,11 @@ if __name__ == '__main__':
 
     T = args.T
     targetDirectory = args.dir
-    maxDist = args.maxDist
+
+    if args.maxDist > 0:
+        maxDist = args.maxDist
+    else:
+        maxDist = nx.diameter(graph)
 
     # load network
     graph = nx.read_gpickle(args.graph)
