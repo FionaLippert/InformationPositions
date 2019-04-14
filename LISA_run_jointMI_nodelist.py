@@ -100,11 +100,15 @@ if __name__ == '__main__':
                                                                             **snapshotSettingsJoint, threads=nthreads, \
                                                                             initStateIdx=1, getFullSnapshots=1)
 
-        MI, corr = infcy.runMI(model, nodes, fullSnapshots, repeats=args.repeats, distMax=maxDist)
+        start_2 = timer()
+
+        MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, nodes.size)), distMax=maxDist)
         #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
         np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
+
+        print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
 
         Z = args.numSamples * args.repeats
         """
@@ -122,11 +126,14 @@ if __name__ == '__main__':
             Hs[n] = compute_spin_entropy(avgSystemSnapshots[n], Z)
         """
 
+        start_2 = timer()
         MIs_avg, MIs_system, Hs = infcy.processJointSnapshotsNodes(avgSnapshots, avgSystemSnapshots, Z, nodes.size, maxDist)
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
         np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), MIs_system)
         np.save(os.path.join(targetDirectory, f'H_nodes_{now}.npy'), Hs)
+
+        print(f'time for avg MI: {timer()-start_2 : .2f} seconds')
 
 
     with open(f'{targetDirectory}/neighbours.pickle', 'wb') as f:
