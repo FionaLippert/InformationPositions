@@ -50,7 +50,7 @@ if __name__ == '__main__':
         maxDist = nx.diameter(graph)
 
     if args.nodes == 'test':
-        nodes = np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
+        nodes = np.array([528]) #np.array(list(graph)) #np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
     else:
         nodes = np.load(args.nodes)
     #deg = graph.degree[node]
@@ -101,8 +101,8 @@ if __name__ == '__main__':
                                                                             initStateIdx=1, getFullSnapshots=1)
 
         start_2 = timer()
-
-        MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, nodes.size)), distMax=maxDist)
+        print(fullSnapshots.shape)
+        MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
         #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
@@ -128,6 +128,7 @@ if __name__ == '__main__':
 
         start_2 = timer()
         MIs_avg, MIs_system, Hs = infcy.processJointSnapshotsNodes(avgSnapshots, avgSystemSnapshots, Z, nodes.size, maxDist)
+        print(MIs_avg)
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
         np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), MIs_system)

@@ -1384,43 +1384,37 @@ cpdef double entropy(vector[long] samples):
     return entropy
 
 
-cpdef double computeMI_jointPDF(np.ndarray snapshots, long Z):
+cpdef tuple computeMI_jointPDF(np.ndarray snapshots, long Z):
     cdef:
         np.ndarray P_XY, P_X, P_Y
-        double MI
+        double MI, H_X
 
     P_XY = snapshots.flatten()/Z
     P_X = np.sum(snapshots, axis=1)/Z # sum over all bins
     P_Y = np.sum(snapshots, axis=0)/Z # sum over all spin states
+    H_X = stats.entropy(P_X, base=2)
     MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
-    return MI
-
-cpdef double compute_spin_entropy(np.ndarray snapshots, long Z):
-    cdef:
-        np.ndarray P_X
-        double H
-    P_X = np.sum(snapshots, axis=1)/Z # sum over all bins
-    H = stats.entropy(P_X, base=2)
-    return H
+    return MI, H_X
 
 
 cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, long nNodes, long maxDist):
 
     cdef:
-        np.ndarray MIs_avg = np.zeros((nNodes, maxDist))
-        np.ndarray MIs_system = np.zeros(nNodes)
-        np.ndarray Hs = np.zeros(nNodes)
+        double[:,::1] MIs_avg = np.zeros((nNodes, maxDist))
+        double[::1] MIs_system = np.zeros(nNodes)
+        double[::1] Hs = np.zeros(nNodes)
         long n, d
 
     avgSnapshots = np.sum(avgSnapshots, axis=0)
     avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
 
-    for n in range(nNodes):
-        MIs_avg[n,:] = [computeMI_jointPDF(avgSnapshots[n][d], Z) for d in range(maxDist)]
-        MIs_system[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
-        Hs[n] = compute_spin_entropy(avgSystemSnapshots[n], Z)
+    #print(MIs_avg.base.shape)
 
-    return MIs_avg, MIs_system, Hs
+    for n in range(nNodes):
+        MIs_avg[n] = np.array([computeMI_jointPDF(avgSnapshots[n][d], Z)[0] for d in range(maxDist)])
+        MIs_system[n], Hs[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+
+    return MIs_avg.base, MIs_system.base, Hs.base
 
 
 @cython.boundscheck(False)
@@ -1525,17 +1519,17 @@ cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,:,::1] snapshots, \
-                  long repeats, int distMax=1, int threads = -1, int initStateIdx = -1):
+cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
+                int distMax=1, int threads = -1, int initStateIdx = -1):
 
     cdef:
         #long[::1] cv_nodes = nodes
         #long[:,::1] snapshots
-        double[:, ::1] entropies
-        long i, rep, n, d, nNodes = nodesG.shape[0]
+        double[::1] entropies
+        long i, n, d, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.array([model.mapping[n] for n in nodesG])
-        double[:,:,:,::1] MI = np.zeros((repeats, nNodes, distMax, model._nNodes))
-        double[:,:,:,::1] corr = np.zeros((repeats, nNodes, distMax, model._nNodes))
+        double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
+        double[:,:,::1] corr = np.zeros((nNodes, distMax, model._nNodes))
         int nThreads = mp.cpu_count() if threads == -1 else threads
         unordered_map[long, vector[long]] allNeighboursIdx
         int[::1] neighbours
@@ -1551,18 +1545,19 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,:,::1] snapshots, \
     #    snapshots = equilibriumSamplingMagThreshold(model, repeats, burninSamples, nSamples, distSamples, switch=1, threshold=np.abs(magThreshold), threads=threads, initStateIdx=initStateIdx)
 
     #print(snapshots.base.shape)
-    entropies = np.array([binaryEntropies(snapshots.base[i,:,:]) for i in range(snapshots.shape[0])])
+    #entropies =np.array([binaryEntropies(snapshots.base[i,:,:]) for i in range(snapshots.shape[0])])
+    entropies = binaryEntropies(snapshots)
 
-    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+    #for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
 
-        for n in range(nNodes):
+    for n in prange(nNodes, nogil = True, schedule = 'static', num_threads = nThreads):
 
-            with gil: _, allNeighboursIdx = model.neighboursAtDist(nodesG[n], distMax)
+        with gil: _, allNeighboursIdx = model.neighboursAtDist(nodesG[n], distMax)
 
-            for d in range(distMax):
-                #with gil: neighbours = allNeighbours[d+1]
-                MI[rep][n][d] = MIAtDist(model, snapshots[rep], entropies[rep], nodesIdx[n], allNeighboursIdx[d+1])
-                corr[rep][n][d] = corrAtDist(model, snapshots[rep], nodesIdx[n], allNeighboursIdx[d+1])
+        for d in range(distMax):
+            #with gil: neighbours = allNeighbours[d+1]
+            MI[n][d] = MIAtDist(model, snapshots, entropies, nodesIdx[n], allNeighboursIdx[d+1])
+            corr[n][d] = corrAtDist(model, snapshots, nodesIdx[n], allNeighboursIdx[d+1])
 
     #degrees = [model.graph.degree(n) for n in nodes]
 
