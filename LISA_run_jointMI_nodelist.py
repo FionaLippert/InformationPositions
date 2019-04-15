@@ -50,7 +50,7 @@ if __name__ == '__main__':
         maxDist = nx.diameter(graph)
 
     if args.nodes == 'test':
-        nodes = np.array([528]) #np.array(list(graph)) #np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
+        nodes = np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
     else:
         nodes = np.load(args.nodes)
     #deg = graph.degree[node]

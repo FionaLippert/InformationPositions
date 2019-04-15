@@ -1408,10 +1408,11 @@ cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSy
     avgSnapshots = np.sum(avgSnapshots, axis=0)
     avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
 
-    #print(MIs_avg.base.shape)
+    print(MIs_avg.base.shape)
 
     for n in range(nNodes):
-        MIs_avg[n] = np.array([computeMI_jointPDF(avgSnapshots[n][d], Z)[0] for d in range(maxDist)])
+        for d in range(maxDist):
+            MIs_avg[n][d] = computeMI_jointPDF(avgSnapshots[n][d], Z)[0]
         MIs_system[n], Hs[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
 
     return MIs_avg.base, MIs_system.base, Hs.base
