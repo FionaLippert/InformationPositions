@@ -4,8 +4,8 @@
 {
     "distutils": {
         "depends": [
-            "/home/fiona/.local/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h",
-            "/home/fiona/.local/lib/python3.6/site-packages/numpy/core/include/numpy/ufuncobject.h",
+            "/hpc/eb/Debian9/Python/3.6.3-foss-2017b/lib/python3.6/site-packages/numpy-1.13.3-py3.6-linux-x86_64.egg/numpy/core/include/numpy/arrayobject.h",
+            "/hpc/eb/Debian9/Python/3.6.3-foss-2017b/lib/python3.6/site-packages/numpy-1.13.3-py3.6-linux-x86_64.egg/numpy/core/include/numpy/ufuncobject.h",
             "Models/vfastexp.h"
         ],
         "extra_compile_args": [
@@ -22,7 +22,7 @@
         ],
         "include_dirs": [
             "Models",
-            "/home/fiona/.local/lib/python3.6/site-packages/numpy/core/include",
+            "/hpc/eb/Debian9/Python/3.6.3-foss-2017b/lib/python3.6/site-packages/numpy-1.13.3-py3.6-linux-x86_64.egg/numpy/core/include",
             "."
         ],
         "language": "c++",
