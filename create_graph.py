@@ -177,7 +177,7 @@ if __name__ == '__main__':
 
     #node = 0
     #print(nx.clustering(graph, [0,37]))
-
+    """
     targetDirectory = f'{os.getcwd()}/networkData/BA'
     os.makedirs(targetDirectory, exist_ok=True)
     N=1000
@@ -190,11 +190,12 @@ if __name__ == '__main__':
             sample_nodes = np.random.choice(nodes, size=10, replace=False)
             for n in sample_nodes:
                 f.write(f'{n}\n')
-
+    """
+    """
     targetDirectory = f'{os.getcwd()}/networkData/SF'
     os.makedirs(targetDirectory, exist_ok=True)
     N=1000
-    gamma=1.8
+    gamma=2.2
     for i in range(10):
         G = create_powerlaw_graph(N, gamma, targetDirectory, f'_v{i}')
         nodes = list(G)
@@ -203,3 +204,4 @@ if __name__ == '__main__':
             sample_nodes = np.random.choice(nodes, size=10, replace=False)
             for n in sample_nodes:
                 f.write(f'{n}\n')
+    """
