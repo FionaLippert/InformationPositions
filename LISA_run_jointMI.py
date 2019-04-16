@@ -98,8 +98,8 @@ if __name__ == '__main__':
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
 
         avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=1, getFullSnapshots=1)
-
-        MI, corr = infcy.runMI(model, np.array([node]), snapshots, repeats=args.repeats, distMax=maxDist)
+        np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
+        MI, corr = infcy.runMI(model, np.array([node]), snapshots, distMax=maxDist)
         MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)

@@ -101,14 +101,16 @@ if __name__ == '__main__':
                                                                             initStateIdx=1, getFullSnapshots=1)
 
         start_2 = timer()
-        print(fullSnapshots.shape)
-        MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
-        #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
+        #print(fullSnapshots.shape)
         now = time.time()
-        np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
-        np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
+        np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
+        #MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+        #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
+        #now = time.time()
+        #np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
+        #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
-        print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
+        #print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
 
         Z = args.numSamples * args.repeats
         """
