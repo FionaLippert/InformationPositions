@@ -139,7 +139,7 @@ if __name__ == '__main__':
     ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
     """
 
-    #targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
+    targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
     #os.makedirs(targetDirectory, exist_ok=True)
     #create_2D_grid(10, targetDirectory)
     #create_2D_grid(20, targetDirectory)
@@ -149,6 +149,9 @@ if __name__ == '__main__':
     #create_2D_grid(50, targetDirectory)
     #create_2D_grid(100, targetDirectory)
     #create_2D_grid(60, targetDirectory)
+    create_2D_grid(16, targetDirectory)
+    create_2D_grid(64, targetDirectory)
+    create_2D_grid(128, targetDirectory)
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
