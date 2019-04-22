@@ -31,3 +31,8 @@ for filepath in glob.iglob('networkData/ER/*.gpickle'):
 """
 G = nx.read_gpickle('networkData/unweighted_criminal_after_2012.gpickle')
 np.save('networkData/unweighted_criminal_after_2012_nodes.npy', np.array(list(G)))
+with open('networkData/unweighted_criminal_after_2012_sample_nodes_weighted.txt', 'w') as f:
+    #sample_nodes = np.random.choice(nodes, size=10, replace=False)
+    samples = sample_nodes(G, 10)
+    for n in samples:
+        f.write(f'{n}\n')
