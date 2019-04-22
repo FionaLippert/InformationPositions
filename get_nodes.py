@@ -16,7 +16,7 @@ def sample_nodes(G, num_nodes):
     prob_seq /= np.sum(prob_seq)
     node_samples = np.random.choice([n for d, n in degree_sequence], p=prob_seq, size=num_nodes)
     return np.array([G.degree(n) for n in node_samples])
-
+"""
 for filepath in glob.iglob('networkData/ER/*.gpickle'):
     G = nx.read_gpickle(filepath)
     nodes = list(G)
@@ -28,3 +28,6 @@ for filepath in glob.iglob('networkData/ER/*.gpickle'):
         samples = sample_nodes(G, 10)
         for n in samples:
             f.write(f'{n}\n')
+"""
+G = nx.read_gpickle('networkData/unweighted_criminal_after_2012.gpickle')
+np.save('networkData/unweighted_criminal_after_2012_nodes.npy', np.array(list(G)))
