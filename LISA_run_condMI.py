@@ -24,6 +24,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('node', type=int, help='central node ID')
 parser.add_argument('maxDist', type=int, help='max distance to central node')
+parser.add_argument('--minDist', type=int, default=1, help='min distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
 parser.add_argument('--minCorrTime', type=int, default=1, help='min distance between two samples in the MC')
@@ -50,9 +51,13 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
 
                 # determine correlation time for subgraph Ising model
-                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, nodeG=node, **corrTimeSettings)
-                if args.maxCorrTime > 0: distSamples_subgraph = min(distSamples_subgraph, args.maxCorrTime)
-                distSamples_subgraph = max(distSamples_subgraph, args.minCorrTime)
+                if args.maxCorrTime == args.minCorrTime:
+                    distSamples_subgraph = args.maxCorrTime
+                    mixingTime_subgraph = corrTimeSettings['burninSteps']
+                else:
+                    mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, nodeG=node, **corrTimeSettings)
+                    if args.maxCorrTime > 0: distSamples_subgraph = min(distSamples_subgraph, args.maxCorrTime)
+                    distSamples_subgraph = max(distSamples_subgraph, args.minCorrTime)
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
 
@@ -128,7 +133,7 @@ if __name__ == '__main__':
     with open(f'{targetDirectory}/neighboursG_node={node}.pickle', 'wb') as f:
         pickle.dump(allNeighbours_G, f)
 
-    minDist = 1
+    minDist = args.minDist
     nTrials = args.repeats
     nSamples = args.numSamples
 

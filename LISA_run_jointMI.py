@@ -106,9 +106,8 @@ if __name__ == '__main__':
 
 
         Z = args.numSamples*args.repeats
-        MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z) for d in range(maxDist)]
-        MI_system = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
-        H = infcy.compute_spin_entropy(np.sum(avgSystemSnapshots, axis=0), Z)
+        MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z) for d in range(maxDist)[0]]
+        MI_system, H = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
 
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), np.array(MIs_avg))
