@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
 
         Z = args.numSamples*args.repeats
-        MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z) for d in range(maxDist)[0]]
+        MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z)[0] for d in range(maxDist)]
         MI_system, H = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
 
         now = time.time()
