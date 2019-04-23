@@ -98,7 +98,7 @@ if __name__ == '__main__':
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         now = time.time()
         avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=1, getFullSnapshots=1)
-        np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
+        #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
         with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
         MI, corr = infcy.runMI(model, np.array([node]), snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)

@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     states = infcy.simulateGetStates(model, burninSteps=burninSteps, nSamples = args.nSamples)
 
-    np.save(os.path.join(targetDirectory), 'system_states.npy', states)
+    np.save(os.path.join(targetDirectory, 'system_states.npy'), states)
     with open(os.path.join(targetDirectory, f'node_mapping.pickle'), 'wb') as f:
         pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
 
