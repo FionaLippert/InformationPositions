@@ -18,7 +18,7 @@ def sample_nodes(G, num_nodes):
     print(np.array([G.degree(n) for n in node_samples]))
     return node_samples
 
-for filepath in glob.iglob('networkData/WS/*.gpickle'):
+for filepath in glob.iglob('networkData/regular_graphs/*.gpickle'):
     G = nx.read_gpickle(filepath)
     nodes = list(G)
     path = filepath.strip('.gpickle')

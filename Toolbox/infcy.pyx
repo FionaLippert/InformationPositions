@@ -1888,6 +1888,27 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
+cpdef long[:,::1] simulateGetStates(Model model, long burninSteps = int(1e2), long nSamples = int(1e2)):
+    cdef:
+        long[:, ::1] r = model.sampleNodes(nSamples)
+        long step
+        long[:,::1] states = np.zeros((nSamples, model._nNodes), dtype=int)
+
+    model.simulateNSteps(burninSteps)
+
+    for step in range(nSamples):
+        model._updateState(r[step])
+        states[step] = model._states
+
+    return states
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
 cdef double[::1] simulateGetStdMag(Model model, long nSamples = int(1e2), int abs=1) nogil:
     cdef:
         long[:, ::1] r = model.sampleNodes(nSamples)
