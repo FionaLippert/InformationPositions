@@ -566,6 +566,7 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
     else:
         return avgSnapshots.base, avgSystemSnapshots.base
 
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -669,33 +670,28 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef tuple getJointSnapshotsPerDist(Model model, long nodeG, \
-              unordered_map[long, vector[long]] allNeighboursG, \
-              long nSamples = int(1e3), long burninSamples = int(1e3), \
-              int maxDist = 1, int nBins=10, double threshold = 0.05, \
+              unordered_map[long, vector[long]] allNeighboursG,
+              long repeats = 10, \
+              long nSamples = int(1e3), long burninSamples = int(1e3),
+              long distSamples = 100, \
+              int maxDist = 1, \
               int threads = -1, int initStateIdx = -1):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
     Only take snapshots of the specified node subset, ignore all others
     """
     cdef:
-        vector[unordered_map[int, unordered_map[string, double]]] snapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
-        vector[unordered_map[int, unordered_map[string, double]]] oldSnapshots = vector[unordered_map[int, unordered_map[string, double]]](maxDist)
-        vector[unordered_map[int, unordered_map[int, double]]] avgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
-        vector[unordered_map[int, unordered_map[int, double]]] oldAvgSnapshots = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
+        vector[unordered_map[int, unordered_map[string, long]]] snapshots = vector[unordered_map[int, unordered_map[string, long]]](maxDist)
 
 
-        long nodeIdx, d, i, sample
-        double Z       = 0#= <double> nSamples
-        #double part = 1/Z
+        long nodeIdx, d, i, sample, rep
+        long Z       = repeats * nSamples
         string state
         double past    = timer()
         PyObject *modelptr
         vector[PyObjectHolder] models_
         int tid, nodeSpin, s, avg
         int nThreads = mp.cpu_count() if threads == -1 else threads
-        np.ndarray KL = np.ones(maxDist)
-        double KL_d
-        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
 
         unordered_map[long, vector[long]] allNeighboursIdx
 
@@ -709,66 +705,28 @@ cpdef tuple getJointSnapshotsPerDist(Model model, long nodeG, \
         tmp = copy.deepcopy(model)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        with gil:
+            (<Model>modelptr).seed += rep # enforce different seeds
+            (<Model>modelptr).resetAllToAgentState(initStateIdx)
 
-    # for testing
-    #allNeighbours = model.neighboursAtDist(0, 3)
-    #print(allNeighbours[2])
-
-    while True:
-        #pbar = tqdm(total = nSamples) # init  progbar
-        for sample in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
-            tid = threadid()
-            modelptr = models_[tid].ptr
-            if Z == 0:
-                with gil:
-                    (<Model>modelptr).seed += sample # enforce different seeds
-                    #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
-                    (<Model>modelptr).resetAllToAgentState(initStateIdx)
-                    #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
+        (<Model>modelptr).simulateNSteps(burninSamples)
 
 
-            (<Model>modelptr).simulateNSteps(burninSamples)
+        for sample in range(nSamples):
+
+            (<Model>modelptr).simulateNSteps(distSamples)
 
             #print(f'snapshot: {(<Model> models_[tid].ptr)._states.base}')
             nodeSpin = (<Model> modelptr)._states[nodeIdx]
             #with gil: print((<Model> modelptr)._states.base)
             for d in range(maxDist):
                 with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-                avg = (<Model> modelptr).encodeStateToAvg(allNeighboursIdx[d+1], bins)
-                #if(np.frombuffer(idx).size > allNeighbours[d+1].size()):
-                #    print(f'error!!!! {d} {np.frombuffer(idx)} {allNeighbours[d+1]}')
-                #    for i in range(allNeighbours[d+1].size()):
-                #        print((<Model> models_[tid].ptr)._states[allNeighbours[d+1][i]])
-                #snapshots[d][idx] += 1 #part # each index corresponds to one system state, the array contains the probability of each state
                 snapshots[d][nodeSpin][state] += 1
-                avgSnapshots[d][nodeSpin][avg] +=1
-            #print(f'{tid}final state: {(<Model> models_[tid].ptr)._states.base}')
-            #with gil: pbar.update(1)
-        # check mean squared error between previous distr and current distr of snapshots
-        #mse = 0
-        if Z > 0:
-            for d in range(maxDist):
-                pNew = np.array([avgSnapshots[d][s][k]/(Z+nSamples) for s in model.agentStates for k in dict(avgSnapshots[d][s])])
-                pOld = np.array([oldAvgSnapshots[d][s][k]/Z if k in dict(oldAvgSnapshots[d][s]) else 0 for s in model.agentStates for k in dict(avgSnapshots[d][s])])
-                KL_d = scipy.stats.entropy(pOld, pNew, base=2) # computes the Kullback-Leibler divergence: information gain if pNew is used instead of pOld
-                #differences = np.array([(oldSnapshots[d][s][k]/Z - snapshots[d][s][k]/(Z+nSamples)) if k in dict(oldSnapshots[d][s]) \
-                #                        else snapshots[d][s][k]/(Z+nSamples) for s in model.agentStates for k in dict(snapshots[d][s])])
 
-                #mse[d] = np.sum(np.power(differences, 2))
-                KL[d] = KL_d
-        oldAvgSnapshots = avgSnapshots
-        Z += nSamples
-        print(f'KL = {KL}')
-        if np.all(KL < threshold):
-            break
-
-    #cdef dict s = snapshots
-    #print(f'Found {len(snapshots)} states with probs {list(s.values())}')
-    #print(f"Time to get snapshots = {timer() - past: .2f} sec")
-    #for d in range(maxDist):
-    #    for s in model.agentStates:
-    #        snapshots[d][s] = {k: v / Z for k, v in dict(snapshots[d][s]).items()}
-    return snapshots, avgSnapshots, Z
+    return snapshots, Z
 
 
 cpdef np.ndarray monteCarloFixedNeighbours(Model model, string snapshot, long nodeIdx, \
@@ -1392,6 +1350,24 @@ cpdef tuple computeMI_jointPDF(np.ndarray snapshots, long Z):
     P_XY = snapshots.flatten()/Z
     P_X = np.sum(snapshots, axis=1)/Z # sum over all bins
     P_Y = np.sum(snapshots, axis=0)/Z # sum over all spin states
+    H_X = stats.entropy(P_X, base=2)
+    MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
+    return MI, H_X
+
+cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, long]] snapshots, long Z):
+    cdef:
+        np.ndarray P_XY, P_X, P_Y, jointPDF, states
+        double MI, H_X, p
+        dict d
+
+    states = np.unique([s for d in dict(snapshots).values() for s in d.keys()])
+    jointPDF = np.array([[d[s] if s in d else 0 for s in states] for d in dict(snapshots).values()])
+    #jointPDF = np.array([[s for s in states] for d in snapshots[d].values()]) #.reshape((len(snapshots), -1))
+    #P_XY = np.array([p for d in dict(snapshots).values() for p in dict(d).values()])/Z
+    P_XY = jointPDF.flatten()/Z
+    #P_X = np.array([np.sum([p for p in dict(d).values()]) for d in dict(snapshots).values()]) # sum over all neighbourhood states
+    P_X = np.sum(jointPDF, axis=1)/Z
+    P_Y = np.sum(jointPDF, axis=0)/Z # sum over all spin states
     H_X = stats.entropy(P_X, base=2)
     MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
     return MI, H_X
