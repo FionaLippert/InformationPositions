@@ -104,6 +104,7 @@ if __name__ == '__main__':
         Tc = find_Tc_gaussian(sus, temps)
         print(Tc)
         all_Tc[i] = Tc
+        print(sus)
 
         tmp = dict( \
                 temps = temps, \

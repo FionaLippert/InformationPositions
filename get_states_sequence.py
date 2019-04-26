@@ -85,6 +85,7 @@ if __name__ == '__main__':
     IO.saveResults(targetDirectory, mixingResults, 'mixingResults')
 
     states = infcy.simulateGetStates(model, burninSteps=burninSteps, nSamples = args.nSamples)
+    print(states.shape)
 
     np.save(os.path.join(targetDirectory, 'system_states.npy'), states)
     with open(os.path.join(targetDirectory, f'node_mapping.pickle'), 'wb') as f:
