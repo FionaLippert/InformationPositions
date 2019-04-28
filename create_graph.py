@@ -157,8 +157,9 @@ if __name__ == '__main__':
     targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
     os.makedirs(targetDirectory, exist_ok=True)
     #create_regular_graph(1000, 2, targetDirectory)
-    create_regular_graph(10000, 3, targetDirectory)
-    create_regular_graph(10000, 4, targetDirectory)
+    #create_regular_graph(10000, 3, targetDirectory)
+    #create_regular_graph(10000, 4, targetDirectory)
+    create_regular_graph(10000, 5, targetDirectory)
 
 
     """
