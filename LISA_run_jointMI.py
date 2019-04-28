@@ -108,7 +108,13 @@ if __name__ == '__main__':
 
 
         Z = args.numSamples*args.repeats
-        MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z)[0] for d in range(maxDist)]
+        #MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z)[0] for d in range(maxDist)]
+        #MI_system, H = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
+
+        MIs_avg = np.zeros((args.repeats,maxDist))
+        for rep in range(args.repeats):
+            MIs_avg[rep,:] = np.array([infcy.computeMI_jointPDF(avgSnapshots[rep,d,:,:], Z)[0] for d in range(maxDist)])
+
         MI_system, H = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
 
         now = time.time()
