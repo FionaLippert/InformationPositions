@@ -282,7 +282,7 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
                 with gil:
                     (<Model>modelptr).seed += sample # enforce different seeds
                     #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
-                    (<Model>modelptr).resetAllToAgentState(initStateIdx)
+                    (<Model>modelptr).resetAllToAgentState(initStateIdx, tid)
                     #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
 
 
@@ -371,7 +371,7 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
     for rep in range(nThreads):
         tmp = copy.deepcopy(model)
         tmp.seed += rep
-        tmp.resetAllToAgentState(initStateIdx)
+        tmp.resetAllToAgentState(initStateIdx, rep)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
@@ -440,7 +440,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
     for rep in range(nThreads):
         tmp = copy.deepcopy(model)
         tmp.seed += rep
-        tmp.resetAllToAgentState(initStateIdx)
+        tmp.resetAllToAgentState(initStateIdx, rep)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
@@ -533,7 +533,7 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
         with gil:
             (<Model>modelptr).seed += rep # enforce different seeds
             #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
-            (<Model>modelptr).resetAllToAgentState(initStateIdx)
+            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
             #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
 
         (<Model>modelptr).simulateNSteps(burninSamples)
@@ -632,7 +632,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         with gil:
             (<Model>modelptr).seed += rep # enforce different seeds
             #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
-            (<Model>modelptr).resetAllToAgentState(initStateIdx)
+            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
             #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
 
         (<Model>modelptr).simulateNSteps(burninSamples)
@@ -710,7 +710,7 @@ cpdef tuple getJointSnapshotsPerDist(Model model, long nodeG, \
         modelptr = models_[tid].ptr
         with gil:
             (<Model>modelptr).seed += rep # enforce different seeds
-            (<Model>modelptr).resetAllToAgentState(initStateIdx)
+            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
 
         (<Model>modelptr).simulateNSteps(burninSamples)
 
@@ -763,6 +763,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
        long[::1] decodedStates
        long[::1] initialState
        long[:,::1] sampledStates
+       int i
 
     for idx in range(model.agentStates.shape[0]):
         idxer[model.agentStates[idx]] = idx
@@ -792,7 +793,10 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
         #with gil: print(trial, part, probCondArr.base)
         # set states without gil
         if initStateIdx < 0:
-            with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
+            #with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
+            with gil:
+                i = np.mod(trial, model.agentStates.shape[0])
+                initialState = np.ones(model._nNodes, int) * model.agentStates[i]
         else:
             with gil: initialState = np.ones(model._nNodes, int) * model.agentStates[initStateIdx]
 
@@ -1191,7 +1195,7 @@ cpdef long[:,::1] equilibriumSampling(Model model, long repeats, \
         tid = threadid()
         modelptr = models_[tid].ptr
         with gil:
-            (<Model>modelptr).resetAllToAgentState(initStateIdx)
+            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
             (<Model>modelptr).seed += rep # enforce different seeds
         (<Model>modelptr).simulateNSteps(burninSamples)
         start = rep * nSamples
@@ -1235,7 +1239,7 @@ cpdef long[:,::1] equilibriumSamplingMagThreshold(Model model, long repeats, \
         tid = threadid()
         modelptr = models_[tid].ptr
         with gil:
-            (<Model>modelptr).resetAllToAgentState(initStateIdx)
+            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
             (<Model>modelptr).seed += rep
         (<Model>modelptr).simulateNSteps(burninSamples)
         start = rep * nSamples

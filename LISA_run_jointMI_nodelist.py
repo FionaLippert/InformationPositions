@@ -27,6 +27,8 @@ parser.add_argument('--runs', type=int, default=1, help='number of repetititve r
 parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
+parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
+parser.add_argument('--initState', type=int, default=1, help='initial system state')
 
 
 if __name__ == '__main__':
@@ -67,7 +69,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = ''
+        magSide         = args.magSide
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -98,7 +100,7 @@ if __name__ == '__main__':
 
         neighboursG, avgSnapshots, avgSystemSnapshots, fullSnapshots = infcy.getJointSnapshotsPerDistNodes(model, nodes, \
                                                                             **snapshotSettingsJoint, threads=nthreads, \
-                                                                            initStateIdx=1, getFullSnapshots=1)
+                                                                            initStateIdx=args.initState, getFullSnapshots=1)
 
         start_2 = timer()
         #print(fullSnapshots.shape)

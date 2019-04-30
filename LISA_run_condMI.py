@@ -31,12 +31,13 @@ parser.add_argument('--minCorrTime', type=int, default=1, help='min distance bet
 parser.add_argument('--snapshots', type=int, default=100, help='number of neighbourhood snapshots')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
-parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side' ('pos'/'neg'))
+parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
+parser.add_argument('--initState', type=int, default=1, help='initial system state')
 
 
 
 
-def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, initStateIdx=1):
+def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings):
     MIs = []
     HXs = []
     subgraph_nodes = [node]
@@ -65,7 +66,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 threads = nthreads if len(subgraph_nodes) > 20 else 1
 
                 _, _, MI, HX = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads, initStateIdx=initStateIdx)
+                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads, initStateIdx=args.initState)
 
                 MIs.append(MI)
                 HXs.append(HX)
@@ -143,11 +144,11 @@ if __name__ == '__main__':
         now = time.time()
 
         threads = nthreads if len(model.graph) > 20 else 1
-        snapshots, _ , _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=1)
+        snapshots, _ , _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
         with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
             pickle.dump(snapshots, f)
 
-        MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, initStateIdx=1)
+        MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
 
         np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
         np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
