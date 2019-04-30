@@ -18,24 +18,26 @@ def sample_nodes(G, num_nodes):
     print(np.array([G.degree(n) for n in node_samples]))
     return node_samples
 
+"""
 G = nx.read_gpickle('networkData/ER/ER_k=2.0_N=1000_v0.gpickle')
 g = G.copy()
 g.remove_node(333)
 nx.write_gpickle(g, f'networkData/ER/ER_k=2.0_N=1000_v0_without_333.gpickle', 2)
-
 """
-for filepath in glob.iglob('networkData/regular_graphs/*.gpickle'):
+
+n = 50
+for filepath in glob.iglob('networkData/ER/ER_k=2.0_N=1000_v0.gpickle'):
     G = nx.read_gpickle(filepath)
     nodes = list(G)
     path = filepath.strip('.gpickle')
     np.save(path + '_nodes.npy', np.array(nodes))
 
-    with open(path + '_sample_nodes_weighted.txt', 'w') as f:
+    with open(path + f'_sample_nodes_weighted_{n}.txt', 'w') as f:
         #sample_nodes = np.random.choice(nodes, size=10, replace=False)
-        samples = sample_nodes(G, 10)
-        for n in samples:
-            f.write(f'{n}\n')
-"""
+        samples = sample_nodes(G, n)
+        for node in samples:
+            f.write(f'{node}\n')
+
 """
 G = nx.read_gpickle('networkData/unweighted_criminal_after_2012.gpickle')
 nodes = list(G)

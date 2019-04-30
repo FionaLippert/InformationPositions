@@ -100,6 +100,8 @@ if __name__ == '__main__':
         with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
 
+        print(model.mapping)
+
         MIs = [infcy.computeMI_jointPDF_exact(snapshots[d], Z)[0] for d in range(maxDist)]
 
         now = time.time()

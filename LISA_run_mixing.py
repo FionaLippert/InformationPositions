@@ -58,6 +58,9 @@ if __name__ == '__main__':
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
+    print(model.mapping)
+    print(list(graph))
+
 
     # determine mixing/correlation time
     mixingTimeSettings = dict( \
@@ -98,7 +101,7 @@ if __name__ == '__main__':
         checkMixing     = 0
     )
     IO.saveSettings(targetDirectory, corrTimeSettings, 'corrTime')
-    
+
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

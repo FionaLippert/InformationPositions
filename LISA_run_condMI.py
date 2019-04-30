@@ -31,6 +31,7 @@ parser.add_argument('--minCorrTime', type=int, default=1, help='min distance bet
 parser.add_argument('--snapshots', type=int, default=100, help='number of neighbourhood snapshots')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
+parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side' ('pos'/'neg'))
 
 
 
@@ -105,7 +106,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = ''
+        magSide         = args.magSide
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -139,12 +140,15 @@ if __name__ == '__main__':
 
 
     for i in range(args.runs):
+        now = time.time()
+
         threads = nthreads if len(model.graph) > 20 else 1
         snapshots, _ , _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=1)
+        with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
+            pickle.dump(snapshots, f)
 
         MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, initStateIdx=1)
 
-        now = time.time()
         np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
         np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
 
