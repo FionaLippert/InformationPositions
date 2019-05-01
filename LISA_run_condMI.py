@@ -33,13 +33,16 @@ parser.add_argument('--repeats', type=int, default=10, help='number of parallel 
 parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
 parser.add_argument('--initState', type=int, default=1, help='initial system state')
+parser.add_argument('--getStates', type=int, default=0, help='get system states instead of MI')
 
 
 
 
-def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings):
+def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, spinProbs, nTrials, nSamples, modelSettings, corrTimeSettings):
     MIs = []
     HXs = []
+    all_states = {}
+    all_mappings = {}
     subgraph_nodes = [node]
     for d in range(1, maxDist+1):
         # get subgraph and outer neighbourhood at distance d
@@ -51,6 +54,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph_nodes)}, num states = {len(snapshots[d-1])} -----------------------')
 
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
+                all_mappings[d] = model_subgraph.mapping
 
                 # determine correlation time for subgraph Ising model
                 if args.maxCorrTime == args.minCorrTime:
@@ -65,13 +69,24 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
 
                 threads = nthreads if len(subgraph_nodes) > 20 else 1
 
-                _, _, MI, HX = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads, initStateIdx=args.initState)
+                if args.getStates:
+                    _, states = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], spinProbs, \
+                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
+                          threads=threads, initStateIdx=args.initState, getStates=1)
+                    all_states[d] = states
 
-                MIs.append(MI)
-                HXs.append(HX)
-    print(MIs)
-    return MIs, HXs
+                else:
+                    _, _, MI, HX = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], spinProbs, \
+                              nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads, initStateIdx=args.initState)
+
+                    MIs.append(MI)
+                    HXs.append(HX)
+                    print(MIs)
+
+    if args.getStates:
+        return all_states, all_mappings
+    else:
+        return MIs, HXs
 
 
 
@@ -107,7 +122,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = args.magSide
+        magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -131,6 +146,12 @@ if __name__ == '__main__':
     )
     IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
 
+    modelSettingsCond = dict( \
+        temperature     = T, \
+        updateType      = 'async' ,\
+        magSide         = ''
+    )
+
 
     with open(f'{targetDirectory}/neighboursG_node={node}.pickle', 'wb') as f:
         pickle.dump(allNeighbours_G, f)
@@ -144,14 +165,22 @@ if __name__ == '__main__':
         now = time.time()
 
         threads = nthreads if len(model.graph) > 20 else 1
-        snapshots, _ , _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
+        snapshots, _ , system_states, spinProbs = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
         with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
             pickle.dump(snapshots, f)
 
-        MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)
+        #np.save(f'{targetDirectory}/system_states_{now}.npy', system_states)
 
-        np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
-        np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
+        if args.getStates:
+            states, mappings = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, spinProbs, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
+            with open(f'{targetDirectory}/subsystem_states_{now}.pickle', 'wb') as f:
+                pickle.dump(states, f)
+            with open(f'{targetDirectory}/subsystem_mappings_{now}.pickle', 'wb') as f:
+                pickle.dump(mappings, f)
+        else:
+            MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, spinProbs, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
+            np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
+            np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

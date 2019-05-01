@@ -4,8 +4,8 @@
 {
     "distutils": {
         "depends": [
-            "/hpc/eb/Debian9/Python/3.6.3-foss-2017b/lib/python3.6/site-packages/numpy-1.13.3-py3.6-linux-x86_64.egg/numpy/core/include/numpy/arrayobject.h",
-            "/hpc/eb/Debian9/Python/3.6.3-foss-2017b/lib/python3.6/site-packages/numpy-1.13.3-py3.6-linux-x86_64.egg/numpy/core/include/numpy/ufuncobject.h",
+            "/home/fiona/.local/lib/python3.6/site-packages/numpy/core/include/numpy/arrayobject.h",
+            "/home/fiona/.local/lib/python3.6/site-packages/numpy/core/include/numpy/ufuncobject.h",
             "Models/vfastexp.h"
         ],
         "extra_compile_args": [
@@ -22,7 +22,7 @@
         ],
         "include_dirs": [
             "Models",
-            "/hpc/eb/Debian9/Python/3.6.3-foss-2017b/lib/python3.6/site-packages/numpy-1.13.3-py3.6-linux-x86_64.egg/numpy/core/include",
+            "/home/fiona/.local/lib/python3.6/site-packages/numpy/core/include",
             "."
         ],
         "language": "c++",
@@ -1479,7 +1479,7 @@ struct __pyx_vtabstruct_6Models_6models_Model {
   void (*loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, PyObject *, std::vector<long> , int __pyx_skip_dispatch);
   void (*_loadStatesFromString)(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice, std::vector<long> );
   void (*reset)(struct __pyx_obj_6Models_6models_Model *, int __pyx_skip_dispatch);
-  void (*resetAllToAgentState)(struct __pyx_obj_6Models_6models_Model *, int, int __pyx_skip_dispatch);
+  void (*resetAllToAgentState)(struct __pyx_obj_6Models_6models_Model *, int, int, int __pyx_skip_dispatch);
   PyObject *(*neighboursAtDist)(struct __pyx_obj_6Models_6models_Model *, long, int, int __pyx_skip_dispatch);
   void (*_setStates)(struct __pyx_obj_6Models_6models_Model *, __Pyx_memviewslice);
 };

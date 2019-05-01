@@ -58,8 +58,8 @@ if __name__ == '__main__':
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
-    print(model.mapping)
-    print(list(graph))
+    #print(model.mapping)
+    #print(list(graph))
 
 
     # determine mixing/correlation time

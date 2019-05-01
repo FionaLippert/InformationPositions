@@ -26,7 +26,7 @@ nx.write_gpickle(g, f'networkData/ER/ER_k=2.0_N=1000_v0_without_333.gpickle', 2)
 """
 
 n = 20
-for filepath in glob.iglob('networkData/ER/ER_k=2.0_N=1000_v0.gpickle'):
+for filepath in glob.iglob('networkData/ER/ER_k=2.0_N=1000_v4.gpickle'):
     G = nx.read_gpickle(filepath)
     nodes = list(G)
     path = filepath.strip('.gpickle')
