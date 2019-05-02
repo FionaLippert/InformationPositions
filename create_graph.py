@@ -34,6 +34,40 @@ def create_cayley_tree(z, depth, path=None):
 
     return graph
 
+def create_undirected_star(z, path=None):
+    graph = nx.star_graph(z)
+
+    if path is not None: nx.write_gpickle(graph, \
+                f'{path}/undirected_star_z={z}.gpickle', 2)
+
+    return graph
+
+def create_directed_star_path_graph(z, depth, path=None):
+    graph = nx.DiGraph()
+    graph.add_star(range(z))
+    for node in range(1, z):
+        path_nodes = [node]
+        path_nodes.extend(range(len(graph), len(graph)+depth))
+        graph.add_path(path_nodes)
+
+    if path is not None: nx.write_gpickle(graph, \
+                f'{path}/directed_star_path_graph_z={z}_depth={depth}.gpickle', 2)
+
+    return graph
+
+def create_undirected_star_path_graph(z, depth, path=None):
+    graph = nx.Graph()
+    graph.add_star(range(z))
+    for node in range(1, z):
+        path_nodes = [node]
+        path_nodes.extend(range(len(graph), len(graph)+depth))
+        graph.add_path(path_nodes)
+
+    if path is not None: nx.write_gpickle(graph, \
+                f'{path}/undirected_star_path_graph_z={z}_depth={depth}.gpickle', 2)
+
+    return graph
+
 def create_regular_graph(N, d, path=None):
     graph = nx.random_regular_graph(d, N)
     connected_nodes = max(nx.connected_components(graph), key=len)
@@ -153,14 +187,25 @@ if __name__ == '__main__':
     #create_2D_grid(64, targetDirectory)
     #create_2D_grid(128, targetDirectory)
 
+    """
+    targetDirectory = f'{os.getcwd()}/networkData'
+    os.makedirs(targetDirectory, exist_ok=True)
+    for z in range(3,11):
+        create_undirected_star(z, targetDirectory)
+    """
+    G = nx.read_gpickle('networkData/ER/ER_k=2.0_N=1000_v0.gpickle')
+    G_sub = nx.ego_graph(G, 283, 8)
+    nx.write_gpickle(G_sub, f'networkData/ER/ER_k=2.0_N=1000_v0_ego_283.gpickle', 2)
+    print(list(G_sub))
 
+    """
     targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
     os.makedirs(targetDirectory, exist_ok=True)
     #create_regular_graph(1000, 2, targetDirectory)
     #create_regular_graph(10000, 3, targetDirectory)
     #create_regular_graph(10000, 4, targetDirectory)
     create_regular_graph(10000, 5, targetDirectory)
-
+    """
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/WS'

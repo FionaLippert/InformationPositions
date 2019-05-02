@@ -5,39 +5,35 @@
 
 from Models import fastIsing
 from Toolbox import infcy
-from Utils import IO, plotting as plotz
-from Utils.IO import SimulationResult
-import networkx as nx, itertools, scipy,\
-        os, pickle, h5py, sys, multiprocessing as mp, json,\
-        datetime, sys
-import time
-import timeit
-from timeit import default_timer as timer
-from matplotlib.pyplot import *
-from numpy import *
+from Utils import IO
+import networkx as nx, itertools, scipy, time, \
+                os, pickle, sys, argparse, multiprocessing as mp
+import itertools
+import numpy as np
 from tqdm import tqdm
-from functools import partial
-from scipy import sparse, stats
-from threading import Thread
-close('all')
+from timeit import default_timer as timer
+from scipy import stats
+
+nthreads = mp.cpu_count() - 1
+#nthreads = 1
 
 
-def computeMI_joint(jointSnapshots, maxDist, Z):
+parser = argparse.ArgumentParser(description='run MC chain and compute MI based on conditional PDF of the central node with neighbour states fixed')
+parser.add_argument('dir', type=str, help='target directory')
+parser.add_argument('z', type=int, help='degree of star graph')
+parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
+parser.add_argument('--burninSteps', type=int, default=100, help='steps to reach equilibrium')
+parser.add_argument('--distSamples', type=int, default=100, help='distance between two samples in the MC chain')
+parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
+parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
+parser.add_argument('--fixMag', action='store_true', help='initial system state')
+
+
+
+
+def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings):
     MIs = []
-    for d in tqdm(range(maxDist)):
-        P_XY = np.array(sorted([v/Z2 for s in jointSnapshots[d].keys() for v in jointSnapshots[d][s].values()]))
-        P_X = np.array([sum(list(dict_s.values()))/Z for dict_s in jointSnapshots[d].values()])
-        all_keys = set.union(*[set(dict_s.keys()) for dict_s in jointSnapshots[d].values()])
-        P_Y = np.array([jointSnapshots[d][1][k]/Z if k in jointSnapshots[d][1] else 0 for k in all_keys]) + \
-                np.array([jointSnapshots[d][-1][k]/Z if k in jointSnapshots[d][-1] else 0 for k in all_keys])
-
-        MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
-        MIs.append(MI)
-    return MIs
-
-
-def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings):
-    MIs = []
+    HXs = []
     subgraph_nodes = [node]
     for d in range(1, maxDist+1):
         # get subgraph and outer neighbourhood at distance d
@@ -46,105 +42,88 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
             subgraph = graph.subgraph(subgraph_nodes)
 
             if d >= minDist:
-                print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, num states = {len(snapshots[d-1])} -----------------------')
+                print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph_nodes)}, num states = {len(snapshots[d-1])} -----------------------')
+
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
-                # determine correlation time for subgraph Ising model
-                mixingTime_subgraph, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
-                #distSamples_subgraph = 1000
-                print(f'correlation time = {distSamples_subgraph}')
-                print(f'mixing time      = {mixingTime_subgraph}')
 
-                _, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7)
+                threads = nthreads if len(subgraph_nodes) > 20 else 1
 
-                #_, _, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                #          nSamples=nSamples, distSamples=distSamples_subgraph)
+                initState = 1 if args.fixMag else -1
+
+                _, _, MI, HX, _ = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
+                          nTrials=nTrials, burninSamples=args.burninSteps, nSamples=nSamples, distSamples=args.distSamples, \
+                          threads=threads, initStateIdx=initState, uniformPDF=1)
+
                 MIs.append(MI)
-    print(MIs)
-    np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}.npy', np.array(MIs))
-    return MIs
+                HXs.append(HX)
+                print(MIs)
+
+    return MIs, HXs
 
 
 
 if __name__ == '__main__':
 
-    # create data directory
-    now = time.time()
-    targetDirectory = f'{os.getcwd()}/Data/{now}'
-    os.mkdir(targetDirectory)
-    print(targetDirectory)
+    start = timer()
 
-    # setup Ising model with nNodes spin flip attempts per simulation step
-    # set temp to np.infty --> completely random
-    modelSettings = dict( \
-        temperature     = 0.5, \
-        updateType      = 'async' ,\
-        magSide         = ''
-    )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    args = parser.parse_args()
+
+    targetDirectory = os.path.join(args.dir, f'z={args.z}')
+    os.makedirs(targetDirectory, exist_ok=True)
 
     # load network
-    maxDist = 20
-    minDist = 11
-    nGraphs = 5
-    MIruns = np.zeros(nGraphs)
+    graph = nx.read_gpickle(f'networkData/undirected_star_z={args.z}.gpickle')
+    N = len(graph)
+    node = 0
+    deg = graph.degree[node]
 
-    for i, n in enumerate(range(10, 11)):
-        graph = nx.DiGraph()
-        #graph = nx.star_graph(int(n), create_using=graph)
-        graph.add_star(range(int(n)))
-        for node in range(1, int(n)):
-            path_nodes = [node]
-            path_nodes.extend(range(len(graph), len(graph)+maxDist))
-            graph.add_path(path_nodes)
-        print(graph.edges())
+    maxDist=1
+    minDist=1
 
+
+    burninSteps = 100
+    distSamples = 100
+
+
+    nTrials = args.repeats
+    nSamples = args.numSamples
+
+    temps=np.linspace(0,10, 100)
+
+    MIs = np.zeros(temps.size)
+
+    for i, T in enumerate(temps):
+        now = time.time()
+
+        # setup Ising model with nNodes spin flip attempts per simulation step
+        modelSettings = dict( \
+            temperature     = T, \
+            updateType      = 'async' ,\
+            magSide         = ''
+        )
         model = fastIsing.Ising(graph, **modelSettings)
+        allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
+        # generate all possible snapshots
+        snapshots = []
+        for d in range(maxDist):
+            num_neighbours = len(allNeighbours_G[d+1])
+            prob = 1/np.power(2, num_neighbours)
+            print(prob)
+            s = itertools.product([-1,1], repeat=num_neighbours)
+            print(list(s))
+            if args.fixMag:
+                s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours) if np.mean(state) > 0}
+            else:
+                s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours)}
+            snapshots.append(s)
 
-        # determine mixing/correlation time
-        mixingTimeSettings = dict( \
-            nInitialConfigs = 10, \
-            burninSteps  = 10, \
-            nStepsRegress   = int(1e3), \
-            nStepsCorr      = int(1e4), \
-            thresholdReg    = 0.05, \
-            thresholdCorr   = 0.05
-        )
-        mixingTime, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
-        #mixingTime = 100
-        #distSamples = 100
-        print(f'correlation time = {distSamples}')
-        print(f'mixing time      = {mixingTime}')
+        MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings)
+        MIs[i] = MI[0]
 
+    print(MIs)
 
-        corrTimeSettings = dict( \
-            nInitialConfigs = 10, \
-            burninSteps  = mixingTime, \
-            nStepsCorr      = int(1e4), \
-            thresholdCorr   = 0.05, \
-            checkMixing     = 0
-        )
+    type = 'fixedMag' if args.fixMag else 'fairMag'
+    np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
 
-        node = list(graph)[0]
-
-
-        nSnapshots = 100
-        snapshotSettingsCond = dict( \
-            nSamples    = nSnapshots, \
-            burninSamples = mixingTime, \
-            maxDist     = maxDist
-        )
-
-        snapshots, neighbours_G, neighbours_idx = infcy.getSnapshotsPerDist2(model, node, **snapshotSettingsCond)
-        print(neighbours_G)
-
-        nTrials = 100
-        nSamples = 100
-
-        computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings)[0]
-
-    #np.save(f'{targetDirectory}/MI_cond_T={model.t}_nSamples={nSamples*nTrials}.npy', np.array(MIruns))
-
-
-    print(targetDirectory)
+    print(f'time elapsed: {timer()-start : .2f} seconds')

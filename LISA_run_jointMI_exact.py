@@ -26,6 +26,8 @@ parser.add_argument('--maxDist', type=int, default=-1, help='max distance to cen
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
+parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
+parser.add_argument('--initState', type=int, default=-1, help='initial system state')
 
 
 
@@ -64,7 +66,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = ''
+        magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -95,14 +97,29 @@ if __name__ == '__main__':
 
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         now = time.time()
-        snapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=1)
+        snapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState)
         #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
         with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
 
         print(model.mapping)
 
-        MIs = [infcy.computeMI_jointPDF_exact(snapshots[d], Z)[0] for d in range(maxDist)]
+        MIs = []
+        for d in range(maxDist):
+            MI, HX, jointPDF, states = infcy.computeMI_jointPDF_exact(snapshots[d], Z)
+            MIs.append(MI)
+            print(HX)
+            print(jointPDF)
+            print(jointPDF/Z)
+            P_Y = np.sum(jointPDF, axis=0)/Z
+            H_XgivenY = [stats.entropy(jointPDF[:,i]/np.sum(jointPDF[:,i]), base=2) for i, s in enumerate(states)]
+            for i, s in enumerate(states):
+                print(np.frombuffer(s).astype(int), stats.entropy(jointPDF[:,i], base=2), P_Y[i])
+            print(f'MI = {MI}')
+
+            np.save(os.path.join(targetDirectory, f'jointPDF_d={d}_{now}.npy'), np.array(jointPDF/Z))
+            np.save(os.path.join(targetDirectory, f'HXgivenY_d={d}_{now}.npy'), H_XgivenY)
+            np.save(os.path.join(targetDirectory, f'states_d={d}_{now}.npy'), np.array(states))
 
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_joint_{now}.npy'), np.array(MIs))

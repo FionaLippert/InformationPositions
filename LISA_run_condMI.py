@@ -32,15 +32,19 @@ parser.add_argument('--snapshots', type=int, default=100, help='number of neighb
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
-parser.add_argument('--initState', type=int, default=1, help='initial system state')
-parser.add_argument('--getStates', type=int, default=0, help='get system states instead of MI')
+parser.add_argument('--initState', type=int, default=-1, help='initial system state')
+parser.add_argument('--getStates', action="store_true", help='get system states instead of MI')
+parser.add_argument('--uniformPDF', action="store_true", help='assume uniform distribution over neighbourhood snapshots')
+parser.add_argument('--generateSnapshots', action="store_true", help='generate all possible snapshots instead of sampling them from equilibrium')
 
 
 
 
-def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, spinProbs, nTrials, nSamples, modelSettings, corrTimeSettings):
+def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings):
     MIs = []
     HXs = []
+    all_HXgiveny = []
+    all_keys = []
     all_states = {}
     all_mappings = {}
     subgraph_nodes = [node]
@@ -70,23 +74,29 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, spinP
                 threads = nthreads if len(subgraph_nodes) > 20 else 1
 
                 if args.getStates:
-                    _, states = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], spinProbs, \
+                    _, states = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
-                          threads=threads, initStateIdx=args.initState, getStates=1)
+                          threads=threads, initStateIdx=args.initState, getStates=args.getStates)
                     all_states[d] = states
 
                 else:
-                    _, _, MI, HX = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], spinProbs, \
-                              nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads, initStateIdx=args.initState)
+                    _, _, MI, HX, HXgiveny, keys, probs = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
+                              nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
+                              threads=threads, initStateIdx=args.initState, uniformPDF=args.uniformPDF)
 
                     MIs.append(MI)
                     HXs.append(HX)
+                    all_keys.append(keys)
+                    all_HXgiveny.append(HXgiveny)
                     print(MIs)
+                    for i in range(len(snapshots[d-1])):
+                        print(np.frombuffer(keys[i]).astype(int), HXgiveny[i], probs[i])
+
 
     if args.getStates:
         return all_states, all_mappings
     else:
-        return MIs, HXs
+        return MIs, HXs, all_HXgiveny, all_keys
 
 
 
@@ -164,23 +174,41 @@ if __name__ == '__main__':
     for i in range(args.runs):
         now = time.time()
 
-        threads = nthreads if len(model.graph) > 20 else 1
-        snapshots, _ , system_states, spinProbs = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
-        with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
-            pickle.dump(snapshots, f)
+        if args.generateSnapshots:
+            snapshots = []
+            for d in range(maxDist):
+                num_neighbours = len(allNeighbours_G[d+1])
+                prob = 1/np.power(2, num_neighbours)
+                print(prob)
+                if args.magSide == 'pos':
+                    s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours) if np.mean(state) >= 0}
+                elif args.magSide == 'neg':
+                    s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours) if np.mean(state) <= 0}
+                else:
+                    s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours)}
+                snapshots.append(s)
+        else:
+            threads = nthreads if len(model.graph) > 20 else 1
+            snapshots, _ , system_states, spinProbs = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
+            with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
+                pickle.dump(snapshots, f)
 
-        #np.save(f'{targetDirectory}/system_states_{now}.npy', system_states)
+            #np.save(f'{targetDirectory}/system_states_{now}.npy', system_states)
 
         if args.getStates:
-            states, mappings = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, spinProbs, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
+            states, mappings = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
             with open(f'{targetDirectory}/subsystem_states_{now}.pickle', 'wb') as f:
                 pickle.dump(states, f)
             with open(f'{targetDirectory}/subsystem_mappings_{now}.pickle', 'wb') as f:
                 pickle.dump(mappings, f)
         else:
-            MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, spinProbs, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
+            MI, HX, H_XgivenY, keys = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
             np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
             np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
+
+            for d in range(minDist, maxDist+1):
+                np.save(os.path.join(targetDirectory, f'HXgivenY_d={d}_{now}.npy'), H_XgivenY[d-minDist])
+                np.save(os.path.join(targetDirectory, f'states_d={d}_{now}.npy'), keys[d-minDist])
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

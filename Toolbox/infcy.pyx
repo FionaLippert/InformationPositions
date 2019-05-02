@@ -907,9 +907,8 @@ cdef double entropyFromProbs(double[::1] probs) nogil:
 
 
 
-cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, unordered_map[string, double] snapshots,
-              double[::1] spinProbs, \
-              long nTrials, long burninSamples, long nSamples, long distSamples, int threads = -1, int initStateIdx = -1,
+cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, unordered_map[string, double] snapshots, \
+              long nTrials, long burninSamples, long nSamples, long distSamples, int threads = -1, int initStateIdx = -1, \
               int uniformPDF = 0, int getStates = 0):
     cdef:
         Model tmp
@@ -923,7 +922,7 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         #double part = 1 / (<double> totalSnapshots)
         #unordered_map[string, double] snapshots
         string state
-        double[::1] pY, pX
+        double[::1] pY, pX, allHXgiveny
         double HX, HXgiveny, HXgivenY = 0, MI = 0
 
     for idx in range(nNeighbours):
@@ -969,7 +968,9 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         double[::1] weights = np.array([snapshots[k] for k in keys])
         double[:,::1] container = np.zeros((keys.size(), model.agentStates.shape[0]))
 
-        long[:,:,::1] states = np.zeros((keys.size(), nSamples, model._nNodes), int)
+        #long[:,:,::1] states = np.zeros((keys.size(), nSamples, model._nNodes), int)
+
+    allHXgiveny = np.zeros(numStates)
 
     #print(f'Found {len(snapshots)} states')
     #print(neighboursG)
@@ -986,32 +987,36 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, vector[long] neighboursG, u
         modelptr = models_[tid].ptr
         #with gil: past = timer()
 
-        if getStates:
-            states[idx] = _monteCarloFixedNeighboursStates((<Model>modelptr), \
-                        keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
+        #if getStates:
+        #    states[idx] = _monteCarloFixedNeighboursStates((<Model>modelptr), \
+        #                keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
 
-        else:
-            container[idx] = _monteCarloFixedNeighbours((<Model>modelptr), \
-                          keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
+        #else:
+        container[idx] = _monteCarloFixedNeighbours((<Model>modelptr), \
+                      keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
 
-            HXgiveny = entropyFromProbs(container[idx])
-            HXgivenY -= probsStates[idx] * HXgiveny
+        HXgiveny = entropyFromProbs(container[idx])
+        HXgivenY -= probsStates[idx] * HXgiveny
+
+        allHXgiveny[idx] = HXgiveny
 
         with gil: pbar.update(1)
 
 
-    if getStates:
-        return snapshotsDict, states.base
-    else:
-        # compute MI based on conditional probabilities
-        pX = np.sum(np.multiply(weights.base, container.base.transpose()), axis=1)
-        HX = entropyFromProbs(pX)
-        #HX = entropyFromProbs(spinProbs)
-        MI = HXgivenY + HX
+    #if getStates:
+    #    return snapshotsDict, states.base
+    #else:
+    # compute MI based on conditional probabilities
+    pX = np.sum(np.multiply(weights.base, container.base.transpose()), axis=1)
+    pX = pX / np.sum(pX)
+    print(pX.base)
+    HX = entropyFromProbs(pX)
+    #HX = entropyFromProbs(spinProbs)
+    MI = HXgivenY + HX
 
-        print(f'MI= {MI}, H(X|Y) = {HXgivenY}, H(X) = {HX}')
+    print(f'MI= {MI}, H(X|Y) = {HXgivenY}, H(X) = {HX}')
 
-        return snapshotsDict, container.base, MI, HX
+    return snapshotsDict, container.base, MI, HX, allHXgiveny.base, keys, weights.base
 
 """
 cpdef double[::1] runNeighbourhoodMI(Model model, long node, long nSamples, long distSample, int maxDist, \
@@ -1432,6 +1437,7 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
 
     states = np.unique([s for d in dict(snapshots).values() for s in d.keys()])
     jointPDF = np.array([[d[s] if s in d else 0 for s in states] for d in dict(snapshots).values()])
+    #print(jointPDF)
     #jointPDF = np.array([[s for s in states] for d in snapshots[d].values()]) #.reshape((len(snapshots), -1))
     #P_XY = np.array([p for d in dict(snapshots).values() for p in dict(d).values()])/Z
     P_XY = jointPDF.flatten()/Z
@@ -1439,8 +1445,9 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
     P_X = np.sum(jointPDF, axis=1)/Z
     P_Y = np.sum(jointPDF, axis=0)/Z # sum over all spin states
     H_X = stats.entropy(P_X, base=2)
+
     MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
-    return MI, H_X
+    return MI, H_X, jointPDF, states
 
 
 cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, long nNodes, long maxDist):
