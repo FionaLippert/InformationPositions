@@ -117,9 +117,9 @@ if __name__ == '__main__':
                 print(np.frombuffer(s).astype(int), stats.entropy(jointPDF[:,i], base=2), P_Y[i])
             print(f'MI = {MI}')
 
-            np.save(os.path.join(targetDirectory, f'jointPDF_d={d}_{now}.npy'), np.array(jointPDF/Z))
-            np.save(os.path.join(targetDirectory, f'HXgivenY_d={d}_{now}.npy'), H_XgivenY)
-            np.save(os.path.join(targetDirectory, f'states_d={d}_{now}.npy'), np.array(states))
+            #np.save(os.path.join(targetDirectory, f'jointPDF_d={d}_{now}.npy'), np.array(jointPDF/Z))
+            #np.save(os.path.join(targetDirectory, f'HXgivenY_d={d}_{now}.npy'), H_XgivenY)
+            #np.save(os.path.join(targetDirectory, f'states_d={d}_{now}.npy'), np.array(states))
 
         now = time.time()
         np.save(os.path.join(targetDirectory, f'MI_joint_{now}.npy'), np.array(MIs))

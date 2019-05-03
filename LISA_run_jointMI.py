@@ -27,6 +27,8 @@ parser.add_argument('--runs', type=int, default=1, help='number of repetititve r
 parser.add_argument('--bins', type=int, default=100, help='number of bins for average magnetization of neighbours')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
+parser.add_argument('--initState', type=int, default=-1, help='')
+parser.add_argument('--magSide', type=str, default='', help='')
 
 
 
@@ -65,7 +67,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = ''
+        magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -97,14 +99,14 @@ if __name__ == '__main__':
 
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         now = time.time()
-        avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=1, getFullSnapshots=1)
+        avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState, getFullSnapshots=1)
         #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
         with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
         MI, corr = infcy.runMI(model, np.array([node]), snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
         MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
-        np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
-        np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
+        #np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
+        #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
 
         Z = args.numSamples*args.repeats
