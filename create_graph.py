@@ -135,6 +135,18 @@ def create_2D_grid(L, path=None, version=''):
 
 if __name__ == '__main__':
 
+
+    #graph = nx.Graph()
+    #graph.add_nodes_from(range(7))
+    #graph.add_edges_from([(0,1),(1,2),(2,3),(3,4),(3,5),(3,6)])
+    #nx.write_gpickle(graph, 'networkData/troubleshooting_subgraph_node283.gpickle', 2)
+
+    graph = nx.Graph()
+    graph.add_nodes_from(range(18))
+    graph.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(1,6),(2,7),(2,8),(3,9),(3,10),(4,11),(4,12),(4,13),(5,14),(5,15),(5,16),(5,17)])
+    nx.write_gpickle(graph, 'networkData/troubleshooting_subgraph_node109.gpickle', 2)
+
+
     #now = time.time()
     #targetDirectory = f'{os.getcwd()}/networkData/trees'
     #os.makedirs(targetDirectory, exist_ok=True)
@@ -187,17 +199,18 @@ if __name__ == '__main__':
     #create_2D_grid(64, targetDirectory)
     #create_2D_grid(128, targetDirectory)
 
-    """
-    targetDirectory = f'{os.getcwd()}/networkData'
+
+    targetDirectory = f'{os.getcwd()}/networkData/star_graph'
     os.makedirs(targetDirectory, exist_ok=True)
-    for z in range(3,11):
-        create_undirected_star(z, targetDirectory)
+    for z in range(3,8):
+        create_undirected_star_path_graph(z, 10, targetDirectory)
+
     """
     G = nx.read_gpickle('networkData/ER/ER_k=2.0_N=1000_v0.gpickle')
     G_sub = nx.ego_graph(G, 283, 8)
     nx.write_gpickle(G_sub, f'networkData/ER/ER_k=2.0_N=1000_v0_ego_283.gpickle', 2)
     print(list(G_sub))
-
+    """
     """
     targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
     os.makedirs(targetDirectory, exist_ok=True)

@@ -748,8 +748,8 @@ cpdef np.ndarray monteCarloFixedNeighbours(Model model, string snapshot, long no
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long nodeIdx, \
-               vector[long] neighboursIdx, long nTrials, long burninSamples = int(1e3), \
+cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long nodeG, \
+               vector[long] neighboursG, long nTrials, long burninSamples = int(1e3), \
                long nSamples = int(1e3), long distSamples = int(1e2), int initStateIdx = -1) nogil:
 
 
@@ -758,7 +758,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
     cdef:
        double Z = <double> nSamples * nTrials
        double part = 1/Z
-       long idx, rep, sample, length = neighboursIdx.size()
+       long nodeIdx, idx, n, rep, sample, nNeighbours = neighboursG.size()
        long nodeState
        #unordered_map[long, double] probCond
        unordered_map[int, int] idxer #= {state : idx for idx, state in enumerate(model.agentStates)}
@@ -768,6 +768,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
        long[::1] initialState
        #long[:,::1] sampledStates
        int i
+       vector[long] neighboursIdx = vector[long] (nNeighbours)
 
 
     for idx in range(model.agentStates.shape[0]):
@@ -794,6 +795,17 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
 
     #with gil: print(snapshot)
 
+    for idx in range(nNeighbours):
+        n = neighboursG[idx]
+        neighboursIdx[idx] = model._mapping[n] # map from graph to model index
+
+    nodeIdx = model._mapping[nodeG]
+
+    #with gil: print(f'neighbours Idx: {neighboursIdx}')
+    #with gil: print(f'mapping: {model.mapping}')
+
+    with gil: model.fixedNodes = neighboursIdx
+
     for trial in range(nTrials):
         #with gil: print(trial, part, probCondArr.base)
         # set states without gil
@@ -805,15 +817,20 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
         else:
             with gil: initialState = np.ones(model._nNodes, int) * model.agentStates[initStateIdx]
 
-        for idx in range(length):
+
+
+        #with gil: print('internal recovery of state')
+        for idx in range(nNeighbours):
             n = neighboursIdx[idx]
             initialState[n] = decodedStates[idx]
+            #with gil: print(n, decodedStates[idx])
 
-        with gil: print(initialState.base)
-        with gil: print(model.mapping)
+        #with gil: print(initialState.base)
+        #with gil: print(model.mapping)
 
 
         model._setStates(initialState)
+        #with gil: print({model.rmapping[idx]: initialState[idx] for idx in range(model._nNodes)})
         with gil: model.seed += 1
         #model._loadStatesFromString(decodedStates, neighbours) # keeps all other node states as they are
         model.simulateNSteps(burninSamples) # go to equilibrium
@@ -834,7 +851,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
 
 
     #print(f"time for sampling = {timer() - past: .2f} sec")
-    #model.releaseFixedNodes()
+    with gil: model.releaseFixedNodes()
 
     #with gil: print(f'{timer() - past} sec')
 
@@ -1002,14 +1019,15 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
 
     for idx in range(nNeighbours):
         n = allNeighboursG[dist][idx]
-        print(n)
+        #print(n)
         neighboursIdx[idx] = model.mapping[n] # map from graph to model index
 
-    #print(neighbours)
+    #print(f'neighbours Idx: {neighboursIdx}')
+    #print(f'mapping: {model.mapping}')
 
     for tid in range(nThreads):
        tmp = copy.deepcopy(model)
-       tmp.fixedNodes = neighboursIdx
+       #tmp.fixedNodes = neighboursIdx
        models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
     nodeIdx = model.mapping[nodeG]
@@ -1039,7 +1057,7 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
             modelptr = models_[tid].ptr
 
             container[idx] = _monteCarloFixedNeighbours((<Model>modelptr), \
-                          keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
+                          keys[idx], nodeG, allNeighboursG[dist], nTrials, burninSamples, nSamples, distSamples, initStateIdx)
 
             HXgiveny = entropyFromProbs(container[idx])
             HXgivenY -= probsStates[idx] * HXgiveny

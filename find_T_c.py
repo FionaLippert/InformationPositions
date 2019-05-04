@@ -45,7 +45,7 @@ if __name__ == '__main__':
     all_Tc = np.zeros(len(ensemble))
 
     #temps = linspace(1, 50, 500)
-    temps = linspace(1.0, 3.0, 100)
+    temps = linspace(0.1, 2.0, 500)
     #temps = linspace(0.5, 4, 500)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)

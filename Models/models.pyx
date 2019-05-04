@@ -172,8 +172,8 @@ cdef class Model: # see pxd
 
         # public and python accessible
         self.graph       = graph
-        self.mapping     = mapping
-        self.rmapping    = rmapping
+        self._mapping     = mapping
+        self._rmapping    = rmapping
         self._adj        = adj
 
         self.agentStates = np.asarray(agentStates, dtype = int).copy()
@@ -472,6 +472,10 @@ cdef class Model: # see pxd
     def seed(self)      : return self._seed
     @property
     def fixedNodes(self): return self.fixedNodes
+    @property
+    def mapping(self)   : return self._mapping
+    @property
+    def rmapping(self)  : return self._rmapping
 
     @seed.setter
     def seed(self, value):

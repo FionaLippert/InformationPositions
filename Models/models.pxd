@@ -44,6 +44,8 @@ cdef class Model:
         # np.ndarray _nudges
 
         long[::1] _fixedNodes
+        unordered_map[long, long] _mapping
+        unordered_map[long, long] _rmapping
 
         unordered_map[long, Connection] _adj # adjacency lists
         int _nStates

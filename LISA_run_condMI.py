@@ -56,8 +56,8 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
         if d in neighbours_G.keys():
             subgraph_nodes.extend(neighbours_G[d])
             subgraph = graph.subgraph(subgraph_nodes)
-            print(subgraph.edges())
-            print(nx.ego_graph(model.graph, node, d).edges())
+            #print(subgraph.edges())
+            #print(nx.ego_graph(model.graph, node, d).edges())
 
 
             if d >= minDist:
@@ -66,6 +66,10 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
                 all_mappings[d] = model_subgraph.mapping
                 #print(model_subgraph.mapping)
+
+                #print(f'neighbours G: {neighbours_G[d]}')
+                #print(f'states to fix: {[np.frombuffer(s).astype(int) for s in snapshots[d-1]]}')
+
 
                 # determine correlation time for subgraph Ising model
                 if args.maxCorrTime == args.minCorrTime:
@@ -96,7 +100,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                     all_stateDistr[d] = stateDistr
 
                 else:
-                    _, _, MI, HX, HXgiveny, keys, probs = infcy.neighbourhoodMI(model, node, d, neighbours_G, snapshots[d-1], \
+                    _, _, MI, HX, HXgiveny, keys, probs = infcy.neighbourhoodMI(model_subgraph, node, d, neighbours_G, snapshots[d-1], \
                               nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
                               threads=threads, initStateIdx=args.initState, uniformPDF=args.uniformPDF, out='MI')
 
