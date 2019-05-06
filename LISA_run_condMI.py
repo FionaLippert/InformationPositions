@@ -14,7 +14,7 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 from scipy import stats
 
-nthreads = mp.cpu_count() - 1
+nthreads = mp.cpu_count()
 #nthreads = 1
 
 
@@ -55,9 +55,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
         # get subgraph and outer neighbourhood at distance d
         if d in neighbours_G.keys():
             subgraph_nodes.extend(neighbours_G[d])
-            subgraph = graph.subgraph(subgraph_nodes)
-            #print(subgraph.edges())
-            #print(nx.ego_graph(model.graph, node, d).edges())
+            subgraph = nx.ego_graph(model.graph, node, d)
 
 
             if d >= minDist:
@@ -170,9 +168,8 @@ if __name__ == '__main__':
 
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
-    nSnapshots = args.snapshots
     snapshotSettingsCond = dict( \
-        nSamples    = nSnapshots, \
+        nSamples    = args.snapshots, \
         burninSamples = burninSteps, \
         maxDist     = maxDist
     )
@@ -211,7 +208,7 @@ if __name__ == '__main__':
                 snapshots.append(s)
         else:
             threads = nthreads if len(model.graph) > 20 else 1
-            snapshots, _ , system_states, spinProbs = infcy.getSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
+            snapshots, _  = infcy.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
             with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
                 pickle.dump(snapshots, f)
 

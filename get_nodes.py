@@ -46,6 +46,8 @@ if __name__ == '__main__':
             for node in samples:
                 f.write(f'{node}\n')
 
+        np.save(path + f'_sample_nodes_weighted_{args.n}.npy', samples)
+
     """
     G = nx.read_gpickle('networkData/unweighted_criminal_after_2012.gpickle')
     nodes = list(G)

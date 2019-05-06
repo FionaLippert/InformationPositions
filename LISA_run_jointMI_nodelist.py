@@ -28,7 +28,7 @@ parser.add_argument('--bins', type=int, default=10, help='number of bins for ave
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
-parser.add_argument('--initState', type=int, default=1, help='initial system state')
+parser.add_argument('--initState', type=int, default=-1, help='initial system state (given as index to model.agentStates)')
 
 
 if __name__ == '__main__':
@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     T = args.T
     targetDirectory = args.dir
+    os.makedirs(targetDirectory, exist_ok=True)
 
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
@@ -59,8 +60,7 @@ if __name__ == '__main__':
 
     networkSettings = dict( \
         path = args.graph, \
-        nNodes = N, \
-        nodes = args.nodes
+        nNodes = N
     )
     IO.saveSettings(targetDirectory, networkSettings, 'network')
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = args.magSide
+        magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -79,6 +79,11 @@ if __name__ == '__main__':
         corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
         burninSteps = mixingResults['burninSteps']
         distSamples = mixingResults['distSamples']
+        print(f'mixing time = {burninSteps}')
+        print(f'correlation time = {distSamples}')
+
+        burninSteps = 100
+        distSamples = 10
 
     except:
         raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
@@ -105,7 +110,7 @@ if __name__ == '__main__':
         start_2 = timer()
         #print(fullSnapshots.shape)
         now = time.time()
-        np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
+        #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
         #MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
         #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
         #now = time.time()
@@ -131,12 +136,19 @@ if __name__ == '__main__':
         """
 
         start_2 = timer()
-        MIs_avg, MIs_system, Hs = infcy.processJointSnapshotsNodes(avgSnapshots, avgSystemSnapshots, Z, nodes.size, maxDist)
-        print(MIs_avg)
+        MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, avgSystemSnapshots, Z, nodes, maxDist)
+        print(MI_avg)
         now = time.time()
-        np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
-        np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), MIs_system)
-        np.save(os.path.join(targetDirectory, f'H_nodes_{now}.npy'), Hs)
+        #np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
+        #np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), MIs_system)
+        #np.save(os.path.join(targetDirectory, f'H_nodes_{now}.npy'), Hs)
+
+        with open(f'{targetDirectory}/MI_meanField_nodes_{now}.pickle', 'wb') as f:
+            pickle.dump(MI_avg, f)
+        with open(f'{targetDirectory}/HX_meanField_nodes_{now}.pickle', 'wb') as f:
+            pickle.dump(HX, f)
+        with open(f'{targetDirectory}/MI_systemMag_nodes_{now}.pickle', 'wb') as f:
+            pickle.dump(MI_system, f)
 
         print(f'time for avg MI: {timer()-start_2 : .2f} seconds')
 

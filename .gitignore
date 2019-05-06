@@ -5,9 +5,12 @@ __pycache__*
 Data/*
 *.pickle
 *.cpp
+*.html
 output/*
 Models/*.cpp
+Models/*.html
 Toolbox/*.cpp
+Toolbox/*.html
 *.so
 Models/*.so
 Toolbox/*.so
