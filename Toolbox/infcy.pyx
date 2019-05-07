@@ -1431,7 +1431,7 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
     H_X = stats.entropy(P_X, base=2)
 
     MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
-    MI[np.where(MI==0)] = np.nan
+    if MI == 0: MI = np.nan
     return MI, H_X, jointPDF, states
 
 
