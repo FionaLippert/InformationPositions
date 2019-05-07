@@ -22,6 +22,7 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('nodes', type=str, help='path to numpy array of node IDs')
+parser.add_argument('--neighboursDir', type=str, default='', help='path to directory containing pickled neighbours dictionary')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
 parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
@@ -82,11 +83,20 @@ if __name__ == '__main__':
         print(f'mixing time = {burninSteps}')
         print(f'correlation time = {distSamples}')
 
-        burninSteps = 100
-        distSamples = 10
-
     except:
         raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+
+    try:
+        if len(args.neighboursDir) > 0:
+            neighboursG = IO.loadPickle(args.neighboursDir, 'neighboursG')
+        else:
+            neighboursG = IO.loadPickle(targetDirectory, 'neighboursG')
+        #print(neighboursG)
+    except:
+        print(f'determining neighbours')
+        neighboursG = model.neighboursAtDistAllNodes(nodes, maxDist)
+        #print(neighboursG)
+        IO.savePickle(targetDirectory, 'neighboursG', neighboursG)
 
 
 
@@ -103,9 +113,10 @@ if __name__ == '__main__':
 
     for r in range(args.runs):
 
-        neighboursG, avgSnapshots, avgSystemSnapshots, fullSnapshots = infcy.getJointSnapshotsPerDistNodes(model, nodes, \
+        avgSnapshots, avgSystemSnapshots = infcy.getJointSnapshotsPerDistNodes(model, nodes, \
+                                                                            neighboursG, \
                                                                             **snapshotSettingsJoint, threads=nthreads, \
-                                                                            initStateIdx=args.initState, getFullSnapshots=1)
+                                                                            initStateIdx=args.initState, getFullSnapshots=0)
 
         start_2 = timer()
         #print(fullSnapshots.shape)
@@ -137,24 +148,25 @@ if __name__ == '__main__':
 
         start_2 = timer()
         MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, avgSystemSnapshots, Z, nodes, maxDist)
-        print(MI_avg)
+        #print(MI_avg)
         now = time.time()
         #np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
         #np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), MIs_system)
         #np.save(os.path.join(targetDirectory, f'H_nodes_{now}.npy'), Hs)
 
-        with open(f'{targetDirectory}/MI_meanField_nodes_{now}.pickle', 'wb') as f:
-            pickle.dump(MI_avg, f)
-        with open(f'{targetDirectory}/HX_meanField_nodes_{now}.pickle', 'wb') as f:
-            pickle.dump(HX, f)
-        with open(f'{targetDirectory}/MI_systemMag_nodes_{now}.pickle', 'wb') as f:
-            pickle.dump(MI_system, f)
+        IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
+        IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
+        IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
+
+        #with open(f'{targetDirectory}/MI_meanField_nodes_{now}.pickle', 'wb') as f:
+        #    pickle.dump(MI_avg, f)
+        #with open(f'{targetDirectory}/HX_meanField_nodes_{now}.pickle', 'wb') as f:
+        #    pickle.dump(HX, f)
+        #with open(f'{targetDirectory}/MI_systemMag_nodes_{now}.pickle', 'wb') as f:
+        #    pickle.dump(MI_system, f)
 
         print(f'time for avg MI: {timer()-start_2 : .2f} seconds')
 
-
-    with open(f'{targetDirectory}/neighbours.pickle', 'wb') as f:
-        pickle.dump(neighboursG, f)
 
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

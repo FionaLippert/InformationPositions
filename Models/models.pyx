@@ -303,6 +303,18 @@ cdef class Model: # see pxd
 
         return allNeighboursG, allNeighboursIdx
 
+    cpdef unordered_map[long, unordered_map[long, vector[long]]] neighboursAtDistAllNodes(self, long[::1] nodesG, int maxDist):
+
+        cdef:
+            long nNodes = nodesG.size
+            #unordered_map[long, unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
+            unordered_map[long, unordered_map[long, vector[long]]] neighboursG
+
+        for n in nodesG:
+            neighboursG[n] = self.neighboursAtDist(n, maxDist)[0]
+
+        return neighboursG
+
 
     def removeAllNudges(self):
         """

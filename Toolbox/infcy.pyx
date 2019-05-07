@@ -461,7 +461,8 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
-              long repeats=int(1e2), long nSamples = int(1e3), \
+              unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
+              long repeats=10, long nSamples = int(1e3), \
               long burninSamples = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
               int initStateIdx = -1, int getFullSnapshots = 0):
@@ -470,7 +471,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
     Only take snapshots of the specified node subset, ignore all others
     """
     cdef:
-        long nNodes = nodesG.shape[0]
+        long node, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.zeros(nNodes, 'int')
 
         #vector[vector[unordered_map[int, unordered_map[int, double]]]] avgSnapshots = vector[vector[unordered_map[int, unordered_map[int, double]]]](nNodes)
@@ -478,7 +479,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         long[:,:,:,::1] avgSystemSnapshots = np.zeros((repeats, nNodes, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
-        vector[unordered_map[long, vector[long]]] neighboursG = vector[unordered_map[long, vector[long]]](nNodes)
+        #vector[unordered_map[long, vector[long]]] neighboursG = vector[unordered_map[long, vector[long]]](nNodes)
         vector[long] allNodes = list(model.mapping.values())
 
         long d, i, b, sample, rep, n
@@ -504,8 +505,10 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 
     for n in range(nNodes):
         #avgSnapshots[n] = vector[unordered_map[int, unordered_map[int, double]]](maxDist)
-        nodesIdx[n] = model.mapping[nodesG[n]]
-        neighboursG[n], neighboursIdx[n] = model.neighboursAtDist(nodesG[n], maxDist)
+        node = nodesG[n]
+        nodesIdx[n] = model.mapping[node]
+        for d in range(maxDist):
+            neighboursIdx[n][d+1] = [model.mapping[neighbour] for neighbour in neighboursG[node][d+1]]
 
 
     for rep in range(nThreads):
@@ -546,9 +549,9 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
             with gil: pbar.update(1)
 
     if getFullSnapshots:
-        return neighboursG, avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
+        return avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
     else:
-        return neighboursG, avgSnapshots.base, avgSystemSnapshots.base
+        return avgSnapshots.base, avgSystemSnapshots.base
 
 
 
@@ -882,7 +885,7 @@ cdef double entropyFromProbs(double[::1] probs) nogil:
 
 cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[long, vector[long]] allNeighboursG, unordered_map[string, double] snapshots, \
               long nTrials, long burninSamples, long nSamples, long distSamples, int threads = -1, int initStateIdx = -1, \
-              int uniformPDF = 0, str out = 'MI'):
+              int uniformPDF = 0, str out = 'MI', int progbar = 0):
 
     assert out in ['MI', 'states', 'stateDistr']
 
@@ -935,7 +938,7 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
     if out == 'MI':
 
         # get conditional probabilities
-        pbar = tqdm(total = keys.size())
+        if progbar: pbar = tqdm(total = keys.size())
         for idx in prange(keys.size(), nogil = True, schedule = 'dynamic', num_threads = nThreads):
             tid = threadid()
             modelptr = models_[tid].ptr
@@ -948,11 +951,12 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
 
             allHXgiveny[idx] = HXgiveny
 
-            with gil: pbar.update(1)# compute MI based on conditional probabilities
+            if progbar:
+                with gil: pbar.update(1)# compute MI based on conditional probabilities
 
         pX = np.sum(np.multiply(weights.base, container.base.transpose()), axis=1)
         pX = pX / np.sum(pX)
-        print(pX.base)
+        #print(pX.base)
         HX = entropyFromProbs(pX)
         #HX = entropyFromProbs(spinProbs)
         MI = HXgivenY + HX
@@ -1427,6 +1431,7 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
     H_X = stats.entropy(P_X, base=2)
 
     MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
+    MI[np.where(MI==0)] = np.nan
     return MI, H_X, jointPDF, states
 
 

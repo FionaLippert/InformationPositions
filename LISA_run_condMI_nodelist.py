@@ -47,7 +47,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
     subgraph_nodes = [node]
     for d in range(minDist, maxDist+1):
         # get subgraph and outer neighbourhood at distance d
-        if d in neighbours_G.keys():
+        if len(neighbours_G[d]) > 0:
             #subgraph_nodes.extend(neighbours_G[d])
             #subgraph = graph.subgraph(subgraph_nodes)
             #print(subgraph.edges())
@@ -81,6 +81,12 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
             HXs.append(HX)
             all_keys.append(keys)
             all_HXgiveny.append(HXgiveny)
+
+        else:
+            MIs.append(np.nan)
+            HXs.append(np.nan)
+            all_keys.append(np.nan)
+            all_HXgiveny.append(np.nan)
 
     return MIs, HXs, all_HXgiveny, all_keys
 

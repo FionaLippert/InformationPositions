@@ -145,18 +145,19 @@ def renamed_loads(pickled_bytes):
     file_obj = io.BytesIO(pickled_bytes)
     return renamed_load(file_obj)
 
-def loadPickle(fileName):
-    import sys
-    with open(fileName, 'rb') as f:
+def loadPickle(path, fileName):
+    if not fileName.endswith('.pickle'):
+        fileName += '.pickle'
+    with open(os.path.join(path, fileName), 'rb') as f:
         return renamed_load(f)
 
-def savePickle(fileName, objects):
+def savePickle(path, fileName, objects):
     #TODO: warning; apparantly pickle <=3 cannot handle files
     # larger than 4 gb.
     if not fileName.endswith('.pickle'):
         fileName += '.pickle'
     print(f'Saving {fileName}')
-    with open(fileName, 'wb') as f:
+    with open(os.path.join(path, fileName), 'wb') as f:
         pickle.dump(objects, f, protocol = pickle.HIGHEST_PROTOCOL)
 
 def saveSettings(targetDirectory, settings, prefix=''):

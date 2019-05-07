@@ -78,6 +78,6 @@ cdef class Model:
     cpdef void resetAllToAgentState(self, int initStateIdx, int i)
 
     cpdef tuple neighboursAtDist(self, long node_idx, int maxDist)
-  #  cpdef dict neighboursAtDist(self, int node, int maxDist)
+    cpdef unordered_map[long, unordered_map[long, vector[long]]] neighboursAtDistAllNodes(self, long[::1] nodesG, int maxDist)
 
     cdef void _setStates(self, long[::1] newStates) nogil
