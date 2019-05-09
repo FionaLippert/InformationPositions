@@ -47,7 +47,9 @@ if __name__ == '__main__':
     nx.write_gpickle(g, f'networkData/ER/ER_k=2.0_N=1000_v0_without_333.gpickle', 2)
     """
 
-    for filepath in glob.iglob(args.graph):
+    ensemble = [g for g in glob.iglob(f'networkData/{args.graph}*.gpickle')]
+
+    for filepath in ensemble: #filepath in glob.iglob(args.graph):
         print(filepath)
         G = nx.read_gpickle(filepath)
         nodes = list(G)
@@ -62,12 +64,16 @@ if __name__ == '__main__':
         else:
             samples = sample_nodes(G, args.n)
 
+        np.save(path + f'_sample_nodes_weighted_{args.n}.npy', samples)
+
+        """
         with open(path + f'_sample_nodes_weighted_{args.n}.txt', 'w') as f:
             #sample_nodes = np.random.choice(nodes, size=10, replace=False)
             for node in samples:
                 f.write(f'{node}\n')
+        """
 
-        np.save(path + f'_sample_nodes_weighted_{args.n}.npy', samples)
+
 
     """
     G = nx.read_gpickle('networkData/unweighted_criminal_after_2012.gpickle')

@@ -1344,7 +1344,7 @@ cpdef double[::1] binaryEntropies(long[:,::1] snapshots):
 @cython.nonecheck(False)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef double mutualInformationIDL(long[:,::1] snapshots, double[::1] binEntropies, long nodeIdx1, long nodeIdx2) nogil:
+cpdef double pairwiseMI(long[:,::1] snapshots, double[::1] binEntropies, long nodeIdx1, long nodeIdx2) nogil:
     cdef:
         long idx, nSamples = snapshots.shape[0]
         vector[long] states
@@ -1456,66 +1456,6 @@ cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSy
     return MI_avg, MI_system, HX
 
 
-@cython.boundscheck(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-@cython.overflowcheck(False)
-cpdef double[::1] MIAtDist(Model model, long[:,::1] snapshots, \
-              double[::1] entropies, long nodeIdx, vector[long] neighboursIdx) nogil:
-
-    cdef:
-        #int[::1] neighbours
-        #vector[int] neighbours
-        long idx, n = neighboursIdx.size() #.shape[0]
-        #vector[double] MI
-        double[::1] out
-
-    with gil: # TODO possible without GIL?
-        #neighbors = model.neighborsAtDist(node, dist)
-        #neighbours = allNeighbours[dist]
-        #n = neighbors.shape[0]
-        #out = np.full(3, np.nan)
-        out = np.full(model._nNodes, np.nan)
-        #print("num neighbors: {}".format(n))
-
-    if n > 0:
-        #MI = vector[double](n, -1)
-        #MI = vector[double](model._nNodes, -1)
-
-        for idx in range(n):
-            #MI[idx] = mutualInformationIDL(snapshots, entropies, node, neighbors[idx])
-            out[idx] = mutualInformationIDL(snapshots, entropies, nodeIdx, neighboursIdx[idx])
-
-        #with gil:
-        #    out[0] = np.mean(MI)
-        #    out[1] = np.std(MI)
-        #    out[2] = np.sum(MI)
-
-    return out
-    #return np.mean(MI_array), np.std(MI_array)
-
-
-@cython.boundscheck(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-@cython.overflowcheck(False)
-cpdef double[::1] corrAtDist(Model model, long[:,::1] snapshots, \
-              long nodeIdx, vector[long] neighboursIdx) nogil:
-
-    cdef:
-        long idx, n = neighboursIdx.size() #.shape[0]
-        double[::1] out
-
-    with gil: # TODO possible without GIL?
-        out = np.full(model._nNodes, np.nan)
-
-    if n > 0:
-        for idx in range(n):
-            out[idx] = spinCorrelation(snapshots, nodeIdx, neighboursIdx[idx])
-
-    return out
 
 
 @cython.boundscheck(False)
@@ -1565,13 +1505,11 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
         #long[::1] cv_nodes = nodes
         #long[:,::1] snapshots
         double[::1] entropies
-        long i, n, d, nNodes = nodesG.shape[0]
+        long i, n1, n2, d, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.array([model.mapping[n] for n in nodesG])
-        double[:,:,::1] MI = np.zeros((nNodes, distMax, model._nNodes))
-        double[:,:,::1] corr = np.zeros((nNodes, distMax, model._nNodes))
+        double[:,:,::1] MI = np.zeros((nNodes, nNodes))
+        double[:,:,::1] corr = np.zeros((nNodes, nNodes))
         int nThreads = mp.cpu_count() if threads == -1 else threads
-        unordered_map[long, vector[long]] allNeighboursIdx
-        int[::1] neighbours
 
     # run multiple MC chains in parallel and sample snapshots
     #if magThreshold == 0:
@@ -1587,20 +1525,14 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
     #entropies =np.array([binaryEntropies(snapshots.base[i,:,:]) for i in range(snapshots.shape[0])])
     entropies = binaryEntropies(snapshots)
 
-    #for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+    for n1 in prange(nNodes, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+        for n2 in range(n1, nNodes):
+            MI[n1][n2] = pairwiseMI(snapshots, entropies, nodesIdx[n1], nodesIdx[n2])
+            MI[n2][n1] = MI[n1][n2] # symmetric
+            corr[n1][n2] = spinCorrelation(snapshots, nodesIdx[n1], nodesIdx[n2])
+            corr[n2][n1] = corr[n1][n2] # symmetric
 
-    for n in prange(nNodes, nogil = True, schedule = 'static', num_threads = nThreads):
-
-        with gil: _, allNeighboursIdx = model.neighboursAtDist(nodesG[n], distMax)
-
-        for d in range(distMax):
-            #with gil: neighbours = allNeighbours[d+1]
-            MI[n][d] = MIAtDist(model, snapshots, entropies, nodesIdx[n], allNeighboursIdx[d+1])
-            corr[n][d] = corrAtDist(model, snapshots, nodesIdx[n], allNeighboursIdx[d+1])
-
-    #degrees = [model.graph.degree(n) for n in nodes]
-
-    return MI.base, corr.base #, degrees
+    return MI.base, corr.base
 
 
 @cython.boundscheck(False)

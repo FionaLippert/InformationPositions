@@ -24,7 +24,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--maxcorrtime', type=int, default=5000, help='max correlation time to be used as sample distance')
 parser.add_argument('--maxmixing', type=int, default=5000, help='max mixing time to be used for burn-in samples')
-parser.add_argument('--corrthreshold', type=float, default=0.1, help='threshold for autocorrelation of system magnetization to determine correlation time')
+parser.add_argument('--corrthreshold', type=float, default=0.5, help='threshold for autocorrelation of system magnetization to determine correlation time')
 
 
 

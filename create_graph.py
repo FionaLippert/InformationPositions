@@ -44,8 +44,8 @@ def create_undirected_star(z, path=None):
 
 def create_directed_star_path_graph(z, depth, path=None):
     graph = nx.DiGraph()
-    graph.add_star(range(z))
-    for node in range(1, z):
+    graph.add_star(range(z+1))
+    for node in range(1, z+1):
         path_nodes = [node]
         path_nodes.extend(range(len(graph), len(graph)+depth))
         graph.add_path(path_nodes)
@@ -57,8 +57,8 @@ def create_directed_star_path_graph(z, depth, path=None):
 
 def create_undirected_star_path_graph(z, depth, path=None):
     graph = nx.Graph()
-    graph.add_star(range(z))
-    for node in range(1, z):
+    graph.add_star(range(z+1))
+    for node in range(1, z+1):
         path_nodes = [node]
         path_nodes.extend(range(len(graph), len(graph)+depth))
         graph.add_path(path_nodes)
@@ -199,12 +199,12 @@ if __name__ == '__main__':
     #create_2D_grid(64, targetDirectory)
     #create_2D_grid(128, targetDirectory)
 
-
+    """
     targetDirectory = f'{os.getcwd()}/networkData/star_graph'
     os.makedirs(targetDirectory, exist_ok=True)
     for z in range(3,8):
         create_undirected_star_path_graph(z, 10, targetDirectory)
-
+    """
     """
     G = nx.read_gpickle('networkData/ER/ER_k=2.0_N=1000_v0.gpickle')
     G_sub = nx.ego_graph(G, 283, 8)
@@ -220,12 +220,12 @@ if __name__ == '__main__':
     create_regular_graph(10000, 5, targetDirectory)
     """
 
-    """
+
     targetDirectory = f'{os.getcwd()}/networkData/WS'
     os.makedirs(targetDirectory, exist_ok=True)
     for i in range(10):
-        create_watts_strogatz(1000, 4, 0.04, targetDirectory, f'_v{i}')
-    """
+        create_watts_strogatz(1000, 6, 0.1, targetDirectory, f'_v{i}')
+
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'

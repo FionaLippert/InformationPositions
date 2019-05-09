@@ -21,6 +21,10 @@ nthreads = mp.cpu_count() - 1
 parser = argparse.ArgumentParser(description='run MC chain and compute MI based on conditional PDF of the central node with neighbour states fixed')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('z', type=int, help='degree of star graph')
+parser.add_argument('numT', type=int, help='number of different temperatures to use for simulations')
+parser.add_argument('--minT', type=float, default=0)
+parser.add_argument('--maxT', type=float, default=10)
+parser.add_argument('--depth', type=int, default=1, help='depth of star path graph')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--burninSteps', type=int, default=100, help='steps to reach equilibrium')
 parser.add_argument('--distSamples', type=int, default=100, help='distance between two samples in the MC chain')
@@ -37,12 +41,12 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
     subgraph_nodes = [node]
     for d in range(1, maxDist+1):
         # get subgraph and outer neighbourhood at distance d
-        if d in neighbours_G.keys():
-            subgraph_nodes.extend(neighbours_G[d])
-            subgraph = graph.subgraph(subgraph_nodes)
+        if len(neighbours_G[d]) > 0:
+
+            subgraph = nx.ego_graph(model.graph, node, d)
 
             if d >= minDist:
-                print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph_nodes)}, num states = {len(snapshots[d-1])} -----------------------')
+                print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph)}, num states = {len(snapshots[d-1])} -----------------------')
 
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
 
@@ -50,9 +54,13 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
 
                 initState = 1 if args.fixMag else -1
 
-                _, _, MI, HX, _ = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=args.burninSteps, nSamples=nSamples, distSamples=args.distSamples, \
-                          threads=threads, initStateIdx=initState, uniformPDF=1)
+
+                _, _, MI, HX, HXgiveny, keys, probs = infcy.neighbourhoodMI(model_subgraph, node, \
+                                d, neighbours_G, snapshots[d-1], nTrials, \
+                                args.burninSteps, nSamples, \
+                                args.distSamples, threads=threads, \
+                                initStateIdx=initState, uniformPDF=1, out='MI')
+                print(HXgiveny)
 
                 MIs.append(MI)
                 HXs.append(HX)
@@ -72,12 +80,19 @@ if __name__ == '__main__':
     os.makedirs(targetDirectory, exist_ok=True)
 
     # load network
-    graph = nx.read_gpickle(f'networkData/undirected_star_z={args.z}.gpickle')
+    #graph = nx.read_gpickle(f'networkData/undirected_star_z={args.z}.gpickle')
+    graph = nx.Graph()
+    graph.add_star(range(args.z+1))
+    if args.depth > 1:
+        for node in range(1, args.z+1):
+            path_nodes = [node]
+            path_nodes.extend(range(len(graph), len(graph)+args.depth))
+            graph.add_path(path_nodes)
+
     N = len(graph)
     node = 0
-    deg = graph.degree[node]
 
-    maxDist=1
+    maxDist=args.depth
     minDist=1
 
 
@@ -88,9 +103,9 @@ if __name__ == '__main__':
     nTrials = args.repeats
     nSamples = args.numSamples
 
-    temps=np.linspace(0,10, 100)
+    temps=np.linspace(args.minT, args.maxT, args.numT)
 
-    MIs = np.zeros(temps.size)
+    MIs = np.zeros((temps.size, args.depth))
 
     for i, T in enumerate(temps):
         now = time.time()
@@ -119,11 +134,12 @@ if __name__ == '__main__':
             snapshots.append(s)
 
         MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings)
-        MIs[i] = MI[0]
+        MIs[i,:] = MI
 
     print(MIs)
 
     type = 'fixedMag' if args.fixMag else 'fairMag'
     np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
+    np.save(f'{targetDirectory}/temps_{now}.npy', temps)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
