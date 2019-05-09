@@ -52,13 +52,11 @@ if __name__ == '__main__':
         maxDist = nx.diameter(graph)
 
     node = args.node
-    deg = graph.degree[node]
 
     networkSettings = dict( \
         path = args.graph, \
         nNodes = N, \
-        node = node, \
-        degree = deg
+        node = node
     )
     IO.saveSettings(targetDirectory, networkSettings, 'network')
 
@@ -103,26 +101,20 @@ if __name__ == '__main__':
         #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
         with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
-        MI, corr = infcy.runMI(model, np.array([node]), snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
-        MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
-        #np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
-        #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
+        MI, corr = infcy.runMIoneNode(model, node, snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+        #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
+        np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
+        np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
 
         Z = args.numSamples*args.repeats
-        #MIs_avg = [infcy.computeMI_jointPDF(np.sum(avgSnapshots[:,d,:,:], axis=0), Z)[0] for d in range(maxDist)]
-        #MI_system, H = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
 
-        MIs_avg = np.zeros((args.repeats,maxDist))
-        for rep in range(args.repeats):
-            MIs_avg[rep,:] = np.array([infcy.computeMI_jointPDF(avgSnapshots[rep,d,:,:], Z)[0] for d in range(maxDist)])
-
-        MI_system, H = infcy.computeMI_jointPDF(np.sum(avgSystemSnapshots, axis=0), Z)
-
+        MI_avg, MI_system, HX = infcy.processJointSnapshots(avgSnapshots, avgSystemSnapshots, Z, node, maxDist)
         now = time.time()
-        np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), np.array(MIs_avg))
-        np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), np.array(MI_system))
-        np.save(os.path.join(targetDirectory, f'H_node_{now}.npy'), np.array(H))
+
+        IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
+        IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
+        IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
 
 
 

@@ -389,7 +389,7 @@ cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
         int nThreads = mp.cpu_count() if threads == -1 else threads
         #np.ndarray KL = np.ones(maxDist)
         #double KL_d
-        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
+        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
         vector[long] allNodes = list(model.mapping.values())
 
         unordered_map[long, vector[long]] allNeighboursIdx
@@ -493,7 +493,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         int nThreads = mp.cpu_count() if threads == -1 else threads
         #np.ndarray KL = np.ones(maxDist)
         #double KL_d
-        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins)
+        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
 
         long[:,:,::1] fullSnapshots
 
@@ -1435,10 +1435,10 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
     return MI, H_X, jointPDF, states
 
 
-cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, np.ndarray nodes, long maxDist):
+cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, np.ndarray nodesG, long maxDist):
 
     cdef:
-        long nNodes = nodes.size
+        long nNodes = nodesG.size
         MI_avg = {} #np.zeros((nNodes, maxDist))
         MI_system = {} #np.zeros(nNodes)
         HX = {} #np.zeros(nNodes)
@@ -1448,10 +1448,26 @@ cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSy
     avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
 
     for n in range(nNodes):
-        MI_avg[nodes[n]] = np.zeros(maxDist)
+        MI_avg[nodesG[n]] = np.zeros(maxDist)
         for d in range(maxDist):
-            MI_avg[nodes[n]][d] = computeMI_jointPDF(avgSnapshots[n][d], Z)[0]
-        MI_system[nodes[n]], HX[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+            MI_avg[nodesG[n]][d] = computeMI_jointPDF(avgSnapshots[n][d], Z)[0]
+        MI_system[nodesG[n]], HX[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+
+    return MI_avg, MI_system, HX
+
+cpdef tuple processJointSnapshots(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, long node, long maxDist):
+
+    cdef:
+        long n, d
+        np.ndarray MI_avg = np.zeros(maxDist)
+        double MI_system, HX
+
+    avgSnapshots = np.sum(avgSnapshots, axis=0)
+    avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
+
+    for d in range(maxDist):
+        MI_avg[d] = computeMI_jointPDF(avgSnapshots[d], Z)[0]
+    MI_system, HX = computeMI_jointPDF(avgSystemSnapshots, Z)
 
     return MI_avg, MI_system, HX
 
@@ -1507,8 +1523,8 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
         double[::1] entropies
         long i, n1, n2, d, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.array([model.mapping[n] for n in nodesG])
-        double[:,:,::1] MI = np.zeros((nNodes, nNodes))
-        double[:,:,::1] corr = np.zeros((nNodes, nNodes))
+        double[:,::1] MI = np.zeros((nNodes, nNodes))
+        double[:,::1] corr = np.zeros((nNodes, nNodes))
         int nThreads = mp.cpu_count() if threads == -1 else threads
 
     # run multiple MC chains in parallel and sample snapshots
@@ -1531,6 +1547,30 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
             MI[n2][n1] = MI[n1][n2] # symmetric
             corr[n1][n2] = spinCorrelation(snapshots, nodesIdx[n1], nodesIdx[n2])
             corr[n2][n1] = corr[n1][n2] # symmetric
+
+    return MI.base, corr.base
+
+@cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef tuple runMIoneNode(Model model, long nodeG, long[:,::1] snapshots, \
+                int distMax=1, int threads = -1, int initStateIdx = -1):
+
+    cdef:
+        double[::1] entropies
+        long i, n, d
+        long nodeIdx = model.mapping[nodeG]
+        double[::1] MI = np.zeros(model._nNodes)
+        double[::1] corr = np.zeros(model._nNodes)
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+
+    entropies = binaryEntropies(snapshots)
+
+    for n in prange(model._nNodes, nogil = True, schedule = 'dynamic', num_threads = nThreads):
+        MI[n] = pairwiseMI(snapshots, entropies, nodeIdx, n)
+        corr[n] = spinCorrelation(snapshots, nodeIdx, n)
 
     return MI.base, corr.base
 
