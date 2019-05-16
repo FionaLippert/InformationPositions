@@ -6,7 +6,7 @@
 from Models import fastIsing
 from Toolbox import infcy
 from Utils import IO
-import networkx as nx, itertools, scipy, time, \
+import networkx as nx, itertools, scipy, time, subprocess, \
                 os, pickle, sys, argparse, multiprocessing as mp
 import itertools
 import numpy as np
@@ -40,6 +40,7 @@ if __name__ == '__main__':
 
     T = args.T
     targetDirectory = args.dir
+    os.makedirs(targetDirectory, exist_ok=True)
 
     # load network
     maxDist = args.maxDist
@@ -77,9 +78,17 @@ if __name__ == '__main__':
         distSamples = mixingResults['distSamples']
 
     except:
-        raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
-    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
+        #raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+        subprocess.call(['python3', 'LISA_run_mixing.py', f'{args.T}', f'{args.dir}', f'{args.graph}', \
+                        '--maxcorrtime', '10000', \
+                        '--maxmixing', '10000', \
+                        '--corrthreshold', '0.5'])
+        mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
+        corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
+        burninSteps = mixingResults['burninSteps']
+        distSamples = mixingResults['distSamples']
 
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
     snapshotSettingsJoint = dict( \
         nSamples    = args.numSamples, \
@@ -103,8 +112,8 @@ if __name__ == '__main__':
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
         MI, corr = infcy.runMIoneNode(model, node, snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
         #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
-        np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
-        np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
+        np.save(os.path.join(targetDirectory, f'MI_pairwise_node_{node}_{now}.npy'), MI)
+        np.save(os.path.join(targetDirectory, f'corr_pairwise_node_{node}_{now}.npy'), corr)
 
 
         Z = args.numSamples*args.repeats
@@ -112,9 +121,9 @@ if __name__ == '__main__':
         MI_avg, MI_system, HX = infcy.processJointSnapshots(avgSnapshots, avgSystemSnapshots, Z, node, maxDist)
         now = time.time()
 
-        IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
-        IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
-        IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
+        IO.savePickle(targetDirectory, f'MI_meanField_node_{node}_{now}', MI_avg)
+        IO.savePickle(targetDirectory, f'HX_meanField_node_{node}_{now}', HX)
+        IO.savePickle(targetDirectory, f'MI_systemMag_node_{node}_{now}', MI_system)
 
 
 

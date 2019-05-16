@@ -6,13 +6,14 @@
 from Models import fastIsing
 from Toolbox import infcy
 from Utils import IO
-import networkx as nx, itertools, scipy, time, \
+import networkx as nx, itertools, scipy, time, subprocess, \
                 os, pickle, sys, argparse, multiprocessing as mp
 import itertools
 import numpy as np
 from tqdm import tqdm
 from timeit import default_timer as timer
 from scipy import stats
+
 
 nthreads = mp.cpu_count()
 #nthreads = 1
@@ -23,7 +24,7 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('node', type=int, help='central node ID')
-parser.add_argument('maxDist', type=int, help='max distance to central node')
+parser.add_argument('maxDist', type=int, help='max distance to central node. If -1, use diameter, if -2 use distance where max neighbours are reached')
 parser.add_argument('--minDist', type=int, default=1, help='min distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
@@ -128,7 +129,7 @@ if __name__ == '__main__':
 
     T = args.T
     targetDirectory = args.dir
-
+    os.makedirs(targetDirectory, exist_ok=True)
 
     # load network
     graph = nx.read_gpickle(args.graph)
@@ -164,12 +165,25 @@ if __name__ == '__main__':
         distSamples = mixingResults['distSamples']
 
     except:
-        raise Exception('No mixing results found! Please run the mixing script first to determine the mixing time of the model.')
+        #raise Exception('No mixing results found! Please run the mixing script first to determine the mixing time of the model.')
+        subprocess.call(['python3', 'LISA_run_mixing.py', f'{args.T}', f'{args.dir}', f'{args.graph}', \
+                        '--maxcorrtime', '10000', \
+                        '--maxmixing', '10000', \
+                        '--corrthreshold', '0.5'])
+        mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
+        corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
+        burninSteps = mixingResults['burninSteps']
+        distSamples = mixingResults['distSamples']
 
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
+    if args.maxDist == -2:
+        # find distance with max number of neighbours
+        maxDist = np.argmax([len(allNeighbours_G[d]) for d in range(1, max(allNeighbours_G.keys())+1)]) + 1
+
     snapshotSettingsCond = dict( \
-        nSamples    = args.snapshots, \
+        nSnapshots    = args.snapshots, \
+        nSamples      = args.numSamples, \
         burninSamples = burninSteps, \
         maxDist     = maxDist
     )
@@ -208,9 +222,10 @@ if __name__ == '__main__':
                 snapshots.append(s)
         else:
             threads = nthreads if len(model.graph) > 20 else 1
-            snapshots, _  = infcy.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
+            snapshots, _ , HX_eq  = infcy.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
             with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
                 pickle.dump(snapshots, f)
+            print(stats.entropy(HX_eq, base=2))
 
             #np.save(f'{targetDirectory}/system_states_{now}.npy', system_states)
 

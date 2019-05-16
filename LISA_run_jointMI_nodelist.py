@@ -6,7 +6,7 @@
 from Models import fastIsing
 from Toolbox import infcy
 from Utils import IO
-import networkx as nx, itertools, scipy, time, \
+import networkx as nx, itertools, scipy, time, subprocess, \
                 os, pickle, sys, argparse, multiprocessing as mp
 import itertools
 import numpy as np
@@ -30,6 +30,7 @@ parser.add_argument('--repeats', type=int, default=10, help='number of parallel 
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
 parser.add_argument('--initState', type=int, default=-1, help='initial system state (given as index to model.agentStates)')
+parser.add_argument('--pairwise', action="store_true", help='compute pairwise correlation and MI')
 
 
 if __name__ == '__main__':
@@ -84,7 +85,15 @@ if __name__ == '__main__':
         print(f'correlation time = {distSamples}')
 
     except:
-        raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+        #raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+        subprocess.call(['python3', 'LISA_run_mixing.py', f'{args.T}', f'{args.dir}', f'{args.graph}', \
+                        '--maxcorrtime', '10000', \
+                        '--maxmixing', '10000', \
+                        '--corrthreshold', '0.5'])
+        mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
+        corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
+        burninSteps = mixingResults['burninSteps']
+        distSamples = mixingResults['distSamples']
 
     try:
         if len(args.neighboursDir) > 0:
@@ -113,22 +122,26 @@ if __name__ == '__main__':
 
     for r in range(args.runs):
 
-        avgSnapshots, avgSystemSnapshots = infcy.getJointSnapshotsPerDistNodes(model, nodes, \
+        avgSnapshots, avgSystemSnapshots, fullSnapshots = infcy.getJointSnapshotsPerDistNodes(model, nodes, \
                                                                             neighboursG, \
                                                                             **snapshotSettingsJoint, threads=nthreads, \
-                                                                            initStateIdx=args.initState, getFullSnapshots=0)
+                                                                            initStateIdx=args.initState, getFullSnapshots=1)
 
         start_2 = timer()
         #print(fullSnapshots.shape)
         now = time.time()
-        #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
-        #MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
-        #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
-        #now = time.time()
-        #np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
-        #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
-        #print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
+        if args.pairwise:
+            #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
+            MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+            np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
+            np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)
+            #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
+            #now = time.time()
+            #np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
+            #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
+
+            #print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
 
         Z = args.numSamples * args.repeats
         """

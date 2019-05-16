@@ -37,6 +37,7 @@ if __name__ == '__main__':
 
     T = args.T #float(sys.argv[1])
     targetDirectory = args.dir #sys.argv[2]
+    os.makedirs(targetDirectory, exist_ok=True)
 
     # load network
     graph = nx.read_gpickle(args.graph)

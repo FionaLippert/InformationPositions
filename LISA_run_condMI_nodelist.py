@@ -23,7 +23,7 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('nodes', type=str, help='path to nodes for which MI should be computed')
-parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
+parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node. If -1, use diameter, if -2 use distance where max neighbours are reached')
 parser.add_argument('--minDist', type=int, default=1, help='min distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
@@ -178,6 +178,10 @@ if __name__ == '__main__':
             pickle.dump(snapshots, f)
 
         for i, node in enumerate(nodes):
+            if args.maxDist == -2:
+                # find distance with max number of neighbours
+                maxDist = np.argmax([len(allNeighbours_G[i][d]) for d in range(1, max(allNeighbours_G[i].keys())+1)]) + 1
+                
             print(f'start conditional sampling for node {node}')
             MI, HX, H_XgivenY, keys = computeMI_cond(model, node, minDist, maxDist, \
                                 allNeighbours_G[i], snapshots[i], nTrials, \

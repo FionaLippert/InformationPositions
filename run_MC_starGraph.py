@@ -21,9 +21,9 @@ nthreads = mp.cpu_count() - 1
 parser = argparse.ArgumentParser(description='run MC chain and compute MI based on conditional PDF of the central node with neighbour states fixed')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('z', type=int, help='degree of star graph')
-parser.add_argument('numT', type=int, help='number of different temperatures to use for simulations')
 parser.add_argument('--minT', type=float, default=0)
 parser.add_argument('--maxT', type=float, default=10)
+parser.add_argument('--numT', type=int, default=10)
 parser.add_argument('--depth', type=int, default=1, help='depth of star path graph')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--burninSteps', type=int, default=100, help='steps to reach equilibrium')
@@ -96,10 +96,6 @@ if __name__ == '__main__':
     minDist=1
 
 
-    burninSteps = 100
-    distSamples = 100
-
-
     nTrials = args.repeats
     nSamples = args.numSamples
 
@@ -107,39 +103,42 @@ if __name__ == '__main__':
 
     MIs = np.zeros((temps.size, args.depth))
 
-    for i, T in enumerate(temps):
-        now = time.time()
-
-        # setup Ising model with nNodes spin flip attempts per simulation step
-        modelSettings = dict( \
-            temperature     = T, \
-            updateType      = 'async' ,\
-            magSide         = ''
-        )
-        model = fastIsing.Ising(graph, **modelSettings)
-        allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
-
-        # generate all possible snapshots
-        snapshots = []
-        for d in range(maxDist):
-            num_neighbours = len(allNeighbours_G[d+1])
-            prob = 1/np.power(2, num_neighbours)
-            print(prob)
-            s = itertools.product([-1,1], repeat=num_neighbours)
-            print(list(s))
-            if args.fixMag:
-                s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours) if np.mean(state) > 0}
-            else:
-                s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours)}
-            snapshots.append(s)
-
-        MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings)
-        MIs[i,:] = MI
-
-    print(MIs)
-
     type = 'fixedMag' if args.fixMag else 'fairMag'
-    np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
+
+    for r in range(args.runs):
+
+        for i, T in enumerate(temps):
+            now = time.time()
+
+            # setup Ising model with nNodes spin flip attempts per simulation step
+            modelSettings = dict( \
+                temperature     = T, \
+                updateType      = 'async' ,\
+                magSide         = ''
+            )
+            model = fastIsing.Ising(graph, **modelSettings)
+            allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
+
+            # generate all possible snapshots
+            snapshots = []
+            for d in range(maxDist):
+                num_neighbours = len(allNeighbours_G[d+1])
+                prob = 1/np.power(2, num_neighbours)
+                print(prob)
+                s = itertools.product([-1,1], repeat=num_neighbours)
+                print(list(s))
+                if args.fixMag:
+                    s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours) if np.mean(state) > 0}
+                else:
+                    s = {np.array(state).astype(float).tobytes() : prob for state in itertools.product([-1,1], repeat=num_neighbours)}
+                snapshots.append(s)
+
+            MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings)
+            MIs[i,:] = MI
+
+        print(MIs)
+
+        np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
     np.save(f'{targetDirectory}/temps_{now}.npy', temps)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

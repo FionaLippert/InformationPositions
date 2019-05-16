@@ -32,6 +32,8 @@ cdef class Ising(Model):
     # cdef long[::1] _updateState(self, long[::1] nodesToUpdate)
     cdef long[::1] _updateState(self, long[::1] nodesToUpdate) nogil
 
+    cpdef np.ndarray[double] magTimeSeries(self, long nSteps, long burninSamples)
+
 
     # computes state probability; kinda not used atm
     cpdef np.ndarray[double] computeProb(self)

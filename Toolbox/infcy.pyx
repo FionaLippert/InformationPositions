@@ -229,7 +229,7 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
 @cython.initializedcheck(False)
 cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
-              long nSamples = int(1e2), long burninSamples = int(1e3), \
+              long nSamples = int(1e3), long nSnapshots = 100, long burninSamples = int(1e3), \
               int maxDist = 1, int threads = -1, int initStateIdx = -1):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
@@ -238,14 +238,15 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
     cdef:
         vector[unordered_map[string, double]] snapshots = vector[unordered_map[string, double]](maxDist)
         unordered_map[int, int] idxer
-        long nodeIdx, idx, d, rep, sample
-        double part = 1/(<double> nSamples)
+        long nodeIdx, idx, d, rep, sample, n
+        double partSpin = 1/(<double> nSamples)
+        double partSnapshots = 1/(<double> nSnapshots)
         string state
         PyObject *modelptr
         vector[PyObjectHolder] models_
         int tid, nodeSpin
         int nThreads = mp.cpu_count() if threads == -1 else threads
-        long[:, ::1] spins = np.zeros((nSamples, model._nNodes), int)
+        #long[:, ::1] spins = np.zeros((nSamples, model._nNodes), int)
         double[::1] spinProbs = np.zeros(model.agentStates.shape[0])
 
         unordered_map[long, vector[long]] allNeighboursIdx
@@ -277,16 +278,17 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         (<Model>modelptr).simulateNSteps(burninSamples)
 
         nodeSpin = (<Model>modelptr)._states[nodeIdx]
-        spinProbs[idxer[nodeSpin]] += part
+        spinProbs[idxer[nodeSpin]] += partSpin
 
-        for d in range(maxDist):
-            with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-            snapshots[d][state] += part # each index corresponds to one system state, the array contains the probability of each state
+        if sample < nSnapshots:
+            for d in range(maxDist):
+                with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
+                snapshots[d][state] += partSnapshots # each index corresponds to one system state, the array contains the probability of each state
 
-        spins[sample] = (<Model>modelptr)._states
+        #spins[sample] = (<Model>modelptr)._states
 
 
-    return snapshots, allNeighboursIdx
+    return snapshots, allNeighboursIdx, spinProbs.base
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -355,7 +357,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef tuple getJointSnapshotsPerDist2(Model model, long nodeG, \
+cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
               long repeats=int(1e2), long nSamples = int(1e3), \
               long burninSamples = int(1e3), long distSamples=100, \
@@ -1635,7 +1637,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         vector[double] mag_sum
         #double[::1] betas = np.array([1.0 / float(t) if t != 0 else np.inf for t in temps])
         double[::1] temps_cview = temps
-        double[:,::1] results = np.zeros((3, nTemps))
+        double[:,::1] results = np.zeros((4, nTemps))
 
 
 
@@ -1663,6 +1665,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         results[0][t] = m if m > 0 else -m
         results[1][t] = ((mag_sum[1] / n) - (m * m)) / temps_cview[t] # susceptibility
         results[2][t] = 1 - (mag_sum[3]/n) / (3 * (mag_sum[1]/n)**2) # Binder's cumulant
+        results[3][t] = mag_sum[4] / n
 
         with gil:
             pbar.update(1)
@@ -1869,8 +1872,8 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     cdef:
         long[:, ::1] r = model.sampleNodes(nSamples)
         long step
-        double sum, sum_2, sum_3, sum_4
-        vector[double] out = vector[double](4,0)
+        double m, m_abs, sum, sum_abs, sum_2, sum_3, sum_4
+        vector[double] out = vector[double](5,0)
 
     sum = 0
     sum_2 = 0
@@ -1879,7 +1882,9 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     # collect magnetizations
     for step in range(nSamples):
         m = mean(model._updateState(r[step]), model._nNodes)
+        m_abs = mean(model._states, model._nNodes, abs=1)
         sum = sum + m
+        sum_abs = sum_abs + m_abs
         sum_2 = sum_2 + (m*m)
         sum_3 = sum_3 + (m**3)
         sum_4 = sum_4 + (m**4)
@@ -1888,6 +1893,7 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     out[1] = sum_2
     out[2] = sum_3
     out[3] = sum_4
+    out[4] = sum_abs
 
     return out
 

@@ -207,6 +207,17 @@ cdef class Ising(Model):
                 self._states[node] = -self._states[node]
         return self._states
 
+    cpdef np.ndarray[double] magTimeSeries(self, long nSteps, long burninSamples):
+        cdef:
+            long[:, ::1] r = self.sampleNodes(nSteps)
+            long step
+            double[::1] mags = np.zeros(nSteps)
+
+        for step in range(nSteps):
+            mags[step] = np.mean(self._updateState(r[step]))
+
+        return mags.base
+
 
     cpdef np.ndarray[double] computeProb(self):
         """

@@ -45,8 +45,8 @@ if __name__ == '__main__':
     all_Tc = np.zeros(len(ensemble))
 
     #temps = linspace(1, 50, 500)
-    #temps = linspace(0.1, 4.0, 500)
-    temps = linspace(0.5, 5, 500)
+    temps = linspace(1, 2, 100)
+    #temps = linspace(0.5, 5, 500)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
@@ -77,10 +77,13 @@ if __name__ == '__main__':
         model = fastIsing.Ising(**modelSettings)
 
 
-        mag, sus, binder = infcy.magnetizationParallel(model,       \
+        mag, sus, binder, mag_abs = infcy.magnetizationParallel(model,       \
                             temps           = temps,        \
                             n               = nSamples,     \
                             burninSamples   = burninSamples)
+
+        print(list(mag))
+        print(list(mag_abs))
 
         #np.save(f'{targetDirectory}/mags_v{i}.npy', mag)
         #np.save(f'{targetDirectory}/susceptibility_v{i}.npy', sus)
@@ -109,13 +112,14 @@ if __name__ == '__main__':
         tmp = dict( \
                 temps = temps, \
                 magnetization = mag, \
+                absMagnetization = mag_abs, \
                 susceptibility = sus, \
                 binder = binder, \
                 Tc = Tc)
-        IO.savePickle(targetDirectory, f'{filename}_results', tmp)
+        #IO.savePickle(targetDirectory, f'{filename}_results', tmp)
 
-        with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
-            f.write(f'{Tc:.2f}')
+        #with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
+        #    f.write(f'{Tc:.2f}')
 
 
         """
@@ -154,9 +158,9 @@ if __name__ == '__main__':
         #setp(ax, **dict(xlabel = 'Temperature', ylabel = '<M>'))
         #savefig(f'{targetDirectory}/temp_vs_mag.png')
 
-    with open(f'{targetDirectory}/avg_Tc.txt', 'w') as f:
-        f.write(f'{np.nanmean(all_Tc):.2f}')
+    #with open(f'{targetDirectory}/avg_Tc.txt', 'w') as f:
+    #    f.write(f'{np.nanmean(all_Tc):.2f}')
 
-    np.save(f'{targetDirectory}/all_Tc.npy', all_Tc)
+    #np.save(f'{targetDirectory}/all_Tc.npy', all_Tc)
 
     print(targetDirectory)
