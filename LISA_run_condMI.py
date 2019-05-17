@@ -183,7 +183,6 @@ if __name__ == '__main__':
 
     snapshotSettingsCond = dict( \
         nSnapshots    = args.snapshots, \
-        nSamples      = args.numSamples, \
         burninSamples = burninSteps, \
         maxDist     = maxDist
     )
@@ -222,6 +221,8 @@ if __name__ == '__main__':
                 snapshots.append(s)
         else:
             threads = nthreads if len(model.graph) > 20 else 1
+            print(f'snapshots = {snapshotSettingsCond["nSnapshots"]}')
+            print(f'samples = {snapshotSettingsCond["nSamples"]}')
             snapshots, _ , HX_eq  = infcy.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
             with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
                 pickle.dump(snapshots, f)

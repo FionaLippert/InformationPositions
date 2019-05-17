@@ -229,7 +229,7 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
 @cython.initializedcheck(False)
 cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
-              long nSamples = int(1e3), long nSnapshots = 100, long burninSamples = int(1e3), \
+              long nSnapshots = 100, long burninSamples = int(1e3), \
               int maxDist = 1, int threads = -1, int initStateIdx = -1):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
@@ -239,8 +239,8 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         vector[unordered_map[string, double]] snapshots = vector[unordered_map[string, double]](maxDist)
         unordered_map[int, int] idxer
         long nodeIdx, idx, d, rep, sample, n
-        double partSpin = 1/(<double> nSamples)
-        double partSnapshots = 1/(<double> nSnapshots)
+        #double partSpin = 1/(<double> nSamples)
+        double part = 1/(<double> nSnapshots)
         string state
         PyObject *modelptr
         vector[PyObjectHolder] models_
@@ -267,7 +267,7 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
-    for sample in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+    for sample in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
@@ -278,12 +278,12 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         (<Model>modelptr).simulateNSteps(burninSamples)
 
         nodeSpin = (<Model>modelptr)._states[nodeIdx]
-        spinProbs[idxer[nodeSpin]] += partSpin
+        spinProbs[idxer[nodeSpin]] += part
 
-        if sample < nSnapshots:
-            for d in range(maxDist):
-                with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-                snapshots[d][state] += partSnapshots # each index corresponds to one system state, the array contains the probability of each state
+        #if sample < nSnapshots:
+        for d in range(maxDist):
+            with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
+            snapshots[d][state] += part # each index corresponds to one system state, the array contains the probability of each state
 
         #spins[sample] = (<Model>modelptr)._states
 
@@ -1655,6 +1655,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             (<Model>modelptr).reset()
             (<Model>modelptr).seed += t
             (<Model>modelptr).t = temps[t]
+            (<Model>modelptr).resetAllToAgentState(1, 0)
 
         # simulate until equilibrium reached
         (<Model>modelptr).simulateNSteps(burninSamples)
@@ -1662,7 +1663,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         mag_sum = simulateGetMeanMag((<Model>modelptr), n)
 
         m = mag_sum[0] / n
-        results[0][t] = m if m > 0 else -m
+        results[0][t] = m #if m > 0 else -m
         results[1][t] = ((mag_sum[1] / n) - (m * m)) / temps_cview[t] # susceptibility
         results[2][t] = 1 - (mag_sum[3]/n) / (3 * (mag_sum[1]/n)**2) # Binder's cumulant
         results[3][t] = mag_sum[4] / n
