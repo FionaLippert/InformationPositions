@@ -66,8 +66,6 @@ if __name__ == '__main__':
 
     now = time.time()
 
-    print(model.adj[0])
-
     abs = 1 if args.abs else 0
     #mag = infcy.magTimeSeries(model, burninSteps, args.numSamples, abs=abs)
     #np.save(f'{targetDirectory}/magTimeSeries_T={args.T}_NSteps_{args.numSamples}_{now}.npy', mag)

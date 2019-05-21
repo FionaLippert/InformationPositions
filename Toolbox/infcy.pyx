@@ -1453,7 +1453,7 @@ cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSy
         MI_avg[nodesG[n]] = np.zeros(maxDist)
         for d in range(maxDist):
             MI_avg[nodesG[n]][d] = computeMI_jointPDF(avgSnapshots[n][d], Z)[0]
-        MI_system[nodesG[n]], HX[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+        MI_system[nodesG[n]], HX[nodesG[n]] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
 
     return MI_avg, MI_system, HX
 
@@ -1673,6 +1673,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
 
     return results.base
 
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
@@ -1882,7 +1883,9 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     sum_4 = 0
     # collect magnetizations
     for step in range(nSamples):
-        m = mean(model._updateState(r[step]), model._nNodes)
+        model._updateState(r[step])
+
+        m = mean(model._states), model._nNodes)
         m_abs = mean(model._states, model._nNodes, abs=1)
         sum = sum + m
         sum_abs = sum_abs + m_abs
@@ -1905,11 +1908,13 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef long[:,::1] simulateGetStates(Model model, long burninSteps = int(1e2), long nSamples = int(1e2)):
+cdef long[:,::1] simulateGetStates(Model model, long burninSteps = int(1e2), long nSamples = int(1e2)) nogil:
     cdef:
         long[:, ::1] r = model.sampleNodes(nSamples)
         long step
-        long[:,::1] states = np.zeros((nSamples, model._nNodes), dtype=int)
+        long[:,::1] states
+
+    with gil: states = np.zeros((nSamples, model._nNodes), dtype=int)
 
     model.simulateNSteps(burninSteps)
 

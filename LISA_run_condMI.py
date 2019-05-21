@@ -183,6 +183,7 @@ if __name__ == '__main__':
 
     snapshotSettingsCond = dict( \
         nSnapshots    = args.snapshots, \
+        nSamples      = args.numSamples, \
         burninSamples = burninSteps, \
         maxDist     = maxDist
     )
