@@ -107,9 +107,9 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                     HXs.append(HX)
                     all_keys.append(keys)
                     all_HXgiveny.append(HXgiveny)
-                    print(MIs)
-                    for i in range(len(snapshots[d-1])):
-                        print(np.frombuffer(keys[i]).astype(int), HXgiveny[i], probs[i])
+                    #print(MIs)
+                    #for i in range(len(snapshots[d-1])):
+                    #    print(np.frombuffer(keys[i]).astype(int), HXgiveny[i], probs[i])
 
 
     if args.getStates:

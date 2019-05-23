@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #array=( 100 150 200 250 300 350 400 450 500 )
-array=( 5 6 7 8 9)
+array=( 8 9)
 #for i in "${array[@]}"
 #do
 #  T=$(cat "DataTc/BA/BA_m=3_N=1000/BA_m=3_N=1000_v$i""_Tc.txt")

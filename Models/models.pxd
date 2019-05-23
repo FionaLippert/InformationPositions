@@ -62,6 +62,7 @@ cdef class Model:
     # cdef  long[:, ::1] sampleNodes(self, long Samples)
 
     cdef double rand(self) nogil
+    cdef long[:,::1] _simulate(self, long long int  samples) nogil
     cpdef np.ndarray simulate(self, long long int  samples)
     cdef long[::1] simulateNSteps(self, long nSteps) nogil
 

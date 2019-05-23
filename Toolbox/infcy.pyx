@@ -124,6 +124,30 @@ cpdef vector[long] decodeState(long dec, long N) nogil:
         dec = dec // 2
     return buffer
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cdef int encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins) nogil:
+    """Maps states of given nodes to binned avg magnetization"""
+    cdef:
+        long N = nodes.size(), nBins = bins.shape[0]
+        double avg = 0
+        long i, n
+
+    for i in range(N):
+        avg += states[nodes[i]]
+
+    avg /= N
+
+    for i in range(nBins):
+        if avg <= bins[i]:
+            avg = i
+            break
+
+    return <int>avg
+
 
 cpdef double pCond_theory(int dist, double beta, int num_children, int node_state, np.ndarray neighbour_states):
     cdef:
@@ -219,6 +243,112 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
     print(f'Found {len(snapshots)} states')
     print(f"Delta = {timer() - past: .2f} sec")
     return snapshots
+
+"""
+cpdef double entropyEstimateH2(long[::1] counts):
+    cdef:
+        long M = counts.shape[0]
+        long N = np.sum(counts)
+        double sum = 0
+
+    for i in range(M):
+        sum += counts[i]/N * (digramma(N) - digamma(counts[i]) + np.log2())
+"""
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef tuple getSystemStates(Model model, long[::1] nodesG, \
+              unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
+              long nSteps      = 1000, \
+              int maxDist = 1,\
+              long burninSamples  = 1000, \
+              double threshold    = 0.05, \
+              long repeats = 10, \
+              long nBins = 100, \
+              int threads = -1):
+    """
+    run MC for large network, encode system states into strings
+    """
+    cdef:
+        long nNodes = model._nNodes
+        long nNodesG = nodesG.shape[0]
+        long[:,:,::1] states = np.zeros((repeats, nSteps, nNodes), int)
+        double[:,::1] mags = np.zeros((repeats, nSteps))
+
+        long node
+        long[::1] nodesIdx = np.zeros(nNodesG, 'int')
+
+        long[:,:,:,:,::1] avgSnapshotsPos = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsNeg = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsSwitch = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        unordered_map[int, int] idxer
+        vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodesG)
+
+        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
+
+        long[::1] Z = np.zeros(3, int)
+
+        long rep, step, n, nodeSpin, avg, d
+        double m, mAbs
+        int pos = 0
+        string state
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
+
+
+    for idx in range(model.agentStates.shape[0]):
+        idxer[model.agentStates[idx]] = idx
+
+
+    for n in range(nNodesG):
+        node = nodesG[n]
+        nodesIdx[n] = model.mapping[node]
+        for d in range(maxDist):
+            neighboursIdx[n][d+1] = [model.mapping[neighbour] for neighbour in neighboursG[node][d+1]]
+
+
+    # initialize thread-safe models. nThread MC chains will be run in parallel.
+    for rep in range(repeats):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.resetAllToAgentState(-1, rep)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        states[rep] = (<Model>modelptr)._simulate(nSteps)
+
+        for step in range(nSteps):
+            m = mean(states[rep][step], nNodes, abs=0)
+            mAbs = m if m > 0 else -m
+            mags[rep][step] = m
+
+            for n in range(nNodesG):
+                nodeSpin = idxer[states[rep][step][nodesIdx[n]]]
+                for d in range(maxDist):
+                    avg = encodeStateToAvg(states[rep][step], neighboursIdx[n][d+1], bins)
+                    if mAbs > threshold:
+                        if m > 0:
+                            avgSnapshotsPos[rep][n][d][nodeSpin][avg] +=1
+                            Z[0] += 1
+                        else:
+                            avgSnapshotsNeg[rep][n][d][nodeSpin][avg] +=1
+                            Z[1] += 1
+                    else:
+                        avgSnapshotsSwitch[rep][n][d][nodeSpin][avg] +=1
+                        Z[2] += 1
+
+    return avgSnapshotsPos.base, avgSnapshotsNeg.base, avgSnapshotsSwitch.base, Z.base, mags.base
+
 
 
 
@@ -1437,7 +1567,7 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
     return MI, H_X, jointPDF, states
 
 
-cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, np.ndarray nodesG, long maxDist):
+cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, long Z, np.ndarray nodesG, long maxDist, np.ndarray avgSystemSnapshots=None):
 
     cdef:
         long nNodes = nodesG.size
@@ -1447,13 +1577,13 @@ cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSy
         long n, d
 
     avgSnapshots = np.sum(avgSnapshots, axis=0)
-    avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
+    if avgSystemSnapshots is not None: avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
 
     for n in range(nNodes):
         MI_avg[nodesG[n]] = np.zeros(maxDist)
         for d in range(maxDist):
             MI_avg[nodesG[n]][d] = computeMI_jointPDF(avgSnapshots[n][d], Z)[0]
-        MI_system[nodesG[n]], HX[nodesG[n]] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+        if avgSystemSnapshots is not None: MI_system[nodesG[n]], HX[nodesG[n]] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
 
     return MI_avg, MI_system, HX
 
@@ -1885,7 +2015,7 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     for step in range(nSamples):
         model._updateState(r[step])
 
-        m = mean(model._states), model._nNodes)
+        m = mean(model._states, model._nNodes)
         m_abs = mean(model._states, model._nNodes, abs=1)
         sum = sum + m
         sum_abs = sum_abs + m_abs
