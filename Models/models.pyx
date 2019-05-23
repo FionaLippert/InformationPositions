@@ -334,14 +334,26 @@ cdef class Model: # see pxd
     @cython.cdivision(True)
     @cython.initializedcheck(False)
     @cython.overflowcheck(False)
-    cpdef np.ndarray simulate(self, long long int  samples):
+    cdef long[:,::1] _simulate(self, long long int  samples) nogil:
         cdef:
-            long[:, ::1] results = np.zeros((samples, self._nNodes), int)
+            long[:, ::1] results
             long[:, ::1] r = self.sampleNodes(samples)
             int i
+
+        with gil: results = np.zeros((samples, self._nNodes), int)
+
         for i in range(samples):
-            results[i] = self.updateState(r[i])
-        return results.base # convert back to normal arraay
+            results[i] = self._updateState(r[i])
+        return results
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    @cython.nonecheck(False)
+    @cython.cdivision(True)
+    @cython.initializedcheck(False)
+    @cython.overflowcheck(False)
+    cpdef np.ndarray simulate(self, long long int  samples):
+        return self._simulate(samples).base
 
 
     @cython.boundscheck(False)

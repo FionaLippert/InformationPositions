@@ -66,12 +66,12 @@ if __name__ == '__main__':
 
         np.save(path + f'_sample_nodes_weighted_{args.n}.npy', samples)
 
-        """
+
         with open(path + f'_sample_nodes_weighted_{args.n}.txt', 'w') as f:
             #sample_nodes = np.random.choice(nodes, size=10, replace=False)
             for node in samples:
                 f.write(f'{node}\n')
-        """
+        
 
 
 

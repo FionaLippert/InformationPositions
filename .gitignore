@@ -7,6 +7,7 @@ Data/*
 *.cpp
 *.html
 output/*
+output*
 Models/*.cpp
 Models/*.html
 Toolbox/*.cpp

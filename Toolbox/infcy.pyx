@@ -124,6 +124,30 @@ cpdef vector[long] decodeState(long dec, long N) nogil:
         dec = dec // 2
     return buffer
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cdef int encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins) nogil:
+    """Maps states of given nodes to binned avg magnetization"""
+    cdef:
+        long N = nodes.size(), nBins = bins.shape[0]
+        double avg = 0
+        long i, n
+
+    for i in range(N):
+        avg += states[nodes[i]]
+
+    avg /= N
+
+    for i in range(nBins):
+        if avg <= bins[i]:
+            avg = i
+            break
+
+    return <int>avg
+
 
 cpdef double pCond_theory(int dist, double beta, int num_children, int node_state, np.ndarray neighbour_states):
     cdef:
@@ -220,6 +244,112 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
     print(f"Delta = {timer() - past: .2f} sec")
     return snapshots
 
+"""
+cpdef double entropyEstimateH2(long[::1] counts):
+    cdef:
+        long M = counts.shape[0]
+        long N = np.sum(counts)
+        double sum = 0
+
+    for i in range(M):
+        sum += counts[i]/N * (digramma(N) - digamma(counts[i]) + np.log2())
+"""
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef tuple getSystemStates(Model model, long[::1] nodesG, \
+              unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
+              long nSteps      = 1000, \
+              int maxDist = 1,\
+              long burninSamples  = 1000, \
+              double threshold    = 0.05, \
+              long repeats = 10, \
+              long nBins = 100, \
+              int threads = -1):
+    """
+    run MC for large network, encode system states into strings
+    """
+    cdef:
+        long nNodes = model._nNodes
+        long nNodesG = nodesG.shape[0]
+        long[:,:,::1] states = np.zeros((repeats, nSteps, nNodes), int)
+        double[:,::1] mags = np.zeros((repeats, nSteps))
+
+        long node
+        long[::1] nodesIdx = np.zeros(nNodesG, 'int')
+
+        long[:,:,:,:,::1] avgSnapshotsPos = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsNeg = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsSwitch = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        unordered_map[int, int] idxer
+        vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodesG)
+
+        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
+
+        long[::1] Z = np.zeros(3, int)
+
+        long rep, step, n, nodeSpin, avg, d
+        double m, mAbs
+        int pos = 0
+        string state
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
+
+
+    for idx in range(model.agentStates.shape[0]):
+        idxer[model.agentStates[idx]] = idx
+
+
+    for n in range(nNodesG):
+        node = nodesG[n]
+        nodesIdx[n] = model.mapping[node]
+        for d in range(maxDist):
+            neighboursIdx[n][d+1] = [model.mapping[neighbour] for neighbour in neighboursG[node][d+1]]
+
+
+    # initialize thread-safe models. nThread MC chains will be run in parallel.
+    for rep in range(repeats):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.resetAllToAgentState(-1, rep)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+
+    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        states[rep] = (<Model>modelptr)._simulate(nSteps)
+
+        for step in range(nSteps):
+            m = mean(states[rep][step], nNodes, abs=0)
+            mAbs = m if m > 0 else -m
+            mags[rep][step] = m
+
+            for n in range(nNodesG):
+                nodeSpin = idxer[states[rep][step][nodesIdx[n]]]
+                for d in range(maxDist):
+                    avg = encodeStateToAvg(states[rep][step], neighboursIdx[n][d+1], bins)
+                    if mAbs > threshold:
+                        if m > 0:
+                            avgSnapshotsPos[rep][n][d][nodeSpin][avg] +=1
+                            Z[0] += 1
+                        else:
+                            avgSnapshotsNeg[rep][n][d][nodeSpin][avg] +=1
+                            Z[1] += 1
+                    else:
+                        avgSnapshotsSwitch[rep][n][d][nodeSpin][avg] +=1
+                        Z[2] += 1
+
+    return avgSnapshotsPos.base, avgSnapshotsNeg.base, avgSnapshotsSwitch.base, Z.base, mags.base
+
+
 
 
 @cython.boundscheck(False)
@@ -229,7 +359,7 @@ cpdef dict getSnapShots(Model model, int nSamples, int step = 1,\
 @cython.initializedcheck(False)
 cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
-              long nSamples = int(1e3), long nSnapshots = 100, long burninSamples = int(1e3), \
+              long nSnapshots = 100, long burninSamples = int(1e3), \
               int maxDist = 1, int threads = -1, int initStateIdx = -1):
     """
     Extract snapshots from MC for large network, for which the decimal encoding causes overflows
@@ -239,8 +369,8 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         vector[unordered_map[string, double]] snapshots = vector[unordered_map[string, double]](maxDist)
         unordered_map[int, int] idxer
         long nodeIdx, idx, d, rep, sample, n
-        double partSpin = 1/(<double> nSamples)
-        double partSnapshots = 1/(<double> nSnapshots)
+        #double partSpin = 1/(<double> nSamples)
+        double part = 1/(<double> nSnapshots)
         string state
         PyObject *modelptr
         vector[PyObjectHolder] models_
@@ -267,7 +397,7 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
-    for sample in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+    for sample in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
@@ -278,12 +408,12 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         (<Model>modelptr).simulateNSteps(burninSamples)
 
         nodeSpin = (<Model>modelptr)._states[nodeIdx]
-        spinProbs[idxer[nodeSpin]] += partSpin
+        spinProbs[idxer[nodeSpin]] += part
 
-        if sample < nSnapshots:
-            for d in range(maxDist):
-                with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-                snapshots[d][state] += partSnapshots # each index corresponds to one system state, the array contains the probability of each state
+        #if sample < nSnapshots:
+        for d in range(maxDist):
+            with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
+            snapshots[d][state] += part # each index corresponds to one system state, the array contains the probability of each state
 
         #spins[sample] = (<Model>modelptr)._states
 
@@ -1437,7 +1567,7 @@ cpdef tuple computeMI_jointPDF_exact(unordered_map[int, unordered_map[string, lo
     return MI, H_X, jointPDF, states
 
 
-cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSystemSnapshots, long Z, np.ndarray nodesG, long maxDist):
+cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, long Z, np.ndarray nodesG, long maxDist, np.ndarray avgSystemSnapshots=None):
 
     cdef:
         long nNodes = nodesG.size
@@ -1447,13 +1577,13 @@ cpdef tuple processJointSnapshotsNodes(np.ndarray avgSnapshots, np.ndarray avgSy
         long n, d
 
     avgSnapshots = np.sum(avgSnapshots, axis=0)
-    avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
+    if avgSystemSnapshots is not None: avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
 
     for n in range(nNodes):
         MI_avg[nodesG[n]] = np.zeros(maxDist)
         for d in range(maxDist):
             MI_avg[nodesG[n]][d] = computeMI_jointPDF(avgSnapshots[n][d], Z)[0]
-        MI_system[nodesG[n]], HX[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
+        if avgSystemSnapshots is not None: MI_system[nodesG[n]], HX[nodesG[n]] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
 
     return MI_avg, MI_system, HX
 
@@ -1655,6 +1785,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             (<Model>modelptr).reset()
             (<Model>modelptr).seed += t
             (<Model>modelptr).t = temps[t]
+            (<Model>modelptr).resetAllToAgentState(1, 0)
 
         # simulate until equilibrium reached
         (<Model>modelptr).simulateNSteps(burninSamples)
@@ -1662,7 +1793,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         mag_sum = simulateGetMeanMag((<Model>modelptr), n)
 
         m = mag_sum[0] / n
-        results[0][t] = m if m > 0 else -m
+        results[0][t] = m #if m > 0 else -m
         results[1][t] = ((mag_sum[1] / n) - (m * m)) / temps_cview[t] # susceptibility
         results[2][t] = 1 - (mag_sum[3]/n) / (3 * (mag_sum[1]/n)**2) # Binder's cumulant
         results[3][t] = mag_sum[4] / n
@@ -1671,6 +1802,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             pbar.update(1)
 
     return results.base
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -1881,7 +2013,9 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
     sum_4 = 0
     # collect magnetizations
     for step in range(nSamples):
-        m = mean(model._updateState(r[step]), model._nNodes)
+        model._updateState(r[step])
+
+        m = mean(model._states, model._nNodes)
         m_abs = mean(model._states, model._nNodes, abs=1)
         sum = sum + m
         sum_abs = sum_abs + m_abs
@@ -1904,11 +2038,13 @@ cdef vector[double] simulateGetMeanMag(Model model, long nSamples = int(1e2)) no
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef long[:,::1] simulateGetStates(Model model, long burninSteps = int(1e2), long nSamples = int(1e2)):
+cdef long[:,::1] simulateGetStates(Model model, long burninSteps = int(1e2), long nSamples = int(1e2)) nogil:
     cdef:
         long[:, ::1] r = model.sampleNodes(nSamples)
         long step
-        long[:,::1] states = np.zeros((nSamples, model._nNodes), dtype=int)
+        long[:,::1] states
+
+    with gil: states = np.zeros((nSamples, model._nNodes), dtype=int)
 
     model.simulateNSteps(burninSteps)
 

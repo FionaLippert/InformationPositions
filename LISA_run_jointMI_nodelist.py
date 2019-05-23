@@ -144,41 +144,15 @@ if __name__ == '__main__':
             #print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
 
         Z = args.numSamples * args.repeats
-        """
-        avgSnapshots = np.sum(avgSnapshots, axis=0)
-        avgSystemSnapshots = np.sum(avgSystemSnapshots, axis=0)
-
-        MIs_avg = np.zeros((nodes.size, maxDist))
-        MIs_system = np.zeros(nodes.size)
-        Hs = np.zeros(nodes.size)
-
-        for n in range(nodes.size):
-
-            MIs_avg[n,:] = [computeMI_jointPDF(avgSnapshots[n][d], Z) for d in range(maxDist)]
-            MIs_system[n] = computeMI_jointPDF(avgSystemSnapshots[n], Z)
-            Hs[n] = compute_spin_entropy(avgSystemSnapshots[n], Z)
-        """
 
         start_2 = timer()
-        MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, avgSystemSnapshots, Z, nodes, maxDist)
-        #print(MI_avg)
         now = time.time()
-        #np.save(os.path.join(targetDirectory, f'MI_avg_{now}.npy'), MIs_avg)
-        #np.save(os.path.join(targetDirectory, f'MI_system_{now}.npy'), MIs_system)
-        #np.save(os.path.join(targetDirectory, f'H_nodes_{now}.npy'), Hs)
+
+        MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, Z, nodes, maxDist, avgSystemSnapshots)
 
         IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
         IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
         IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
-
-        #with open(f'{targetDirectory}/MI_meanField_nodes_{now}.pickle', 'wb') as f:
-        #    pickle.dump(MI_avg, f)
-        #with open(f'{targetDirectory}/HX_meanField_nodes_{now}.pickle', 'wb') as f:
-        #    pickle.dump(HX, f)
-        #with open(f'{targetDirectory}/MI_systemMag_nodes_{now}.pickle', 'wb') as f:
-        #    pickle.dump(MI_system, f)
-
-        print(f'time for avg MI: {timer()-start_2 : .2f} seconds')
 
 
 

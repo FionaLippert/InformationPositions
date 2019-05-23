@@ -107,9 +107,9 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                     HXs.append(HX)
                     all_keys.append(keys)
                     all_HXgiveny.append(HXgiveny)
-                    print(MIs)
-                    for i in range(len(snapshots[d-1])):
-                        print(np.frombuffer(keys[i]).astype(int), HXgiveny[i], probs[i])
+                    #print(MIs)
+                    #for i in range(len(snapshots[d-1])):
+                    #    print(np.frombuffer(keys[i]).astype(int), HXgiveny[i], probs[i])
 
 
     if args.getStates:
@@ -222,6 +222,8 @@ if __name__ == '__main__':
                 snapshots.append(s)
         else:
             threads = nthreads if len(model.graph) > 20 else 1
+            print(f'snapshots = {snapshotSettingsCond["nSnapshots"]}')
+            print(f'samples = {snapshotSettingsCond["nSamples"]}')
             snapshots, _ , HX_eq  = infcy.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
             with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
                 pickle.dump(snapshots, f)

@@ -6,7 +6,7 @@
 from Models import fastIsing
 from Toolbox import infcy
 from Utils import IO
-import networkx as nx, itertools, scipy, time, \
+import networkx as nx, itertools, scipy, time, subprocess, \
                 os, pickle, sys, argparse, multiprocessing as mp
 import itertools
 import numpy as np
@@ -134,8 +134,15 @@ if __name__ == '__main__':
         distSamples = mixingResults['distSamples']
 
     except:
-        raise Exception('No mixing results found! Please run the mixing script \
-                        first to determine the mixing time of the model.')
+        #raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+        subprocess.call(['python3', 'LISA_run_mixing.py', f'{args.T}', f'{args.dir}', f'{args.graph}', \
+                        '--maxcorrtime', '10000', \
+                        '--maxmixing', '10000', \
+                        '--corrthreshold', '0.5'])
+        mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
+        corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
+        burninSteps = mixingResults['burninSteps']
+        distSamples = mixingResults['distSamples']
 
 
     snapshotSettingsCond = dict( \
@@ -181,7 +188,7 @@ if __name__ == '__main__':
             if args.maxDist == -2:
                 # find distance with max number of neighbours
                 maxDist = np.argmax([len(allNeighbours_G[i][d]) for d in range(1, max(allNeighbours_G[i].keys())+1)]) + 1
-                
+
             print(f'start conditional sampling for node {node}')
             MI, HX, H_XgivenY, keys = computeMI_cond(model, node, minDist, maxDist, \
                                 allNeighbours_G[i], snapshots[i], nTrials, \
