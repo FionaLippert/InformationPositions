@@ -180,12 +180,12 @@ if __name__ == '__main__':
     if args.maxDist == -2:
         # find distance with max number of neighbours
         maxDist = np.argmax([len(allNeighbours_G[d]) for d in range(1, max(allNeighbours_G.keys())+1)]) + 1
+        print(maxDist)
 
     snapshotSettingsCond = dict( \
         nSnapshots    = args.snapshots, \
-        nSamples      = args.numSamples, \
-        burninSamples = burninSteps, \
-        maxDist     = maxDist
+        burninSamples = int(burninSteps), \
+        maxDist     = int(maxDist)
     )
     IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
 
@@ -222,8 +222,6 @@ if __name__ == '__main__':
                 snapshots.append(s)
         else:
             threads = nthreads if len(model.graph) > 20 else 1
-            print(f'snapshots = {snapshotSettingsCond["nSnapshots"]}')
-            print(f'samples = {snapshotSettingsCond["nSamples"]}')
             snapshots, _ , HX_eq  = infcy.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
             with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
                 pickle.dump(snapshots, f)
