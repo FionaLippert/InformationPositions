@@ -1,1 +1,1 @@
-{"nSamples": 1000, "repeats": 10, "burninSamples": 6510, "distSamples": 1445.0, "maxDist": 22, "nBins": 100}
+{"nSamples": 10000, "repeats": 10, "burninSamples": 6510, "distSamples": 1445.0, "maxDist": 10, "nBins": 10}

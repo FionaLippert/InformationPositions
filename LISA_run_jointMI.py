@@ -106,19 +106,21 @@ if __name__ == '__main__':
 
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         now = time.time()
-        avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState, getFullSnapshots=1)
+        #avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState, getFullSnapshots=1)
+        avgSnapshots, Z = infcy.getJointSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState)
+
         #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
-        with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
-            pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
-        MI, corr = infcy.runMIoneNode(model, node, snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+        #with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
+        #    pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
+        #MI, corr = infcy.runMIoneNode(model, node, snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
         #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
-        np.save(os.path.join(targetDirectory, f'MI_pairwise_node_{node}_{now}.npy'), MI)
-        np.save(os.path.join(targetDirectory, f'corr_pairwise_node_{node}_{now}.npy'), corr)
+        #np.save(os.path.join(targetDirectory, f'MI_pairwise_node_{node}_{now}.npy'), MI)
+        #np.save(os.path.join(targetDirectory, f'corr_pairwise_node_{node}_{now}.npy'), corr)
 
 
         Z = args.numSamples*args.repeats
 
-        MI_avg, MI_system, HX = infcy.processJointSnapshots(avgSnapshots, avgSystemSnapshots, Z, node, maxDist)
+        MI_avg, MI_system, HX = infcy.processJointSnapshots(avgSnapshots, Z, node, maxDist)
         now = time.time()
 
         IO.savePickle(targetDirectory, f'MI_meanField_node_{node}_{now}', MI_avg)

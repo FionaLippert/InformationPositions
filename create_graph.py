@@ -130,22 +130,32 @@ def create_2D_grid(L, path=None, version=''):
                 f'{path}/2D_grid_L={L}{version}.gpickle', 2)
     return graph
 
+def create_path_graph(L, path=None):
+    graph = nx.path_graph(L)
+    if path is not None: nx.write_gpickle(graph,
+                f'{path}/path_graph_L={L}.gpickle', 2)
+    return graph
 
 
 
 if __name__ == '__main__':
 
+    targetDirectory = f'{os.getcwd()}/networkData'
+    #create_path_graph(100, targetDirectory)
+
+    create_barabasi_albert_graph(10, 2, path=targetDirectory, version='')
 
     #graph = nx.Graph()
     #graph.add_nodes_from(range(7))
     #graph.add_edges_from([(0,1),(1,2),(2,3),(3,4),(3,5),(3,6)])
     #nx.write_gpickle(graph, 'networkData/troubleshooting_subgraph_node283.gpickle', 2)
 
+    """
     graph = nx.Graph()
     graph.add_nodes_from(range(18))
     graph.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(1,6),(2,7),(2,8),(3,9),(3,10),(4,11),(4,12),(4,13),(5,14),(5,15),(5,16),(5,17)])
     nx.write_gpickle(graph, 'networkData/troubleshooting_subgraph_node109.gpickle', 2)
-
+    """
 
     #now = time.time()
     #targetDirectory = f'{os.getcwd()}/networkData/trees'
@@ -220,12 +230,12 @@ if __name__ == '__main__':
     create_regular_graph(10000, 5, targetDirectory)
     """
 
-
+    """
     targetDirectory = f'{os.getcwd()}/networkData/WS'
     os.makedirs(targetDirectory, exist_ok=True)
     for i in range(10):
         create_watts_strogatz(1000, 6, 0.1, targetDirectory, f'_v{i}')
-
+    """
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'

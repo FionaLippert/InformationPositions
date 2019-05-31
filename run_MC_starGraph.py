@@ -29,7 +29,9 @@ parser.add_argument('--runs', type=int, default=1, help='number of repetitive ru
 parser.add_argument('--burninSteps', type=int, default=100, help='steps to reach equilibrium')
 parser.add_argument('--distSamples', type=int, default=100, help='distance between two samples in the MC chain')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
-parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
+parser.add_argument('--numSamplesCond', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
+parser.add_argument('--numSamplesJoint', type=int, default=10000, help='number of samples per MC run')
+parser.add_argument('--bins', type=int, default=100, help='number of bins')
 parser.add_argument('--fixMag', action='store_true', help='initial system state')
 
 
@@ -52,7 +54,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
 
                 threads = nthreads if len(subgraph_nodes) > 20 else 1
 
-                initState = 1 if args.fixMag else -1
+                initState = 1 #if args.fixMag else -1
 
 
                 _, _, MI, HX, HXgiveny, keys, probs = infcy.neighbourhoodMI(model_subgraph, node, \
@@ -91,17 +93,20 @@ if __name__ == '__main__':
 
     N = len(graph)
     node = 0
+    nodes = np.array(list(graph.nodes()))
 
     maxDist=args.depth
     minDist=1
 
 
     nTrials = args.repeats
-    nSamples = args.numSamples
+    nSamples = args.numSamplesCond
 
     temps=np.linspace(args.minT, args.maxT, args.numT)
 
-    MIs = np.zeros((temps.size, args.depth))
+    #MIs = np.zeros((temps.size, args.depth))
+    MIs_cond = {}
+    MIs_avg = {}
 
     type = 'fixedMag' if args.fixMag else 'fairMag'
 
@@ -134,11 +139,42 @@ if __name__ == '__main__':
                 snapshots.append(s)
 
             MI, HX = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettings)
-            MIs[i,:] = MI
+            MIs_cond[T] = MI
 
-        print(MIs)
+            snapshotSettingsJoint = dict( \
+                nSamples    = args.numSamplesJoint, \
+                repeats     = args.repeats, \
+                burninSamples = args.burninSteps, \
+                distSamples   = args.distSamples, \
+                maxDist     = maxDist, \
+                nBins       = args.bins
+            )
+            IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
-        np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
-    np.save(f'{targetDirectory}/temps_{now}.npy', temps)
+            allNeighbours_G_allNodes = model.neighboursAtDistAllNodes(nodes, maxDist)
+
+            avgSnapshots, avgSystemSnapshots, fullSnapshots = infcy.getJointSnapshotsPerDistNodes(model, nodes, \
+                                                                                allNeighbours_G_allNodes, \
+                                                                                **snapshotSettingsJoint, threads=nthreads, \
+                                                                                initStateIdx=1, getFullSnapshots=1)
+
+
+            MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamplesJoint, -1)), distMax=maxDist)
+            np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
+            np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)
+
+            Z = args.numSamplesJoint * args.repeats
+
+            MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, Z, nodes, maxDist, avgSystemSnapshots)
+            MIs_avg[T] = MI_avg
+
+
+        with open(f'{targetDirectory}/MI_cond_Ts_{now}.pickle', 'wb') as f:
+            pickle.dump(MIs_cond, f)
+        with open(f'{targetDirectory}/MI_meanField_Ts_{now}.pickle', 'wb') as f:
+            pickle.dump(MIs_avg, f)
+
+        #np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
+    #np.save(f'{targetDirectory}/temps_{now}.npy', temps)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

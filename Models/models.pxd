@@ -82,3 +82,4 @@ cdef class Model:
     cpdef unordered_map[long, unordered_map[long, vector[long]]] neighboursAtDistAllNodes(self, long[::1] nodesG, int maxDist)
 
     cdef void _setStates(self, long[::1] newStates) nogil
+    cpdef void setStates(self, long[::1] newStates)

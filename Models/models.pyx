@@ -262,12 +262,16 @@ cdef class Model: # see pxd
             self.agentStates, size = self._nNodes)
 
     cpdef void resetAllToAgentState(self, int stateIdx, int i):
-        if stateIdx < 0:
+        if stateIdx == -1:
             # uniformly random
             #self.states = np.random.choice(\
             #    self.agentStates, size = self._nNodes)
             i = np.mod(i, self.agentStates.shape[0])
             self.states = np.ones(self._nNodes, int) * self.agentStates[i]
+        elif stateIdx == -2:
+            # uniformly random
+            self.states = np.random.choice(\
+                self.agentStates, size = self._nNodes)
         else:
             # all nodes the same
             assert stateIdx < self.agentStates.shape[0]
@@ -566,8 +570,11 @@ cdef class Model: # see pxd
         self._nudgeType = value
 
     cdef void _setStates(self, long[::1] newStates) nogil:
-            self._newstates = newStates
-            self._states = newStates
+        self._newstates = newStates
+        self._states = newStates
+
+    cpdef void setStates(self, long[::1] newStates):
+        self._setStates(newStates)
 
     @states.setter # TODO: expand
     def states(self, value):

@@ -54,10 +54,14 @@ if __name__ == '__main__':
     else:
         maxDist = nx.diameter(graph)
 
-    if args.nodes == 'test':
-        nodes = np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
+    if args.nodes == 'all':
+        #nodes = np.array(list(graph.nodes()))
+        nodes = np.array(list(nx.ego_graph(graph, 3021, args.maxDist)))
+        centralNodeIdx = np.where(nodes==3021)[0][0]
+        #nodes = np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
     else:
         nodes = np.load(args.nodes)
+        centralNodeIdx = -1
     #deg = graph.degree[node]
 
     networkSettings = dict( \
@@ -131,9 +135,17 @@ if __name__ == '__main__':
         #print(fullSnapshots.shape)
         now = time.time()
 
+        Z = args.numSamples * args.repeats
+
+        MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, Z, nodes, maxDist, avgSystemSnapshots)
+
+        IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
+        IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
+        IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
+
         if args.pairwise:
             #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
-            MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+            MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist, centralNodeIdx=centralNodeIdx)
             np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
             np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)
             #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
@@ -142,17 +154,6 @@ if __name__ == '__main__':
             #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
             #print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
-
-        Z = args.numSamples * args.repeats
-
-        start_2 = timer()
-        now = time.time()
-
-        MI_avg, MI_system, HX = infcy.processJointSnapshotsNodes(avgSnapshots, Z, nodes, maxDist, avgSystemSnapshots)
-
-        IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
-        IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
-        IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
 
 
 

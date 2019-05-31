@@ -20,7 +20,7 @@ from cpython.ref cimport PyObject
 from scipy.stats import linregress
 from scipy.signal import correlate
 import scipy
-from scipy import stats
+from scipy import stats, special
 import itertools
 
 # progressbar
@@ -146,16 +146,80 @@ cpdef double MI_tree_theory(int depth, double beta, int num_children, int avg=0)
     return MI
 
 
-"""
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
 cpdef double entropyEstimateH2(long[::1] counts):
     cdef:
         long M = counts.shape[0]
         long N = np.sum(counts)
-        double sum = 0
+        long i, j
+        double osc, H = 0
 
+    H = 0
     for i in range(M):
-        sum += counts[i]/N * (digramma(N) - digamma(counts[i]) + np.log2())
-"""
+        osc = np.sum([((-1)**j)/float(j) for j in range(1,counts[i])])
+        #print(osc)
+        H += counts[i]/float(N) * (special.digamma(N) - special.digamma(counts[i]) + np.log(2) + osc)
+    #print(H)
+    H = H * np.log2(np.exp(1)) # transform from natural log to log base 2
+    return H
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] fixedNodesG = None, long[::1] fixedStates = None, \
+              long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
+              long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
+    """
+    Extract full system snapshots from MC for large network, for which the decimal encoding causes overflows
+
+    """
+    cdef:
+        unordered_map[string, double] snapshots
+        long i, rep, sample, numNodes = fixedNodesG.shape[0]
+        long[::1] initialState, fixedNodesIdx = np.array([model.mapping[fixedNodesG[i]] for i in range(numNodes)], int)
+        vector[long] allNodes = list(model._nodeids)
+        string state
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
+
+
+    # initialize thread-safe models. nThread MC chains will be run in parallel.
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.resetAllToAgentState(initStateIdx, rep)
+
+        initialState = tmp.states
+        for i in range(numNodes):
+            initialState[fixedNodesIdx[i]] = fixedStates[i]
+        tmp.setStates(initialState)
+        tmp.fixedNodes = fixedNodesIdx
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    i = repeats
+    pbar = tqdm(total = i * nSnapshots)
+    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for sample in range(nSnapshots):
+            (<Model>modelptr).simulateNSteps(distSamples)
+            with gil: state = (<Model> modelptr).encodeStateToString(allNodes)
+            snapshots[state] += 1 # each index corresponds to one system state, the array contains the count of each state
+            with gil: pbar.update(1)
+
+    return snapshots
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -916,7 +980,12 @@ cdef double entropyFromProbs(double[::1] probs) nogil:
     return H
 
 
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
 cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[long, vector[long]] allNeighboursG, unordered_map[string, double] snapshots, \
               long nTrials, long burninSamples, long nSamples, long distSamples, int threads = -1, int initStateIdx = -1, \
               int uniformPDF = 0, str out = 'MI', int progbar = 0):
@@ -1414,7 +1483,7 @@ cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
 cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
-                int distMax=1, int threads = -1, int initStateIdx = -1):
+                int distMax=1, int threads = -1, int initStateIdx = -1, long centralNodeIdx = -1):
 
     cdef:
         #long[::1] cv_nodes = nodes
@@ -1441,11 +1510,18 @@ cpdef tuple runMI(Model model, np.ndarray nodesG, long[:,::1] snapshots, \
     entropies = binaryEntropies(snapshots)
 
     for n1 in prange(nNodes, nogil = True, schedule = 'dynamic', num_threads = nThreads):
-        for n2 in range(n1, nNodes):
-            MI[n1][n2] = pairwiseMI(snapshots, entropies, nodesIdx[n1], nodesIdx[n2])
-            MI[n2][n1] = MI[n1][n2] # symmetric
-            corr[n1][n2] = spinCorrelation(snapshots, nodesIdx[n1], nodesIdx[n2])
-            corr[n2][n1] = corr[n1][n2] # symmetric
+        with gil: print(f'processing node {n1}')
+        if centralNodeIdx < 0:
+            for n2 in range(n1, nNodes):
+                MI[n1][n2] = pairwiseMI(snapshots, entropies, nodesIdx[n1], nodesIdx[n2])
+                MI[n2][n1] = MI[n1][n2] # symmetric
+                corr[n1][n2] = spinCorrelation(snapshots, nodesIdx[n1], nodesIdx[n2])
+                corr[n2][n1] = corr[n1][n2] # symmetric
+        else:
+            MI[n1][centralNodeIdx] = pairwiseMI(snapshots, entropies, nodesIdx[n1], nodesIdx[centralNodeIdx])
+            MI[centralNodeIdx][n1] = MI[n1][centralNodeIdx] # symmetric
+            corr[n1][centralNodeIdx] = spinCorrelation(snapshots, nodesIdx[n1], nodesIdx[centralNodeIdx])
+            corr[centralNodeIdx][n1] = corr[n1][centralNodeIdx] # symmetric
 
     return MI.base, corr.base
 
