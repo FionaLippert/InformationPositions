@@ -15,6 +15,25 @@ from timeit import default_timer as timer
 from scipy import stats
 
 
+
+def compute_entropies(snapshots, nSamples):
+    condEntropies = [infcy.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
+    condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(nSamples) for i, s in enumerate(snapshots.values())])
+    print(f'H2(S|s_i) = {condH}')
+
+    allSnapshots = {}
+    for _, s in snapshots.items():
+        for k, v in s.items():
+            if k in allSnapshots.keys():
+                allSnapshots[k] += v
+            else:
+                allSnapshots[k] = v
+    systemH = infcy.entropyEstimateH2(np.fromiter(allSnapshots.values(), dtype=int))
+    print(f'H2(S) = {systemH}')
+
+    return condH, systemH
+
+
 nthreads = mp.cpu_count()
 #nthreads = 1
 
@@ -24,7 +43,8 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--nodes', type=str, default='', help='path to numpy array containg nodes to be fixed')
-parser.add_argument('--centralNode', type=int, default=-1, help='node of interest, reference point for max dist')
+parser.add_argument('--single', action="store_true", help='fix nodes individually')
+#parser.add_argument('--centralNode', type=int, default=-1, help='node of interest, reference point for max dist')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--dist', type=int, default=-1, help='max dist up to which nodes are considered for system entropy estimate')
 #parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
@@ -49,11 +69,6 @@ if __name__ == '__main__':
     # load network
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
-
-    if args.centralNode > 0 and args.dist > 0:
-        allNodes = np.array(list(nx.ego_graph(graph, args.centralNode, args.dist)))
-    else:
-        allNodes = np.array(list(graph))
 
 
     networkSettings = dict( \
@@ -100,7 +115,34 @@ if __name__ == '__main__':
     for i in range(args.runs):
         now = time.time()
 
-        if args.nodes == '' and args.centralNode < 0:
+        nodelist = np.load(args.nodes).astype(int)
+
+        if args.single:
+                if args.dist > 0:
+                    allNodes = [np.array(list(nx.ego_graph(graph, node, args.dist))) for node in nodelist]
+                    systemNodes = [list(allNodes[i][np.where(allNodes[i] != node)].astype(int)) for i, node in enumerate(nodelist)]
+                else:
+                    allNodes = np.array(list(graph))
+                    systemNodes = [list(allNodes[np.where(allNodes != node)].astype(int)) for node in nodelist]
+
+                fixedNodes = [[node] for node in nodelist]
+
+
+                snapshots = infcy.getSystemSnapshotsSets(model, systemNodes, fixedNodes, \
+                              **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
+
+                allCondH      = {}
+                allSystemH    = {}
+                for i, node in enumerate(nodelist):
+                    print(f'--------------- node {node} ---------------')
+                    allCondH[node], allSystemH[node] = compute_entropies(snapshots[i], args.snapshots*args.repeats)
+
+                IO.savePickle(targetDirectory, f'condSystemEntropy_results_individual nodes_{now}', allCondH)
+                IO.savePickle(targetDirectory, f'systemEntropy_results_individual nodes_{now}', allSystemH)
+
+
+
+        elif args.nodes == '':
             snapshots = infcy.getSystemSnapshots(model, fixedNodesG=None, fixedStates=None, \
                           **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
             print(np.fromiter(snapshots.values(), dtype=int))
@@ -108,9 +150,7 @@ if __name__ == '__main__':
             print(f'system entropy = {entropy}')
 
         else:
-            if args.centralNode >= 0:
-                fixedNodes = np.array([args.centralNode], dtype=int)
-            elif args.nodes == 'test':
+            if args.nodes == 'test':
                 fixedNodes = allNodes[:2]
             else:
                 fixedNodes = np.load(args.nodes).astype(int)
@@ -122,11 +162,11 @@ if __name__ == '__main__':
                           **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
             print([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
             condEntropies = [infcy.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
-            print(f'H2 entropy estimates = {condEntropies}')
+            #print(f'H2 entropy estimates = {condEntropies}')
             condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(args.snapshots*args.repeats) for i, s in enumerate(snapshots.values())])
             print(f'average H2(S|s_i) = {condH}')
-            condEntropies = [stats.entropy(np.fromiter(s.values(), dtype=int), base=2) for s in snapshots.values()]
-            print(f'naive plug-in entropyies = {condEntropies}')
+            #condEntropies = [stats.entropy(np.fromiter(s.values(), dtype=int), base=2) for s in snapshots.values()]
+            #print(f'naive plug-in entropyies = {condEntropies}')
 
             allSnapshots = {}
             for _, s in snapshots.items():

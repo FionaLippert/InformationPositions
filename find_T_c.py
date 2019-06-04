@@ -82,8 +82,8 @@ if __name__ == '__main__':
                             n               = nSamples,     \
                             burninSamples   = burninSamples)
 
-        print(list(mag))
-        print(list(mag_abs))
+        #print(list(mag))
+        #print(list(mag_abs))
 
         #np.save(f'{targetDirectory}/mags_v{i}.npy', mag)
         #np.save(f'{targetDirectory}/susceptibility_v{i}.npy', sus)

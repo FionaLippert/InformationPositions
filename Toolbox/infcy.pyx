@@ -234,6 +234,59 @@ cpdef unordered_map[string, double] getSystemSnapshotsFixedNodes(Model model, lo
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
+cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnapshotsSets(Model model, vector[vector[long]] systemNodesG, vector[vector[long]] condNodesG, \
+              long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
+              long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
+    """
+    Extract full system snapshots from MC for large network, for which the decimal encoding causes overflows
+
+    """
+    cdef:
+        long n, i, rep, sample, numSets = condNodesG.size()
+        vector[long] arr
+        vector[unordered_map[string, unordered_map[string, double]]]  snapshots = vector[unordered_map[string, unordered_map[string, double]]](numSets)
+        vector[vector[long]] condNodesIdx = [[model.mapping[n] for n in arr] for arr in condNodesG]
+        vector[vector[long]] systemNodesIdx = [[model.mapping[n] for n in arr] for arr in systemNodesG]
+        string systemState, condState
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
+
+
+    # initialize thread-safe models. nThread MC chains will be run in parallel.
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.resetAllToAgentState(initStateIdx, rep)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    i = repeats
+    pbar = tqdm(total = i * nSnapshots)
+    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for sample in range(nSnapshots):
+            (<Model>modelptr).simulateNSteps(distSamples)
+            #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
+            with gil:
+                for set in range(numSets):
+                    condState = (<Model> modelptr).encodeStateToString(condNodesIdx[set])
+                    systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx[set])
+                    snapshots[set][condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
+            with gil: pbar.update(1)
+
+    return snapshots
+
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
 cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshots(Model model, long[::1] systemNodesG, long[::1] condNodesG, \
               long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
