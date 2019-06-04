@@ -2,8 +2,6 @@
 # distutils: language=c++
 # __author__ = 'Casper van Elteren'
 
-# MODELS
-# from Models.models cimport Model
 from Models.models cimport Model
 from Models.fastIsing cimport Ising
 
@@ -173,7 +171,7 @@ cpdef double entropyEstimateH2(long[::1] counts):
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] fixedNodesG = None, long[::1] fixedStates = None, \
+cpdef unordered_map[string, double] getSystemSnapshotsFixedNodes(Model model, long[::1] nodes, long[::1] fixedNodesG, long[::1] fixedStates, \
               long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
@@ -184,8 +182,71 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] fi
         unordered_map[string, double] snapshots
         long i, rep, sample, numNodes = fixedNodesG.shape[0]
         long[::1] initialState, fixedNodesIdx = np.array([model.mapping[fixedNodesG[i]] for i in range(numNodes)], int)
-        vector[long] allNodes = list(model._nodeids)
+        vector[long] allNodesIdx = [model.mapping[n] for n in nodes]
         string state
+        PyObject *modelptr
+        vector[PyObjectHolder] models_
+        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
+
+
+    initialState = np.ones(model._nNodes, int)#tmp.states
+    for i in range(numNodes):
+        initialState[fixedNodesIdx[i]] = fixedStates[i]
+
+
+    # initialize thread-safe models. nThread MC chains will be run in parallel.
+    for rep in range(nThreads):
+        tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        #tmp.resetAllToAgentState(initStateIdx, rep)
+        #print(f'init {[s for s in tmp.states]}')
+        #print(f'fixed nodes {fixedNodesIdx.base}')
+
+
+        tmp.fixedNodes = fixedNodesIdx
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+    i = repeats
+    pbar = tqdm(total = i * nSnapshots)
+    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+
+        with gil: (<Model>modelptr).setStates(initialState)
+
+        with gil: print(f'fixed states {fixedStates.base}: {[s for s in (<Model>modelptr)._states]}')
+
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+        for sample in range(nSnapshots):
+            (<Model>modelptr).simulateNSteps(distSamples)
+            #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
+            with gil:
+                state = (<Model> modelptr).encodeStateToString(allNodesIdx)
+                snapshots[state] += 1 # each index corresponds to one system state, the array contains the count of each state
+            with gil: pbar.update(1)
+
+    return snapshots
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshots(Model model, long[::1] systemNodesG, long[::1] condNodesG, \
+              long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
+              long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
+    """
+    Extract full system snapshots from MC for large network, for which the decimal encoding causes overflows
+
+    """
+    cdef:
+        unordered_map[string, unordered_map[string, double]]  snapshots
+        long i, rep, sample, numNodes = condNodesG.shape[0]
+        long[::1] initialState, condNodesIdx = np.array([model.mapping[condNodesG[i]] for i in range(numNodes)], int)
+        vector[long] systemNodesIdx = [model.mapping[n] for n in systemNodesG]
+        string systemState, condState
         PyObject *modelptr
         vector[PyObjectHolder] models_
         int tid, nThreads = mp.cpu_count() if threads == -1 else threads
@@ -196,12 +257,6 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] fi
         tmp = copy.deepcopy(model)
         tmp.seed += rep
         tmp.resetAllToAgentState(initStateIdx, rep)
-
-        initialState = tmp.states
-        for i in range(numNodes):
-            initialState[fixedNodesIdx[i]] = fixedStates[i]
-        tmp.setStates(initialState)
-        tmp.fixedNodes = fixedNodesIdx
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
     i = repeats
@@ -214,8 +269,11 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] fi
 
         for sample in range(nSnapshots):
             (<Model>modelptr).simulateNSteps(distSamples)
-            with gil: state = (<Model> modelptr).encodeStateToString(allNodes)
-            snapshots[state] += 1 # each index corresponds to one system state, the array contains the count of each state
+            #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
+            with gil:
+                condState = (<Model> modelptr).encodeStateToString(list(condNodesIdx))
+                systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx)
+                snapshots[condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
             with gil: pbar.update(1)
 
     return snapshots
@@ -378,8 +436,9 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
 
         #if sample < nSnapshots:
         for d in range(maxDist):
-            with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-            snapshots[d][state] += part # each index corresponds to one system state, the array contains the probability of each state
+            with gil:
+                state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
+                snapshots[d][state] += part # each index corresponds to one system state, the array contains the probability of each state
 
         #spins[sample] = (<Model>modelptr)._states
 
@@ -440,8 +499,9 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         for n in range(nNodes):
             nodeSpin = (<Model> modelptr)._states[nodesIdx[n]]
             for d in range(maxDist):
-                with gil: state = (<Model> modelptr).encodeStateToString(neighboursIdx[n][d+1])
-                snapshots[n][d][state] += part # each index corresponds to one system state, the array contains the probability of each state
+                with gil:
+                    state = (<Model> modelptr).encodeStateToString(neighboursIdx[n][d+1])
+                    snapshots[n][d][state] += part # each index corresponds to one system state, the array contains the probability of each state
 
 
     return snapshots, neighboursG
@@ -712,8 +772,9 @@ cpdef tuple getJointSnapshotsPerDist(Model model, long nodeG, \
             nodeSpin = (<Model> modelptr)._states[nodeIdx]
             #with gil: print((<Model> modelptr)._states.base)
             for d in range(maxDist):
-                with gil: state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-                snapshots[d][nodeSpin][state] += 1
+                with gil:
+                    state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
+                    snapshots[d][nodeSpin][state] += 1
 
     return snapshots, Z
 
@@ -754,6 +815,8 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
        #long[:,::1] sampledStates
        int i
        vector[long] neighboursIdx = vector[long] (nNeighbours)
+
+    #with gil: print(f'CHECK node {nodeG}:  {neighboursG}')
 
 
     for idx in range(model.agentStates.shape[0]):
@@ -839,6 +902,8 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
     with gil: model.releaseFixedNodes()
 
     #with gil: print(f'{timer() - past} sec')
+
+    #with gil: print(f'CHECK sum {np.sum(probCondArr.base)}')
 
     return probCondArr
     #return sampledStates

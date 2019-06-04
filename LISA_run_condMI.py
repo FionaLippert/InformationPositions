@@ -57,6 +57,7 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
         if d in neighbours_G.keys():
             subgraph_nodes.extend(neighbours_G[d])
             subgraph = nx.ego_graph(model.graph, node, d)
+            print(subgraph_nodes)
 
 
             if d >= minDist:

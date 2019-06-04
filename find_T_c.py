@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     #temps = linspace(1, 50, 500)
     #temps = linspace(1, 2, 100)
-    temps = linspace(0.5, 5, 500)
+    temps = linspace(0.1, 5, 1000)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
@@ -116,10 +116,10 @@ if __name__ == '__main__':
                 susceptibility = sus, \
                 binder = binder, \
                 Tc = Tc)
-        #IO.savePickle(targetDirectory, f'{filename}_results', tmp)
+        IO.savePickle(targetDirectory, f'{filename}_results', tmp)
 
-        #with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
-        #    f.write(f'{Tc:.2f}')
+        with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
+            f.write(f'{Tc:.2f}')
 
 
         """

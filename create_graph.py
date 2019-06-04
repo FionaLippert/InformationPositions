@@ -143,12 +143,19 @@ if __name__ == '__main__':
     targetDirectory = f'{os.getcwd()}/networkData'
     #create_path_graph(100, targetDirectory)
 
-    create_barabasi_albert_graph(10, 2, path=targetDirectory, version='')
+    #create_barabasi_albert_graph(10, 2, path=targetDirectory, version='')
 
-    #graph = nx.Graph()
-    #graph.add_nodes_from(range(7))
-    #graph.add_edges_from([(0,1),(1,2),(2,3),(3,4),(3,5),(3,6)])
-    #nx.write_gpickle(graph, 'networkData/troubleshooting_subgraph_node283.gpickle', 2)
+    nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
+
+    N=50
+    while True:
+        G = nx.erdos_renyi_graph(60, p=0.04)
+        connected_nodes = max(nx.connected_components(G), key=len)
+        G = G.subgraph(connected_nodes)
+        if len(G) == N: break
+    k = np.mean([d for n,d in nx.degree(G)])
+    print(k)
+    nx.write_gpickle(G, f'{targetDirectory}/small_graphs/ER_k={k:.2f}_N={N}.gpickle', 2)
 
     """
     graph = nx.Graph()

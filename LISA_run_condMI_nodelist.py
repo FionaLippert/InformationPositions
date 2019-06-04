@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='run MC chain and compute MI based 
 parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
-parser.add_argument('nodes', type=str, help='path to nodes for which MI should be computed')
+parser.add_argument('--nodes', type=str, default='all', help='path to nodes for which MI should be computed')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node. If -1, use diameter, if -2 use distance where max neighbours are reached')
 parser.add_argument('--minDist', type=int, default=1, help='min distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
@@ -104,7 +104,11 @@ if __name__ == '__main__':
     # load network
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
-    nodes = np.load(args.nodes)
+
+    if args.nodes == 'all':
+        nodes = np.array(list(graph))
+    else:
+        nodes = np.load(args.nodes)
     #nodes = np.array([283, 642])
 
     if args.maxDist > 0:
