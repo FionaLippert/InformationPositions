@@ -242,7 +242,7 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
 
     """
     cdef:
-        long n, i, rep, sample, numSets = condNodesG.size()
+        long n, i, rep, sample, set, numSets = condNodesG.size()
         vector[long] arr
         vector[unordered_map[string, unordered_map[string, double]]]  snapshots = vector[unordered_map[string, unordered_map[string, double]]](numSets)
         vector[vector[long]] condNodesIdx = [[model.mapping[n] for n in arr] for arr in condNodesG]
@@ -271,8 +271,8 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
         for sample in range(nSnapshots):
             (<Model>modelptr).simulateNSteps(distSamples)
             #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
-            with gil:
-                for set in range(numSets):
+            for set in range(numSets):
+                with gil:
                     condState = (<Model> modelptr).encodeStateToString(condNodesIdx[set])
                     systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx[set])
                     snapshots[set][condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state

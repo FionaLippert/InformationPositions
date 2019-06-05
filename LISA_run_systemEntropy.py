@@ -17,7 +17,10 @@ from scipy import stats
 
 
 def compute_entropies(snapshots, nSamples):
+    sum = np.sum([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
+    print(sum)
     condEntropies = [infcy.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
+    print(condEntropies)
     condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(nSamples) for i, s in enumerate(snapshots.values())])
     print(f'H2(S|s_i) = {condH}')
 
@@ -124,6 +127,7 @@ if __name__ == '__main__':
                 else:
                     allNodes = np.array(list(graph))
                     systemNodes = [list(allNodes[np.where(allNodes != node)].astype(int)) for node in nodelist]
+                    systemNodes = [list(allNodes) for node in nodelist]
 
                 fixedNodes = [[node] for node in nodelist]
 
