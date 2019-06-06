@@ -47,6 +47,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--nodes', type=str, default='', help='path to numpy array containg nodes to be fixed')
 parser.add_argument('--single', action="store_true", help='fix nodes individually')
+parser.add_argument('--excludeNodes', action="store_true", help='exclude fixed nodes from system entropy')
 #parser.add_argument('--centralNode', type=int, default=-1, help='node of interest, reference point for max dist')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--dist', type=int, default=-1, help='max dist up to which nodes are considered for system entropy estimate')
@@ -123,11 +124,16 @@ if __name__ == '__main__':
         if args.single:
                 if args.dist > 0:
                     allNodes = [np.array(list(nx.ego_graph(graph, node, args.dist))) for node in nodelist]
-                    systemNodes = [list(allNodes[i][np.where(allNodes[i] != node)].astype(int)) for i, node in enumerate(nodelist)]
+                    if args.excludeNodes:
+                        systemNodes = [list(allNodes[i][np.where(allNodes[i] != node)].astype(int)) for i, node in enumerate(nodelist)]
+                    else:
+                        systemNodes = [list(allNodes[i]) for i, node in enumerate(nodelist)]
                 else:
                     allNodes = np.array(list(graph))
-                    systemNodes = [list(allNodes[np.where(allNodes != node)].astype(int)) for node in nodelist]
-                    systemNodes = [list(allNodes) for node in nodelist]
+                    if args.excludeNodes:
+                        systemNodes = [list(allNodes[np.where(allNodes != node)].astype(int)) for node in nodelist]
+                    else:
+                        systemNodes = [list(allNodes) for node in nodelist]
 
                 fixedNodes = [[node] for node in nodelist]
 
@@ -159,7 +165,10 @@ if __name__ == '__main__':
             else:
                 fixedNodes = np.load(args.nodes).astype(int)
 
-            systemNodes = np.array([n for n in allNodes if n not in fixedNodes], dtype=int)
+            if args.excludeNodes:
+                systemNodes = np.array([n for n in allNodes if n not in fixedNodes], dtype=int)
+            else:
+                systemNodes = allNodes
 
 
             snapshots = infcy.getSystemSnapshots(model, systemNodes, fixedNodes, \
