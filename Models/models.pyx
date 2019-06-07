@@ -569,12 +569,15 @@ cdef class Model: # see pxd
         assert value in 'constant pulse'
         self._nudgeType = value
 
+    # watch out: does not copy array but references
     cdef void _setStates(self, long[::1] newStates) nogil:
         self._newstates = newStates
         self._states = newStates
 
     cpdef void setStates(self, long[::1] newStates):
-        self._setStates(newStates)
+        #self._setStates(newStates)
+        self._newstates = newStates.copy()
+        self._states = newStates.copy()
 
     @states.setter # TODO: expand
     def states(self, value):

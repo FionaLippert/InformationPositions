@@ -119,42 +119,48 @@ if __name__ == '__main__':
     for i in range(args.runs):
         now = time.time()
 
-        nodelist = np.load(args.nodes).astype(int)
 
         if args.single:
-                if args.dist > 0:
-                    allNodes = [np.array(list(nx.ego_graph(graph, node, args.dist))) for node in nodelist]
-                    if args.excludeNodes:
-                        systemNodes = [list(allNodes[i][np.where(allNodes[i] != node)].astype(int)) for i, node in enumerate(nodelist)]
-                    else:
-                        systemNodes = [list(allNodes[i]) for i, node in enumerate(nodelist)]
+            nodelist = np.load(args.nodes).astype(int)
+            if args.dist > 0:
+                allNodes = [np.array(list(nx.ego_graph(graph, node, args.dist))) for node in nodelist]
+                if args.excludeNodes:
+                    systemNodes = [list(allNodes[i][np.where(allNodes[i] != node)].astype(int)) for i, node in enumerate(nodelist)]
                 else:
-                    allNodes = np.array(list(graph))
-                    if args.excludeNodes:
-                        systemNodes = [list(allNodes[np.where(allNodes != node)].astype(int)) for node in nodelist]
-                    else:
-                        systemNodes = [list(allNodes) for node in nodelist]
+                    systemNodes = [list(allNodes[i]) for i, node in enumerate(nodelist)]
+            else:
+                allNodes = np.array(list(graph))
+                if args.excludeNodes:
+                    systemNodes = [list(allNodes[np.where(allNodes != node)].astype(int)) for node in nodelist]
+                else:
+                    systemNodes = [list(allNodes) for node in nodelist]
 
-                fixedNodes = [[node] for node in nodelist]
+            fixedNodes = [[node] for node in nodelist]
 
+            split_idx = np.arange(10, len(nodelist), 10)
+            split_fixedNodes = np.split(fixedNodes, split_idx)
+            split_systemNodes = np.split(systemNodes, split_idx)
 
-                snapshots = infcy.getSystemSnapshotsSets(model, systemNodes, fixedNodes, \
+            allCondH      = {}
+            allSystemH    = {}
+
+            for f, s in zip(split_fixedNodes, split_systemNodes):
+                snapshots = infcy.getSystemSnapshotsSets(model, list(s), list(f), \
                               **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
-                allCondH      = {}
-                allSystemH    = {}
-                for i, node in enumerate(nodelist):
+                for i, node in enumerate(f.flatten()):
                     print(f'--------------- node {node} ---------------')
                     allCondH[node], allSystemH[node] = compute_entropies(snapshots[i], args.snapshots*args.repeats)
 
-                IO.savePickle(targetDirectory, f'condSystemEntropy_results_individual nodes_{now}', allCondH)
-                IO.savePickle(targetDirectory, f'systemEntropy_results_individual nodes_{now}', allSystemH)
+            IO.savePickle(targetDirectory, f'condSystemEntropy_results_individual nodes_{now}', allCondH)
+            IO.savePickle(targetDirectory, f'systemEntropy_results_individual nodes_{now}', allSystemH)
 
 
 
         elif args.nodes == '':
-            snapshots = infcy.getSystemSnapshots(model, fixedNodesG=None, fixedStates=None, \
+            snapshots = infcy.getSystemSnapshotsFixedNodes(model, np.array(list(graph)), fixedNodesG=np.empty(0, int), fixedStates=np.empty(0, int), \
                           **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
+
             print(np.fromiter(snapshots.values(), dtype=int))
             entropy = infcy.entropyEstimateH2(np.fromiter(snapshots.values(), dtype=int))
             print(f'system entropy = {entropy}')
@@ -173,6 +179,7 @@ if __name__ == '__main__':
 
             snapshots = infcy.getSystemSnapshots(model, systemNodes, fixedNodes, \
                           **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
+
             print([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
             condEntropies = [infcy.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
             #print(f'H2 entropy estimates = {condEntropies}')

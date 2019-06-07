@@ -214,6 +214,8 @@ cpdef unordered_map[string, double] getSystemSnapshotsFixedNodes(Model model, lo
 
         with gil: (<Model>modelptr).setStates(initialState)
 
+        with gil: print(f'init state {initialState.base}')
+
         with gil: print(f'fixed states {fixedStates.base}: {[s for s in (<Model>modelptr)._states]}')
 
         (<Model>modelptr).simulateNSteps(burninSamples)
@@ -930,7 +932,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
         #with gil: print(model.mapping)
 
 
-        model._setStates(initialState)
+        with gil: model.setStates(initialState)
         #with gil: print({model.rmapping[idx]: initialState[idx] for idx in range(model._nNodes)})
         with gil: model.seed += 1
         #model._loadStatesFromString(decodedStates, neighbours) # keeps all other node states as they are
@@ -1011,7 +1013,7 @@ cdef unordered_map[long, unordered_map[string, double]] _monteCarloFixedNeighbou
             initialState[n] = decodedStates[idx]
 
 
-        model._setStates(initialState)
+        with gil: model.setStates(initialState)
         with gil: model.seed += 1
         model.simulateNSteps(burninSamples) # go to equilibrium
 
@@ -1068,7 +1070,7 @@ cdef long[:,::1] _monteCarloFixedNeighboursStates(Model model, string snapshot, 
             initialState[n] = decodedStates[idx]
 
 
-        model._setStates(initialState)
+        with gil: model.setStates(initialState)
         with gil: model.seed += 1
 
         model.simulateNSteps(burninSamples) # go to equilibrium
