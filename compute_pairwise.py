@@ -2,17 +2,9 @@
 # -*- coding: utf-8 -*-
 # __author__ = 'Fiona Lippert'
 
-
-from Models import fastIsing
-from Toolbox import infcy
-from Utils import IO
-import networkx as nx, itertools, scipy, time, subprocess, \
-                os, pickle, sys, argparse, multiprocessing as mp
-import itertools
+from Toolbox import infoTheory
+import argparse
 import numpy as np
-from tqdm import tqdm
-from timeit import default_timer as timer
-from scipy import stats
 
 nthreads = mp.cpu_count() - 1
 
@@ -24,6 +16,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     fullSnapshots = np.load(args.path)
 
-    MI, corr = infcy.runMI(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+    MI, corr = infoTheory.pairwiseMI_allNodes(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
     np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
     np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)

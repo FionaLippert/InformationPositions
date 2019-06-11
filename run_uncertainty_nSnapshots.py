@@ -4,7 +4,7 @@
 
 
 from Models import fastIsing
-from Toolbox import infcy
+from Toolbox import infoTheory, simulation
 from Utils import IO
 import networkx as nx, itertools, scipy, time, \
         os, pickle, sys, multiprocessing as mp
@@ -33,14 +33,14 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
                 print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, num states = {len(snapshots[d-1])} -----------------------')
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
                 # determine correlation time for subgraph Ising model
-                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
+                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = simulation.determineCorrTime(model_subgraph, **corrTimeSettings)
                 #distSamples_subgraph = 50
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
 
                 threads = nthreads if len(subgraph_nodes) > 100 else 1
 
-                snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
+                snapshotsDict, pCond, MI = simulation.neighbourhoodMI(model_subgraph, node, neighbours_G[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=threads)
 
                 print(pCond)
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         thresholdCorr   = 0.01
     )
     IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
-    mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
+    mixingTime, meanMag, distSamples, mags = simulation.determineCorrTime(model, **mixingTimeSettings)
     print(f'correlation time = {distSamples}')
     print(f'mixing time      = {mixingTime}')
     print(f'mean mags        = {meanMag}')
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     for nSnapshots in [10,50,100,200,300,500]: #np.linspace(50, 500, 10).astype(int):
         allMIs = np.zeros((reps, maxDist-minDist+1))
         for r in range(reps):
-            snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, \
+            snapshots, _ = simulation.getSnapshotsPerDist2(model, node, allNeighbours_idx, \
                                 nSamples=nSnapshots, burninSamples=mixingTime, \
                                 maxDist=maxDist, threads=nthreads)
 

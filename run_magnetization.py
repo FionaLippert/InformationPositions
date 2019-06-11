@@ -4,7 +4,7 @@
 
 
 from Models import fastIsing
-from Toolbox import infcy
+from Toolbox import simulation
 from Utils import IO, plotting as plotz
 from Utils.IO import SimulationResult
 import networkx as nx, itertools, scipy,\
@@ -60,7 +60,7 @@ def run_mag_series(model, runs, steps, p_initial):
     fig, ax = subplots(figsize=(10,5))
     for i in range(runs):
         model.states = np.random.choice([1,-1], size = model.nNodes, p=[p_initial, 1-p_initial])
-        mags = infcy.magTimeSeries(model, burninSamples=int(0), nSamples=int(steps))
+        mags = simulation.magTimeSeries(model, burninSamples=int(0), nSamples=int(steps))
         #mags_normal = np.where(np.abs(mags)>0.05, mags, np.nan)
         #mags_switch = np.where(np.abs(mags)<=0.05, mags, np.nan)
         ax.plot(mags)
@@ -79,7 +79,7 @@ def run_mixing(model, num_p_initial, step_size_burnin, num_steps_regress, thresh
     maxCorrTime = 0
     for prob in tqdm(np.linspace(0.5, 1, num_p_initial)):
         model.states = np.random.choice([-1,1], size = model.nNodes, p=[prob, 1-prob])
-        mags, mixingTime, autocorr = infcy.determineMixingTime(model,\
+        mags, mixingTime, autocorr = simulation.determineMixingTime(model,\
                               stepSizeBurnin = step_size_burnin,\
                               nStepsRegress = int(num_steps_regress),\
                               threshold = threshold_regress,\
@@ -104,7 +104,7 @@ def run_mixing(model, num_p_initial, step_size_burnin, num_steps_regress, thresh
     maxCorrTime = 0
     for prob in tqdm(np.linspace(0.5, 1, num_p_initial)):
         model.states = np.random.choice([-1,1], size = model.nNodes, p=[prob, 1-prob])
-        autocorr = infcy.determineCorrTime(model,\
+        autocorr = simulation.determineCorrTime(model,\
                               nBurnin = maxMixingTime,\
                               nStepsCorr = int(num_steps_corr))
         corrTime = np.where(np.abs(autocorr) < threshold_corr)[0][0]
@@ -137,7 +137,7 @@ def run_mixing_temps(model, nInitialConfigs, temps, stepSizeBurnin=10, nStepsReg
         fig, ax = subplots(figsize=(10,5))
         model.t = t
         model.states = np.random.choice([1,-1], size = model.nNodes, p=[1, 0])
-        mags = infcy.magTimeSeries(model, burninSamples=int(0), nSamples=int(1e4))
+        mags = simulation.magTimeSeries(model, burninSamples=int(0), nSamples=int(1e4))
         #mags_normal = np.where(np.abs(mags)>0.05, mags, np.nan)
         #mags_switch = np.where(np.abs(mags)<=0.05, mags, np.nan)
         fig, ax = subplots(figsize=(10,5))
@@ -220,7 +220,7 @@ if __name__ == '__main__':
         #magRange = array([CHECK]) if isinstance(CHECK, float) else array(CHECK) # ratio of magnetization to be reached
         temps = linspace(0.5, 4, 50)
 
-        mag, sus, binder = infcy.magnetizationParallel(model,       \
+        mag, sus, binder = simulation.magnetizationParallel(model,       \
                             temps           = temps,        \
                             n               = nSamples,     \
                             burninSamples   = burninSamples)

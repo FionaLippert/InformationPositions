@@ -4,7 +4,7 @@
 
 
 from Models import fastIsing
-from Toolbox import infcy
+from Toolbox import infoTheory, simulation
 import networkx as nx, itertools, scipy,\
         os, pickle, h5py, sys, multiprocessing as mp, json,\
         datetime, sys
@@ -48,13 +48,13 @@ def computeMI_condPDF(model, node, minDist, maxDist, neighboursG, snapshots, nTr
                 model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
                 #print(model_subgraph.mapping)
                 # determine correlation time for subgraph Ising model
-                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = infcy.determineCorrTime(model_subgraph, **corrTimeSettings)
+                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = simulation.determineCorrTime(model_subgraph, **corrTimeSettings)
                 print(f'correlation time = {distSamples_subgraph}')
                 print(f'mixing time      = {mixingTime_subgraph}')
                 distSamples_subgraph = min(distSamples_subgraph, 100)
                 distSamples_subgraph = 1
 
-                _, probs, MI, HX = infcy.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
+                _, probs, MI, HX = simulation.neighbourhoodMI(model_subgraph, node, neighboursG[d], snapshots[d-1], \
                           nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, threads=7, initStateIdx=initStateIdx)
                 #print(probs)
                 #np.save(f'{targetDirectory}/states_d={d}.npy', states)
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     )
 
     print('Determining mixing time...')
-    mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
+    mixingTime, meanMag, distSamples, mags = simulation.determineCorrTime(model, **mixingTimeSettings)
     print(f'correlation time = {distSamples}')
     print(f'mixing time      = {mixingTime}')
     print(f'magnetization    = {meanMag}')
@@ -152,10 +152,9 @@ if __name__ == '__main__':
     pairwise MI
     """
 
-    avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7, initStateIdx=1, getFullSnapshots=1)
-    MI, corr = infcy.runMI(model, np.array([node]), snapshots, repeats=snapshotSettingsJoint['repeats'], distMax=maxDist)
-    MIs_pairwise = np.array([np.nanmean(MI[:,i,:,:], axis=1) for i in range(MI.shape[1])])
-    print(MIs_pairwise)
+    avgSnapshots, avgSystemSnapshots, snapshots = simulation.getJointSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsJoint, threads=7, initStateIdx=1, getFullSnapshots=1)
+    MI, corr = infoTheory.pairwiseMI_oneNode(model, node, snapshots, repeats=snapshotSettingsJoint['repeats'], distMax=maxDist)
+    print(MI)
 
 
     """
@@ -202,7 +201,7 @@ if __name__ == '__main__':
     """
 
 
-    snapshots, neighbours_idx, spins = infcy.getSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsCond, threads=7, initStateIdx=1)
+    snapshots, neighbours_idx, spins = simulation.getSnapshotsPerDist2(model, node, allNeighboursG, **snapshotSettingsCond, threads=7, initStateIdx=1)
     #np.save(f'{targetDirectory}/states.npy', spins)
     MIs, HXs = computeMI_condPDF(model, node, minDist, maxDist, allNeighboursG, snapshots, nTrials, nSamples, modelSettings, corrTimeSettings, initStateIdx=1)
     print(MIs)
@@ -214,7 +213,7 @@ if __name__ == '__main__':
     """
     """
     allNodes = np.array(list(graph))
-    snapshotsAllNodes, neighboursGAllNodes = infcy.getSnapshotsPerDistNodes(model, allNodes, **snapshotSettingsCond, threads=7)
+    snapshotsAllNodes, neighboursGAllNodes = simulation.getSnapshotsPerDistNodes(model, allNodes, **snapshotSettingsCond, threads=7)
     for n in range(len(snapshotsAllNodes)):
         node = allNodes[n]
         corrTimeSettings = dict( \

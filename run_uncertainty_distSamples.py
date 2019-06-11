@@ -4,7 +4,7 @@
 
 
 from Models import fastIsing
-from Toolbox import infcy
+from Toolbox import infoTheory, simulation
 from Utils import IO
 import networkx as nx, itertools, scipy, time, \
         os, pickle, sys, multiprocessing as mp
@@ -64,12 +64,12 @@ def computeMI_cond(model, nodeIdx, dist, neighbours_G, neighbours_idx, snapshots
     model_subgraph.reset()
     print(f'mean mag = {np.mean(model_subgraph.states)}')
 
-    mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **corrTimeSettings, thresholdCorr=threshold)
+    mixingTime, meanMag, distSamples, mags = simulation.determineCorrTime(model, **corrTimeSettings, thresholdCorr=threshold)
     print(f'distSamples = {distSamples}')
 
     threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
 
-    snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, nodeIdx, neighbours_idx[dist], snapshots[dist-1], \
+    snapshotsDict, pCond, MI = simulation.neighbourhoodMI(model_subgraph, nodeIdx, neighbours_idx[dist], snapshots[dist-1], \
               nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
 
     return pCond
@@ -147,7 +147,7 @@ if __name__ == '__main__':
             thresholdCorr   = 0.01
         )
         IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
-        mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
+        mixingTime, meanMag, distSamples, mags = simulation.determineCorrTime(model, **mixingTimeSettings)
         print(f'correlation time = {distSamples}')
         print(f'mixing time      = {mixingTime}')
         print(f'mean mags        = {meanMag}')
@@ -176,7 +176,7 @@ if __name__ == '__main__':
         IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
 
 
-        snapshots, _ = infcy.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
+        snapshots, _ = simulation.getSnapshotsPerDist2(model, node, allNeighbours_idx, **snapshotSettingsCond, threads=nthreads)
 
 
         nTrials = 1 # 10
@@ -227,7 +227,7 @@ if __name__ == '__main__':
                 thresholdCorr   = t
             )
             IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
-            mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
+            mixingTime, meanMag, distSamples, mags = simulation.determineCorrTime(model, **mixingTimeSettings)
             print(f'correlation time = {distSamples}')
             print(f'mixing time      = {mixingTime}')
             print(f'mean mags        = {meanMag}')

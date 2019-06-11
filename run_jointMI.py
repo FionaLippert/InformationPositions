@@ -21,19 +21,18 @@ parser = argparse.ArgumentParser(description='run MC chain and compute MI based 
 parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
-parser.add_argument('nodes', type=str, help='path to numpy array of node IDs')
-parser.add_argument('--neighboursDir', type=str, default='', help='path to directory containing pickled neighbours dictionary')
+parser.add_argument('node', type=int, help='central node ID')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
-parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
+parser.add_argument('--bins', type=int, default=100, help='number of bins for average magnetization of neighbours')
 parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
-parser.add_argument('--numSteps', type=int, default=1000, help='number of system updates')
-parser.add_argument('--threshold', type=float, default=0.1, help='threshold to determine mag switching')
+parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
+parser.add_argument('--initState', type=int, default=-1, help='')
+parser.add_argument('--magSide', type=str, default='', help='')
+
 
 
 if __name__ == '__main__':
-
-    print("starting with average neighbour MI approach")
 
     start = timer()
 
@@ -43,20 +42,22 @@ if __name__ == '__main__':
     targetDirectory = args.dir
     os.makedirs(targetDirectory, exist_ok=True)
 
+    # load network
+    maxDist = args.maxDist
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
 
-    # load network
     if args.maxDist > 0:
         maxDist = args.maxDist
     else:
         maxDist = nx.diameter(graph)
 
-    nodes = np.load(args.nodes)
+    node = args.node
 
     networkSettings = dict( \
         path = args.graph, \
-        nNodes = N
+        nNodes = N, \
+        node = node
     )
     IO.saveSettings(targetDirectory, networkSettings, 'network')
 
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
-        magSide         = ''
+        magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
     IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
@@ -75,10 +76,6 @@ if __name__ == '__main__':
         corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
         burninSteps = mixingResults['burninSteps']
         distSamples = mixingResults['distSamples']
-        magLevel    = mixingResults['magLevel']
-        print(f'mixing time = {burninSteps}')
-        print(f'correlation time = {distSamples}')
-        print(f'absolute average magnetization = {magLevel}')
 
     except:
         #raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
@@ -90,50 +87,46 @@ if __name__ == '__main__':
         corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
         burninSteps = mixingResults['burninSteps']
         distSamples = mixingResults['distSamples']
-        magLevel    = mixingResults['magLevel']
 
-    try:
-        if len(args.neighboursDir) > 0:
-            neighboursG = IO.loadPickle(args.neighboursDir, 'neighboursG')
-        else:
-            neighboursG = IO.loadPickle(targetDirectory, 'neighboursG')
-
-    except:
-        print(f'determining neighbours')
-        neighboursG = model.neighboursAtDistAllNodes(nodes, maxDist)
-        IO.savePickle(targetDirectory, 'neighboursG', neighboursG)
-
-
+    allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
     snapshotSettingsJoint = dict( \
-        nSteps    = args.numSteps, \
+        nSamples    = args.numSamples, \
         repeats     = args.repeats, \
         burninSamples = burninSteps, \
+        distSamples   = distSamples, \
         maxDist     = maxDist, \
-        nBins       = args.bins, \
-        threshold   = args.threshold
+        nBins       = args.bins
     )
     IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
 
 
+
     for r in range(args.runs):
 
-        avgSnapshotsPos, avgSnapshotsNeg, avgSnapshotsSwitch, Z, mags = simulation.getSystemStates(model, nodes, \
-                                                                            neighboursG, \
-                                                                            **snapshotSettingsJoint, threads=nthreads)
+        #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
+        now = time.time()
+        #avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState, getFullSnapshots=1)
+        avgSnapshots, Z = simulation.getJointSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState)
 
+        #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
+        #with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
+        #    pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
+        #MI, corr = infcy.runMIoneNode(model, node, snapshots.reshape((args.repeats*args.numSamples, -1)), distMax=maxDist)
+        #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
+        #np.save(os.path.join(targetDirectory, f'MI_pairwise_node_{node}_{now}.npy'), MI)
+        #np.save(os.path.join(targetDirectory, f'corr_pairwise_node_{node}_{now}.npy'), corr)
+
+
+        Z = args.numSamples*args.repeats
+
+        MI_avg, MI_system, HX = infoTheory.processJointSnapshots_oneNode(avgSnapshots, Z, maxDist)
         now = time.time()
 
-        MI_avg_pos, _, HX_pos = infoTheory.processJointSnapshots_allNodes(avgSnapshotsPos, Z[0], nodes, maxDist)
-        MI_avg_neg, _, HX_neg = infoTheory.processJointSnapshots_allNodes(avgSnapshotsNeg, Z[1], nodes, maxDist)
-        MI_avg_switch, _, HX_switch = infoTheory.processJointSnapshots_allNodes(avgSnapshotsSwitch, Z[2], nodes, maxDist)
+        IO.savePickle(targetDirectory, f'MI_meanField_node_{node}_{now}', MI_avg)
+        IO.savePickle(targetDirectory, f'HX_meanField_node_{node}_{now}', HX)
+        IO.savePickle(targetDirectory, f'MI_systemMag_node_{node}_{now}', MI_system)
 
-        IO.savePickle(targetDirectory, f'MI_pos_meanField_nodes_{now}', MI_avg_pos)
-        IO.savePickle(targetDirectory, f'HX_pos_meanField_nodes_{now}', HX_pos)
-        IO.savePickle(targetDirectory, f'MI_neg_meanField_nodes_{now}', MI_avg_neg)
-        IO.savePickle(targetDirectory, f'HX_neg_meanField_nodes_{now}', HX_neg)
-        IO.savePickle(targetDirectory, f'MI_switch_meanField_nodes_{now}', MI_avg_switch)
-        IO.savePickle(targetDirectory, f'HX_switch_meanField_nodes_{now}', HX_switch)
 
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

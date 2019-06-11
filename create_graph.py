@@ -90,6 +90,21 @@ def create_erdos_renyi_graph(N, avg_deg=2., path=None, version=''):
                 f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
     return graph
 
+def create_erdos_renyi_graph_exactN(N_target, N_start, avg_deg, max_trials=1e5, path=None, version=''):
+
+    p = avg_deg/N_start
+
+    for trial in range(max_trials)
+        G = nx.erdos_renyi_graph(N_start, p=p)
+        connected_nodes = max(nx.connected_components(G), key=len)
+        G = G.subgraph(connected_nodes)
+        if len(G) == N: break
+
+    k = np.mean([d for n,d in nx.degree(G)])
+    print(f'avg degree = {k}')
+    if path is not None: nx.write_gpickle(graph,
+                f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
+
 def create_watts_strogatz(N, k, beta, path=None, version=''):
     graph = nx.watts_strogatz_graph(N, k, beta)
     connected_nodes = max(nx.connected_components(graph), key=len)
@@ -138,83 +153,29 @@ def create_path_graph(L, path=None):
 
 
 
+
 if __name__ == '__main__':
 
     targetDirectory = f'{os.getcwd()}/networkData'
+    os.makedirs(targetDirectory, exist_ok=True)
+
     #create_path_graph(100, targetDirectory)
 
-    #create_barabasi_albert_graph(10, 2, path=targetDirectory, version='')
+    #nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
 
-    nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
-
-    N=50
-    while True:
-        G = nx.erdos_renyi_graph(60, p=0.04)
-        connected_nodes = max(nx.connected_components(G), key=len)
-        G = G.subgraph(connected_nodes)
-        if len(G) == N: break
-    k = np.mean([d for n,d in nx.degree(G)])
-    print(k)
-    nx.write_gpickle(G, f'{targetDirectory}/small_graphs/ER_k={k:.2f}_N={N}.gpickle', 2)
 
     """
-    graph = nx.Graph()
-    graph.add_nodes_from(range(18))
-    graph.add_edges_from([(0,1),(0,2),(0,3),(0,4),(0,5),(1,6),(2,7),(2,8),(3,9),(3,10),(4,11),(4,12),(4,13),(5,14),(5,15),(5,16),(5,17)])
-    nx.write_gpickle(graph, 'networkData/troubleshooting_subgraph_node109.gpickle', 2)
+    targetDirectory = f'{os.getcwd()}/networkData/trees'
+    os.makedirs(targetDirectory, exist_ok=True)
+
+    for depth in [6, 8]:
+        for z in [2, 3, 4, 5]:
+            undirected_tree = create_undirected_tree(z, depth, targetDirectory)
+
+
+    for z in range(2,6):
+        cayley_tree = create_cayley_tree(z, 8, targetDirectory)
     """
-
-    #now = time.time()
-    #targetDirectory = f'{os.getcwd()}/networkData/trees'
-    #os.makedirs(targetDirectory, exist_ok=True)
-
-    #undirected_2 = create_undirected_tree(2, 10, targetDirectory)
-    #undirected_3 = create_undirected_tree(3, 10, targetDirectory)
-    """
-    undirected_2 = create_undirected_tree(2, 8, targetDirectory)
-    undirected_3 = create_undirected_tree(3, 8, targetDirectory)
-    undirected_4 = create_undirected_tree(4, 8, targetDirectory)
-    """
-    """
-    undirected_2 = create_undirected_tree(2, 6, targetDirectory)
-    undirected_3 = create_undirected_tree(3, 6, targetDirectory)
-    undirected_4 = create_undirected_tree(4, 6, targetDirectory)
-    undirected_5 = create_undirected_tree(5, 6, targetDirectory)
-
-    directed_2 = create_directed_tree(2, 6, targetDirectory)
-    directed_3 = create_directed_tree(3, 6, targetDirectory)
-    directed_4 = create_directed_tree(4, 6, targetDirectory)
-    directed_5 = create_directed_tree(5, 6, targetDirectory)
-
-    cayley_2 = create_cayley_tree(2, 8, targetDirectory)
-    cayley_3 = create_cayley_tree(3, 8, targetDirectory)
-    cayley_4 = create_cayley_tree(4, 8, targetDirectory)
-    cayley_5 = create_cayley_tree(5, 8, targetDirectory)
-
-    ER_N100_k15 = create_erdos_renyi_graph(100, 1.5, targetDirectory)
-    ER_N100_k2 = create_erdos_renyi_graph(100, 2.0, targetDirectory)
-    ER_N100_k25 = create_erdos_renyi_graph(100, 2.5, targetDirectory)
-    ER_N100_k3 = create_erdos_renyi_graph(100, 3.0, targetDirectory)
-
-    ER_N500_k15 = create_erdos_renyi_graph(500, 1.5, targetDirectory)
-    ER_N500_k2 = create_erdos_renyi_graph(500, 2.0, targetDirectory)
-    ER_N500_k25 = create_erdos_renyi_graph(500, 2.5, targetDirectory)
-    ER_N500_k3 = create_erdos_renyi_graph(500, 3.0, targetDirectory)
-    """
-
-    #targetDirectory = f'{os.getcwd()}/networkData/2D_grid'
-    #os.makedirs(targetDirectory, exist_ok=True)
-    #create_2D_grid(10, targetDirectory)
-    #create_2D_grid(20, targetDirectory)
-    #create_2D_grid(30, targetDirectory)
-    #create_2D_grid(32, targetDirectory)
-    #create_2D_grid(40, targetDirectory)
-    #create_2D_grid(50, targetDirectory)
-    #create_2D_grid(100, targetDirectory)
-    #create_2D_grid(60, targetDirectory)
-    #create_2D_grid(16, targetDirectory)
-    #create_2D_grid(64, targetDirectory)
-    #create_2D_grid(128, targetDirectory)
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/star_graph'
@@ -222,12 +183,7 @@ if __name__ == '__main__':
     for z in range(3,8):
         create_undirected_star_path_graph(z, 10, targetDirectory)
     """
-    """
-    G = nx.read_gpickle('networkData/ER/ER_k=2.0_N=1000_v0.gpickle')
-    G_sub = nx.ego_graph(G, 283, 8)
-    nx.write_gpickle(G_sub, f'networkData/ER/ER_k=2.0_N=1000_v0_ego_283.gpickle', 2)
-    print(list(G_sub))
-    """
+
     """
     targetDirectory = f'{os.getcwd()}/networkData/regular_graphs'
     os.makedirs(targetDirectory, exist_ok=True)
@@ -251,11 +207,7 @@ if __name__ == '__main__':
             for i in range(10):
                 create_erdos_renyi_graph(N, k, targetDirectory, f'_v{i}')
     """
-    #graph = nx.read_gpickle(f'{os.getcwd()}/networkData/ER_k=2.5_N=500.gpickle')
-    #print(graph.degree)
 
-    #node = 0
-    #print(nx.clustering(graph, [0,37]))
     """
     targetDirectory = f'{os.getcwd()}/networkData/BA'
     os.makedirs(targetDirectory, exist_ok=True)
@@ -270,6 +222,7 @@ if __name__ == '__main__':
             for n in sample_nodes:
                 f.write(f'{n}\n')
     """
+
     """
     targetDirectory = f'{os.getcwd()}/networkData/SF'
     os.makedirs(targetDirectory, exist_ok=True)

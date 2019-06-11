@@ -4,7 +4,7 @@
 
 
 from Models import fastIsing
-from Toolbox import infcy
+from Toolbox import infoTheory, simulation
 from Utils import IO
 import networkx as nx, itertools, scipy, time, \
         os, pickle, sys, multiprocessing as mp
@@ -39,7 +39,7 @@ def computeMI_cond(model, node, dist, neighbours_G, snapshots, nTrials, nSamples
 
     threads = nthreads if len(subgraph_nodes) > 20 or distSamples > 100 else 1
 
-    snapshotsDict, pCond, MI = infcy.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
+    snapshotsDict, pCond, MI = simulation.neighbourhoodMI(model_subgraph, node, neighbours_G[dist], snapshots[dist-1], \
               nTrials=nTrials, burninSamples=corrTimeSettings['burninSteps'], nSamples=nSamples, distSamples=distSamples, threads=nthreads)
 
     return MI
@@ -122,7 +122,7 @@ if __name__ == '__main__':
         thresholdCorr   = 0.01
     )
     IO.saveSettings(targetDirectory, mixingTimeSettings, 'mixingTime')
-    mixingTime, meanMag, distSamples, mags = infcy.determineCorrTime(model, **mixingTimeSettings)
+    mixingTime, meanMag, distSamples, mags = simulation.determineCorrTime(model, **mixingTimeSettings)
     print(f'correlation time = {distSamples}')
     print(f'mixing time      = {mixingTime}')
     print(f'mean mags        = {meanMag}')
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     MIs = np.zeros((reps, nBins.size))
     for r in range(reps):
         for bins in [10, 100, 200, 300]:
-            avgSnapshots, Z = infcy.getJointSnapshotsPerDistNodes(model, np.array([0]), **snapshotSettingsJoint, nBins=bins, threads = nthreads)
+            avgSnapshots, Z = simulation.getJointSnapshotsPerDistNodes(model, np.array([0]), **snapshotSettingsJoint, nBins=bins, threads = nthreads)
             #print(avgSnapshots)
             print([computeMI_joint(avgSnapshots[n], 4, Z) for n in range(1)])
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDistBins(model, node, allNeighbours_idx, **snapshotSettingsJoint, nBins=nBins, threads = nthreads)

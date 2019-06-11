@@ -4,7 +4,7 @@
 
 
 from Models import fastIsing
-from Toolbox import infcy
+from Toolbox import infoTheory, simulation
 from Utils import IO
 import networkx as nx, itertools, scipy, time, subprocess, \
                 os, pickle, sys, argparse, multiprocessing as mp
@@ -67,7 +67,5 @@ if __name__ == '__main__':
     now = time.time()
 
     abs = 1 if args.abs else 0
-    #mag = infcy.magTimeSeries(model, burninSteps, args.numSamples, abs=abs)
-    #np.save(f'{targetDirectory}/magTimeSeries_T={args.T}_NSteps_{args.numSamples}_{now}.npy', mag)
     mag = model.magTimeSeries(args.numSamples, burninSteps)
     np.save(f'{targetDirectory}/magTimeSeries_T={args.T}_nSteps={args.numSamples}_{now}.npy', mag)
