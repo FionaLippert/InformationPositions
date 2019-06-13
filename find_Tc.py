@@ -24,6 +24,7 @@ parser.add_argument('graph', type=str, help='path to graph or ensemble of graphs
 parser.add_argument('--minT', type=float, default=0.1, help='minimum temperature')
 parser.add_argument('--maxT', type=float, default=5.0, help='maximum temperature')
 parser.add_argument('--numT', type=int, default=1000, help='number of different temperature values')
+parser.add_argument('--magFrac', type=float, default=0.3, help='fraction by which magnetization at T_c should be increased to reach the symmetriy breaking regime')
 
 
 # remove values that deviate more than one std from the median
@@ -99,14 +100,17 @@ if __name__ == '__main__':
         T_c, T_susHalf = find_Tc_gaussian(sus, temps)
         print(f'Tc = {T_c}, T_susHalf = {T_susHalf}')
 
+        #print(mags)
+        #print(abs_mags)
+
 
         a, b = optimize.curve_fit(sig, temps, abs_mags)
         mag_Tc = sig(T_c, *a)
         print(f'mag at Tc: {T_c} \t {mag_Tc} \t {mags[np.where(temps > T_c)[0][0]]}')
         highT = temps[np.where(sig(temps, *a) < 0.75 * mag_Tc)[0][0]]
-        lowT = temps[np.where(sig(temps, *a) < 1.25 * mag_Tc)[0][0]]
-        print(f'magnetization minus 25%: {highT}\t {sig(highT, *a)} \t {mags[np.where(temps > highT)[0][0]]}')
-        print(f'magnetization plus  25%: {lowT} \t {sig(lowT, *a)} \t {mags[np.where(temps > lowT)[0][0]]}')
+        lowT = temps[np.where(sig(temps, *a) < (1 + args.magFrac) * mag_Tc)[0][0]]
+        #print(f'magnetization minus 25%: {highT}\t {sig(highT, *a)} \t {mags[np.where(temps > highT)[0][0]]}')
+        print(f'magnetization plus  30%: {lowT} \t {sig(lowT, *a)} \t {mags[np.where(temps > lowT)[0][0]]}')
 
         mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
         print(f' 70% mag: T = {mag70}')
@@ -131,7 +135,7 @@ if __name__ == '__main__':
         print(results2.T_c)
 
         with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
-            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {highT:.2f}')
+            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {T_susHalf:.2f}')
 
 
 
