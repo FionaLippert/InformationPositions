@@ -2,6 +2,8 @@
 # distutils: language=c++
 # __author__ = 'Fiona Lippert'
 
+from Models.models cimport Model
+
 import time
 import numpy as np
 cimport numpy as np
@@ -463,7 +465,7 @@ cpdef double MI_tree_theory(int depth, double beta, int num_children):
     for states in itertools.product([1,-1], repeat=num_children**depth):
 
         s = np.sum(states)
-        states = np.array(states)/s if (s != 0 and avg) else np.array(states)
+        states = np.array(states)/s if (s != 0) else np.array(states)
         pX1 = pCond_theory(depth, beta, num_children, 1, states)
         HXgivenY += stats.entropy([pX1, 1-pX1], base =2)
 

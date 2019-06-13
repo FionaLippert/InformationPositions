@@ -4,7 +4,8 @@
 
 from Models.models cimport Model
 from Models.fastIsing cimport Ising
-from infoTheory import *
+from Toolbox.infoTheory import *
+from Toolbox.infoTheory cimport *
 
 import time
 import numpy as np
@@ -705,10 +706,10 @@ cpdef np.ndarray monteCarloFixedNeighbours(Model model, string snapshot, long no
 cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long nodeG, \
                vector[long] neighboursG, long nTrials, long burninSamples = int(1e3), \
                long nSamples = int(1e3), long distSamples = int(1e2), int initStateIdx = -1) nogil:
-    """"
+    """
     Fix the given neighbours to the states in the snapshot, then simulate the system in equilibrium
     and extract the conditional state distribution of the node of interest
-    """"
+    """
     cdef:
        double Z = <double> nSamples * nTrials
        double part = 1/Z
@@ -1010,10 +1011,10 @@ cpdef np.ndarray magTimeSeries(Model model, long burninSamples, \
 @cython.overflowcheck(False)
 cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
                                 long nSamples, int abs=0):
-    """"
+    """
     simulate the system in equilibrium,
     determine the system magnetization at each time step
-    """"
+    """
     cdef:
         double[::1] mags = np.zeros(nSamples)
         long sample
