@@ -16,7 +16,15 @@ from numpy import *
 from tqdm import tqdm
 from scipy import optimize, ndimage
 import glob
-close('all')
+import argparse
+
+parser = argparse.ArgumentParser(description='find the critical temperature of Ising Model on a given network structure')
+parser.add_argument('dir', type=str, help='target directory')
+parser.add_argument('graph', type=str, help='path to graph or ensemble of graphs')
+parser.add_argument('--minT', type=float, default=0.1, help='minimum temperature')
+parser.add_argument('--maxT', type=float, default=5.0, help='maximum temperature')
+parser.add_argument('--numT', type=int, default=1000, help='number of different temperature values')
+
 
 # remove values that deviate more than one std from the median
 def remove_outliers(data, f=1):
@@ -31,7 +39,11 @@ def find_Tc(sus, temps, n=10, f=1):
     return np.nanmean(remove_outliers(temps[idx], f))
 
 def find_Tc_gaussian(sus, temps, sigma=5):
-    return temps[np.argmax(ndimage.filters.gaussian_filter1d(sus, sigma))]
+    sus_smoothed = ndimage.filters.gaussian_filter1d(sus, sigma)
+    max_idx = np.argmax(sus_smoothed)
+    Tc = temps[max_idx]
+    T_susHalf = temps[max_idx:][np.where(sus_smoothed[max_idx:] < 0.5 * sus_smoothed[max_idx])[0][0]] # T where sus drops below half of its maximum
+    return Tc, T_susHalf
 
 def sig(x, b, d, c):
     return 1 / (1 + np.exp(b*(x-d))) + c
@@ -39,22 +51,22 @@ def sig(x, b, d, c):
 
 if __name__ == '__main__':
 
-    network_path = sys.argv[1] # e.g. 'ER/ER_k=2.5_N=500'
-    print(network_path)
+    args = parser.parse_args()
 
-    ensemble = [g for g in glob.iglob(f'networkData/{network_path}*.gpickle')]
+    ensemble = [g for g in glob.iglob(f'{args.graph}*.gpickle')]
     print(ensemble)
 
     #temps = linspace(1, 50, 500)
     #temps = linspace(1, 2, 100)
-    temps = linspace(0.1, 5, 1000)
+    #temps = linspace(0.1, 5, 1000)
+    temps = linspace(args.minT, args.maxT, args.numT)
     nSamples      = int(1e4) #int(1e6)
     burninSamples = int(1e4) # int(1e6)
     magSide       = '' # which sign should the overall magnetization have (''--> doesn't matter, 'neg' --> flip states if <M> > 0, 'pos' --> flip if <M> < 0)
     updateType    = ''
 
 
-    targetDirectory = f'{os.getcwd()}/DataTc/{network_path}'
+    targetDirectory = f'{os.getcwd()}/{args.dir}'
     os.makedirs(targetDirectory, exist_ok=True)
 
     settings = dict(
@@ -78,37 +90,48 @@ if __name__ == '__main__':
         model = fastIsing.Ising(**modelSettings)
 
 
-        mag, sus, binder, mag_abs = simulation.magnetizationParallel(model,       \
+        mags, sus, binder, abs_mags = simulation.magnetizationParallel(model,       \
                             temps           = temps,        \
                             n               = nSamples,     \
                             burninSamples   = burninSamples)
 
 
-        Tc = find_Tc_gaussian(sus, temps)
-        print(f'Tc = {Tc}')
+        T_c, T_susHalf = find_Tc_gaussian(sus, temps)
+        print(f'Tc = {T_c}, T_susHalf = {T_susHalf}')
 
 
-        a, b = optimize.curve_fit(sig, temps, mag_abs)
-        mag_Tc = sig(Tc, *a)
-        print(f'mag at Tc = {mag_Tc}')
+        a, b = optimize.curve_fit(sig, temps, abs_mags)
+        mag_Tc = sig(T_c, *a)
+        print(f'mag at Tc: {T_c} \t {mag_Tc} \t {mags[np.where(temps > T_c)[0][0]]}')
         highT = temps[np.where(sig(temps, *a) < 0.75 * mag_Tc)[0][0]]
         lowT = temps[np.where(sig(temps, *a) < 1.25 * mag_Tc)[0][0]]
-        print(f'magnetization minus 25%: {highT} {sig(highT, *a)}')
-        print(f'magnetization plus  25%: {lowT} {sig(lowT, *a)}')
+        print(f'magnetization minus 25%: {highT}\t {sig(highT, *a)} \t {mags[np.where(temps > highT)[0][0]]}')
+        print(f'magnetization plus  25%: {lowT} \t {sig(lowT, *a)} \t {mags[np.where(temps > lowT)[0][0]]}')
 
+        mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
+        print(f' 70% mag: T = {mag70}')
+
+        """
         tmp = dict( \
                 temps = temps, \
-                magnetization = mag, \
-                absMagnetization = mag_abs, \
+                magnetization = mags, \
+                absMagnetization = abs_mags, \
                 susceptibility = sus, \
                 binder = binder, \
-                Tc = Tc, \
-                highT = highT, \
+                Tc = T_c, \
+                highT = T_susHalf, \
                 lowT = lowT)
         IO.savePickle(targetDirectory, f'{filename}_results', tmp)
+        """
+
+        result = IO.TcResult(temps, mags, abs_mags, sus, binder, T_c, T_susHalf, lowT, filename)
+        result.saveToPickle(targetDirectory)
+
+        results2 = IO.TcResult.loadFromPickle(targetDirectory, f'{filename}_Tc_results')
+        print(results2.T_c)
 
         with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
-            f.write(f'{lowT:.2f} \n {Tc:.2f} \n {highT:.2f}')
+            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {highT:.2f}')
 
 
 

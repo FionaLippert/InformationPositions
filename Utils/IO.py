@@ -22,15 +22,11 @@ def newest(path):
     return sorted(paths, key=os.path.getctime)
 
 
-def renamed_loads(pickled_bytes):
-    file_obj = io.BytesIO(pickled_bytes)
-    return renamed_load(file_obj)
-
 def loadPickle(path, fileName):
     if not fileName.endswith('.pickle'):
         fileName += '.pickle'
     with open(os.path.join(path, fileName), 'rb') as f:
-        return renamed_load(f)
+        return pickle.load(f)
 
 def savePickle(path, fileName, objects):
     #TODO: warning; apparantly pickle <=3 cannot handle files
@@ -90,9 +86,19 @@ class SimulationResult:
         self.psi = psi
 
 class TcResult:
-    def __init__(self, success, iterations, max_dist, gs, psi):
-        self.success = success
-        self.iterations = iterations
-        self.max_dist = max_dist
-        self.gs = gs
-        self.psi = psi
+    def __init__(self, temps, mags, abs_mags, sus, binder, T_c, T_high, T_low, graph):
+        self.temps = temps
+        self.mags = mags
+        self.abs_mags = abs_mags
+        self.sus = sus
+        self.binder = binder
+        self.T_c = T_c
+        self.T_high = T_high
+        self.T_low = T_low
+        self.graph = graph
+
+    def saveToPickle(self, path):
+        savePickle(path, f'{self.graph}_Tc_results', self)
+
+    def loadFromPickle(path, filename):
+        return loadPickle(path, filename)
