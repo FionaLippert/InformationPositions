@@ -138,7 +138,7 @@ if __name__ == '__main__':
         print(results2.T_c)
 
         with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
-            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {T_susHalf:.2f}')
+            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {T_susHalf:.2f} \n')
 
 
 
