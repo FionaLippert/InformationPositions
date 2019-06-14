@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(description='run MC chain and compute MI based 
 parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
-parser.add_argument('nodes', type=str, help='path to numpy array of node IDs')
+parser.add_argument('--nodes', type=str, default='all', help='path to numpy array of node IDs')
 parser.add_argument('--neighboursDir', type=str, default='', help='path to directory containing pickled neighbours dictionary')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
@@ -55,10 +55,7 @@ if __name__ == '__main__':
         maxDist = nx.diameter(graph)
 
     if args.nodes == 'all':
-        #nodes = np.array(list(graph.nodes()))
-        nodes = np.array(list(nx.ego_graph(graph, 3021, args.maxDist)))
-        centralNodeIdx = np.where(nodes==3021)[0][0]
-        #nodes = np.array([528, 529, 527, 530, 526, 496, 495, 497, 560, 559])
+        nodes = np.array(list(graph), dtype=int)
     else:
         nodes = np.load(args.nodes)
         centralNodeIdx = -1
@@ -66,9 +63,10 @@ if __name__ == '__main__':
 
     networkSettings = dict( \
         path = args.graph, \
-        nNodes = N
+        nNodes = N, \
+        nodes = nodes
     )
-    IO.saveSettings(targetDirectory, networkSettings, 'network')
+    #IO.saveSettings(targetDirectory, networkSettings, 'network')
 
 
     # setup Ising model with nNodes spin flip attempts per simulation step
@@ -77,7 +75,7 @@ if __name__ == '__main__':
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     try:
@@ -113,7 +111,7 @@ if __name__ == '__main__':
 
 
 
-    snapshotSettingsJoint = dict( \
+    snapshotSettings = dict( \
         nSamples    = args.numSamples, \
         repeats     = args.repeats, \
         burninSamples = burninSteps, \
@@ -121,14 +119,14 @@ if __name__ == '__main__':
         maxDist     = maxDist, \
         nBins       = args.bins
     )
-    IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
+    #IO.saveSettings(targetDirectory, snapshotSettings, 'jointSnapshots')
 
 
     for r in range(args.runs):
 
         avgSnapshots, avgSystemSnapshots, fullSnapshots = simulation.getJointSnapshotsPerDistNodes(model, nodes, \
                                                                             neighboursG, \
-                                                                            **snapshotSettingsJoint, threads=nthreads, \
+                                                                            **snapshotSettings, threads=nthreads, \
                                                                             initStateIdx=args.initState, getFullSnapshots=1)
 
         start_2 = timer()
@@ -139,21 +137,44 @@ if __name__ == '__main__':
 
         MI_avg, MI_system, HX = infoTheory.processJointSnapshots_allNodes(avgSnapshots, Z, nodes, maxDist, avgSystemSnapshots)
 
-        IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
-        IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
-        IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
+        #IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
+        #IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
+        #IO.savePickle(targetDirectory, f'MI_systemMag_nodes_{now}', MI_system)
+
+        result = IO.SimulationResult('avg', \
+                    networkSettings     = networkSettings, \
+                    modelSettings       = modelSettings, \
+                    snapshotSettings    = snapshotSettings, \
+                    corrTimeSettings    = corrTimeSettings, \
+                    mixingResults       = mixingResults, \
+                    mi                  = MI_avg, \
+                    miSystemMag         = MI_system, \
+                    hx                  = HX, \
+                    computeTime         = timer()-start_2 )
+        result.saveToPickle(targetDirectory)
 
         if args.pairwise:
             #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
-            MI, corr = infcy.pairwiseMI_allNodes(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)))
-            np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
-            np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)
+            MI, corr = infoTheory.pairwiseMI_allNodes(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)))
+            #np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
+            #np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)
             #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])
             #now = time.time()
             #np.save(os.path.join(targetDirectory, f'MI_pairwise_{now}.npy'), MI)
             #np.save(os.path.join(targetDirectory, f'corr_pairwise_{now}.npy'), corr)
 
             #print(f'time for pairwise MI: {timer()-start_2 : .2f} seconds')
+
+            result = IO.SimulationResult('pairwise', \
+                        networkSettings     = networkSettings, \
+                        modelSettings       = modelSettings, \
+                        snapshotSettings    = snapshotSettings, \
+                        corrTimeSettings    = corrTimeSettings, \
+                        mixingResults       = mixingResults, \
+                        mi                  = MI, \
+                        corr                = corr, \
+                        computeTime         = timer()-start_2 )
+            result.saveToPickle(targetDirectory)
 
 
 

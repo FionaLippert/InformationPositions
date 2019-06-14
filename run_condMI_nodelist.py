@@ -128,7 +128,7 @@ if __name__ == '__main__':
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     try:
@@ -149,12 +149,12 @@ if __name__ == '__main__':
         distSamples = mixingResults['distSamples']
 
 
-    snapshotSettingsCond = dict( \
+    snapshotSettings = dict( \
         nSamples    = args.snapshots, \
         burninSamples = burninSteps, \
         maxDist     = maxDist
     )
-    IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
+    #IO.saveSettings(targetDirectory, snapshotSettings, 'snapshots')
 
     modelSettingsCond = dict( \
         temperature     = T, \
@@ -182,11 +182,11 @@ if __name__ == '__main__':
         threads = 10 # run 10 MC chains in parallel to collect snapshots
         # if initState = -1: the chains are alternatingly started in "all +1" and "all -1"
         snapshots, allNeighbours_G = simulation.getSnapshotsPerDistNodes(model, \
-                                nodes, **snapshotSettingsCond, \
+                                nodes, **snapshotSettings, \
                                 threads=threads, initStateIdx=args.initState)
 
-        with open(f'{targetDirectory}/snapshots_nodes_{now}.pickle', 'wb') as f:
-            pickle.dump(snapshots, f)
+        #with open(f'{targetDirectory}/snapshots_nodes_{now}.pickle', 'wb') as f:
+        #    pickle.dump(snapshots, f)
 
         for i, node in enumerate(nodes):
             if args.maxDist == -2:
@@ -201,9 +201,22 @@ if __name__ == '__main__':
             all_MIs[node]   = np.array(MI)
             all_HX[node]    = np.array(HX)
 
+        """
         with open(f'{targetDirectory}/MI_vector_nodes_{now}.pickle', 'wb') as f:
             pickle.dump(all_MIs, f)
         with open(f'{targetDirectory}/HX_vector_nodes_{now}.pickle', 'wb') as f:
             pickle.dump(all_HX, f)
+        """
+
+        result = IO.SimulationResult('vector', \
+                    networkSettings     = networkSettings, \
+                    modelSettings       = modelSettings, \
+                    snapshotSettings    = snapshotSettings, \
+                    corrTimeSettings    = corrTimeSettings, \
+                    mixingResults       = mixingResults, \
+                    mi                  = all_MIs, \
+                    hx                  = all_HX, \
+                    computeTime         = timer()-start )
+        result.saveToPickle(targetDirectory)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

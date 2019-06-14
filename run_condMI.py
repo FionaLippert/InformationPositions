@@ -156,7 +156,7 @@ if __name__ == '__main__':
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     try:
@@ -183,12 +183,12 @@ if __name__ == '__main__':
         maxDist = np.argmax([len(allNeighbours_G[d]) for d in range(1, max(allNeighbours_G.keys())+1)]) + 1
         print(maxDist)
 
-    snapshotSettingsCond = dict( \
+    snapshotSettings = dict( \
         nSnapshots    = args.snapshots, \
         burninSamples = int(burninSteps), \
         maxDist     = int(maxDist)
     )
-    IO.saveSettings(targetDirectory, snapshotSettingsCond, 'snapshots')
+    #IO.saveSettings(targetDirectory, snapshotSettings, 'snapshots')
 
     modelSettingsCond = dict( \
         temperature     = T, \
@@ -223,7 +223,7 @@ if __name__ == '__main__':
                 snapshots.append(s)
         else:
             threads = nthreads if len(model.graph) > 20 else 1
-            snapshots, _ , HX_eq  = simulation.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsCond, threads=threads, initStateIdx=args.initState)
+            snapshots, _ , HX_eq  = simulation.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettings, threads=threads, initStateIdx=args.initState)
             with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
                 pickle.dump(snapshots, f)
             print(stats.entropy(HX_eq, base=2))

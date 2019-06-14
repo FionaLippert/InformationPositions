@@ -7,19 +7,21 @@
 from numpy import *
 from matplotlib.pyplot import *
 from dataclasses import dataclass
-import pickle, pandas, os, re, json, datetime
+import pickle, pandas, os, re, json, datetime, time, glob
 import networkx as nx
 from collections import defaultdict, OrderedDict
 
+def get_timestamp(path):
+    no_ext = os.path.splitext(path)[0]
+    timestamp = no_ext.split('_')[-1]
+    return timestamp
 
-
-def newest(path):
+def newest(dir, filename):
     """
-    Returns sorted files by time
+    Returns sorted files by time (descending)
     """
-    files = os.listdir(path)
-    paths = [os.path.join(path, basename) for basename in files]
-    return sorted(paths, key=os.path.getctime)
+    paths = [file for file in glob.iglob(f'{os.path.join(dir, filename)}*')]
+    return sorted(paths, key=get_timestamp, reverse=True)
 
 
 def loadPickle(path, fileName):
@@ -78,12 +80,24 @@ def readSettings(targetDirectory, dataType = '.pickle'):
 
 
 class SimulationResult:
-    def __init__(self, success, iterations, max_dist, gs, psi):
-        self.success = success
-        self.iterations = iterations
-        self.max_dist = max_dist
-        self.gs = gs
-        self.psi = psi
+
+    def __init__(self, type, **kwargs):
+        assert type in { 'vector', 'avg', 'pairwise' }
+        self.type = type
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def saveToPickle(self, dir):
+        now = time.time()
+        savePickle(dir, f'{self.type}_simulation_results_{now}', self)
+
+    def loadFromPickle(dir, filename):
+        return loadPickle(dir, filename)
+
+    def loadNewestFromPickle(dir, type):
+        paths = newest(dir, type)
+        dir, filename = os.path.split(paths[0])
+        return loadPickle(dir, filename)
 
 class TcResult:
     def __init__(self, temps, mags, abs_mags, sus, binder, T_c, T_high, T_low, graph):

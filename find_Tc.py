@@ -110,7 +110,10 @@ if __name__ == '__main__':
         highT = temps[np.where(sig(temps, *a) < 0.75 * mag_Tc)[0][0]]
         lowT = temps[np.where(sig(temps, *a) < (1 + args.magFrac) * mag_Tc)[0][0]]
         #print(f'magnetization minus 25%: {highT}\t {sig(highT, *a)} \t {mags[np.where(temps > highT)[0][0]]}')
-        print(f'magnetization plus  30%: {lowT} \t {sig(lowT, *a)} \t {mags[np.where(temps > lowT)[0][0]]}')
+        print(f'magnetization plus  30%: {lowT} \t {sig(lowT, *a)} \t {ndimage.filters.gaussian_filter1d(np.abs(mags), 5)[np.where(temps > lowT)[0][0]]}')
+
+        lowT = temps[np.where(sig(temps, *a) < (1 + mag_Tc) * 0.5)[0][0]]
+        print(f'magnetization half: {lowT} \t {sig(lowT, *a)} \t {ndimage.filters.gaussian_filter1d(np.abs(mags), 5)[np.where(temps > lowT)[0][0]]}')
 
         mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
         print(f' 70% mag: T = {mag70}')
