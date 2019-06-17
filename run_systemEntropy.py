@@ -87,7 +87,7 @@ if __name__ == '__main__':
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     try:
@@ -118,7 +118,7 @@ if __name__ == '__main__':
 
     for i in range(args.runs):
         now = time.time()
-
+        start = timer()
 
         if args.single:
             nodelist = np.load(args.nodes).astype(int)
@@ -141,8 +141,9 @@ if __name__ == '__main__':
             split_fixedNodes = np.split(fixedNodes, split_idx)
             split_systemNodes = np.split(systemNodes, split_idx)
 
-            allCondH      = {}
-            allSystemH    = {}
+            allMI      = {}
+            allCondH   = {}
+            allSystemH = {}
 
             for f, s in zip(split_fixedNodes, split_systemNodes):
                 snapshots = simulation.getSystemSnapshotsSets(model, list(s), list(f), \
@@ -151,9 +152,22 @@ if __name__ == '__main__':
                 for i, node in enumerate(f.flatten()):
                     print(f'--------------- node {node} ---------------')
                     allCondH[node], allSystemH[node] = compute_entropies(snapshots[i], args.snapshots*args.repeats)
+                    allMI[node] = allSystemH[node] - allCondH[node]
 
-            IO.savePickle(targetDirectory, f'condSystemEntropy_results_individual nodes_{now}', allCondH)
-            IO.savePickle(targetDirectory, f'systemEntropy_results_individual nodes_{now}', allSystemH)
+            #IO.savePickle(targetDirectory, f'condSystemEntropy_results_individual nodes_{now}', allCondH)
+            #IO.savePickle(targetDirectory, f'systemEntropy_results_individual nodes_{now}', allSystemH)
+
+            result = IO.SimulationResult('system', \
+                        networkSettings     = networkSettings, \
+                        modelSettings       = modelSettings, \
+                        snapshotSettings    = systemSnapshotSettings, \
+                        corrTimeSettings    = corrTimeSettings, \
+                        mixingResults       = mixingResults, \
+                        mi                  = allMI, \
+                        hx                  = allSystemH, \
+                        single              = args.single, \
+                        computeTime         = timer()-start )
+            result.saveToPickle(targetDirectory)
 
 
 
@@ -164,6 +178,17 @@ if __name__ == '__main__':
             print(np.fromiter(snapshots.values(), dtype=int))
             entropy = infoTheory.entropyEstimateH2(np.fromiter(snapshots.values(), dtype=int))
             print(f'system entropy = {entropy}')
+
+            result = IO.SimulationResult('system', \
+                        networkSettings     = networkSettings, \
+                        modelSettings       = modelSettings, \
+                        snapshotSettings    = systemSnapshotSettings, \
+                        corrTimeSettings    = corrTimeSettings, \
+                        mixingResults       = mixingResults, \
+                        hx                  = entropy, \
+                        single              = args.single, \
+                        computeTime         = timer()-start )
+            result.saveToPickle(targetDirectory)
 
         else:
             if args.nodes == 'test':
@@ -198,14 +223,18 @@ if __name__ == '__main__':
             systemEntropy = infoTheory.entropyEstimateH2(np.fromiter(allSnapshots.values(), dtype=int))
             print(f'system entropy H(S) = {systemEntropy}')
 
-            tmp = dict( \
-                    nodesOfInterest = list(fixedNodes), \
-                    maxDist = args.dist, \
-                    systemEntropy = systemEntropy, \
-                    condEntropy = condH, \
-                    T = args.T, \
-                    samples = args.snapshots*args.repeats)
-            IO.savePickle(targetDirectory, f'systemEntropy_results_{now}', tmp)
+            result = IO.SimulationResult('system', \
+                        networkSettings     = networkSettings, \
+                        modelSettings       = modelSettings, \
+                        snapshotSettings    = systemSnapshotSettings, \
+                        corrTimeSettings    = corrTimeSettings, \
+                        mixingResults       = mixingResults, \
+                        mi                  = systemEntropy - condH, \
+                        hx                  = systemEntropy, \
+                        single              = args.single, \
+                        computeTime         = timer()-start )
+            result.saveToPickle(targetDirectory)
+
             print(targetDirectory)
             """
 

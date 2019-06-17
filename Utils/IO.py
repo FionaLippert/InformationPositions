@@ -82,7 +82,7 @@ def readSettings(targetDirectory, dataType = '.pickle'):
 class SimulationResult:
 
     def __init__(self, type, **kwargs):
-        assert type in { 'vector', 'avg', 'pairwise' }
+        assert type in { 'vector', 'avg', 'pairwise', 'system'}
         self.type = type
         for key, value in kwargs.items():
             setattr(self, key, value)
