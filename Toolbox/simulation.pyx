@@ -104,61 +104,149 @@ cdef int encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins
 
     return <int>avg
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+cpdef dict getSnapShots(Model model, int nSamples, int steps = 1,\
+                   int burninSamples = int(1e3), int nThreads = -1):
+    """
+    Determines the state distribution of the :model: in parallel. The model is reset
+    to random state and simulated for :step: + :burninSamples: steps after which
+    a single sample is drawn and added to the output :snapshots:
+
+    Input:
+        :model: a model according to :Models.models:
+        :nSamples: number of state samples to draw
+        :step: number of steps between samples
+    Returns:
+        :snapshots: dict containing the idx of the state as keys, and probability as values
+    """
+    cdef:
+        # unordered_map[int, double] snapshots
+        # unordered_map[int, vector[int]] msnapshots
+        dict snapshots = {}
+        int step, sample
+        int N          = nSamples * steps
+        # long[:, ::1] r = model.sampleNodes(N)
+        double Z       = <double> nSamples
+        int idx # deprc?
+        unordered_map[int, vector[int]].iterator got
+        double past    = timer()
+        list modelsPy  = []
+        vector[PyObjectHolder] models_
+        Model tmp
+        cdef int tid,
+
+    nThreads = mp.cpu_count() if nThreads == -1 else nThreads
+    # threadsafe model access; can be reduces to n_threads
+    for sample in range(nThreads):
+        tmp = copy.deepcopy(model)
+        tmp.reset()
+        # TODO: remove this
+        try:
+            tmp.burnin(burninSamples)
+        except:
+            pass
+        tmp.seed += sample # enforce different seeds
+        # modelsPy.append(tmp)
+        models_.push_back(PyObjectHolder(<PyObject *> tmp))
+
+
+    # init rng buffers
+    cdef int sampleSize = model.nNodes if model.updateType != 'single' else 1
+
+    cdef long[:, :, ::1] r    = np.ndarray((nThreads, steps, sampleSize), \
+                                           dtype = long)
+    # cdef cdef vector[vector[vector[int][sampleSize]][nTrial]][nThreads] r    = 0
+    # cdef long[:, :, ::1] r = np.ndarray((nThreds, steps, sampleSize), dtype = long)
+    cdef PyObject *modelptr
+    pbar = tqdm(total = nSamples)
+    cdef tuple state
+    cdef int counter = 0
+    for sample in prange(nSamples, nogil = True, \
+                         schedule = 'static', num_threads = nThreads):
+
+        tid      = threadid()
+        modelptr = models_[tid].ptr
+        r[tid] = (<Model> modelptr).sampleNodes(steps)
+        # r[sample] = (<Model> models_[sample].ptr).sampleNodes(steps)
+        # perform n steps
+        for step in range(steps):
+            (<Model> modelptr)._updateState(\
+                                                    r[tid, step]
+                                                        )
+        with gil:
+            state = tuple((<Model> modelptr)._states.base)
+            snapshots[state] = snapshots.get(state, 0) + 1 / Z
+            (<Model> modelptr).reset()
+            pbar.update(1)
+    print('done')
+    pbar.close()
+    print(f'Found {len(snapshots)} states')
+    print(f"Delta = {timer() - past: .2f} sec")
+    return snapshots
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef unordered_map[string, double] getSystemSnapshotsFixedNodes(Model model, long[::1] nodes, long[::1] fixedNodesG, long[::1] fixedStates, \
-              long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
+cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] nodes, \
+              long nSnapshots = int(1e3), long burninSamples = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
-    Freeze given nodes to the given states, simulate the system in equilibrium, and extract snapshots of the remaining nodes
+    simulate the system in equilibrium, and extract snapshots of the given nodes
+    the number of parallel MC chains corresponds to the requested number of threads
     """
     cdef:
         unordered_map[string, double] snapshots
-        long i, rep, sample, numNodes = fixedNodesG.shape[0]
-        long[::1] initialState, fixedNodesIdx = np.array([model.mapping[fixedNodesG[i]] for i in range(numNodes)], int)
-        vector[long] allNodesIdx = [model.mapping[n] for n in nodes]
+        int numStates = model.agentStates.size
+        long i, s, rep, sample
+        long[:,::1] initialState
+        vector[long] nodesIdx = [model.mapping[n] for n in nodes]
         string state
         PyObject *modelptr
         vector[PyObjectHolder] models_
         int tid, nThreads = mp.cpu_count() if threads == -1 else threads
 
 
-    initialState = np.ones(model._nNodes, int)#tmp.states
-    for i in range(numNodes):
-        initialState[fixedNodesIdx[i]] = fixedStates[i]
-
-
     # initialize thread-safe models. nThread MC chains will be run in parallel.
     for rep in range(nThreads):
         tmp = copy.deepcopy(model)
         tmp.seed += rep
-
-        tmp.fixedNodes = fixedNodesIdx
+        tmp.resetAllToAgentState(initStateIdx, rep)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
-    i = repeats
-    pbar = tqdm(total = i * nSnapshots)
-    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+    # burnin samples
+    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+    pbar = tqdm(total = nSnapshots)
+    for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
-        with gil: (<Model>modelptr).setStates(initialState)
+        #with gil: print(initialState[rep % numStates])
+        # with gil: (<Model>modelptr).setStates(initialState[rep % numStates, :])
         #with gil: print(f'init state {initialState.base}')
         #with gil: print(f'fixed states {fixedStates.base}: {[s for s in (<Model>modelptr)._states]}')
 
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        #with gil: (<Model>modelptr).resetAllToAgentState(initStateIdx)
 
-        for sample in range(nSnapshots):
-            (<Model>modelptr).simulateNSteps(distSamples)
-            #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
-            with gil:
-                state = (<Model> modelptr).encodeStateToString(allNodesIdx)
-                snapshots[state] += 1 # each index corresponds to one system state, the array contains the count of each state
-            with gil: pbar.update(1)
+        #(<Model>modelptr).simulateNSteps(burninSamples)
+
+        #for sample in range(nSnapshots):
+        (<Model>modelptr).simulateNSteps(distSamples)
+        #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
+        with gil:
+            state = (<Model> modelptr).encodeStateToString(nodesIdx)
+            snapshots[state] += 1 # each index corresponds to one system state, the array contains the count of each state
+        with gil: pbar.update(1)
 
     return snapshots
 
@@ -169,12 +257,14 @@ cpdef unordered_map[string, double] getSystemSnapshotsFixedNodes(Model model, lo
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnapshotsSets(Model model, vector[vector[long]] systemNodesG, vector[vector[long]] condNodesG, \
-              long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
+              long nSnapshots = int(1e3), long burninSamples = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
     simulate the system in equilibrium, for all sets of nodes in 'systemNodesG'
     extract the distribution of the joint states of these nodes, conditioned on
     the states of the respective set of nodes in 'condNodesG'
+
+    the number of parallel MC chains corresponds to the requested number of threads
     """
     cdef:
         long n, i, rep, sample, set, numSets = condNodesG.size()
@@ -195,23 +285,25 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
         tmp.resetAllToAgentState(initStateIdx, rep)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
-    i = repeats
-    pbar = tqdm(total = i * nSnapshots)
-    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+    # burnin samples
+    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+    pbar = tqdm(total = nSnapshots)
+    for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(distSamples)
 
-        for sample in range(nSnapshots):
-            (<Model>modelptr).simulateNSteps(distSamples)
-            #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
-            for set in range(numSets):
-                with gil:
-                    condState = (<Model> modelptr).encodeStateToString(condNodesIdx[set])
-                    systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx[set])
-                    snapshots[set][condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
-            with gil: pbar.update(1)
+        for set in range(numSets):
+            with gil:
+                condState = (<Model> modelptr).encodeStateToString(condNodesIdx[set])
+                systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx[set])
+                snapshots[set][condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
+        with gil: pbar.update(1)
 
     return snapshots
 
@@ -222,8 +314,8 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshots(Model model, long[::1] systemNodesG, long[::1] condNodesG, \
-              long nSnapshots = int(1e3), long repeats = 10, long burninSamples = int(1e3), \
+cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshotsCond(Model model, long[::1] systemNodesG, long[::1] condNodesG, \
+              long nSnapshots = int(1e3), long burninSamples = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
     simulate the system in equilibrium, extract the distribution of the joint
@@ -248,22 +340,24 @@ cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshots(Mo
         tmp.resetAllToAgentState(initStateIdx, rep)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
-    i = repeats
-    pbar = tqdm(total = i * nSnapshots)
-    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+    # burnin samples
+    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+    pbar = tqdm(total = nSnapshots)
+    for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
-        (<Model>modelptr).simulateNSteps(burninSamples)
-
-        for sample in range(nSnapshots):
-            (<Model>modelptr).simulateNSteps(distSamples)
-            #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
-            with gil:
-                condState = (<Model> modelptr).encodeStateToString(list(condNodesIdx))
-                systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx)
-                snapshots[condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
-            with gil: pbar.update(1)
+        (<Model>modelptr).simulateNSteps(distSamples)
+        #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
+        with gil:
+            condState = (<Model> modelptr).encodeStateToString(list(condNodesIdx))
+            systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx)
+            snapshots[condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
+        with gil: pbar.update(1)
 
     return snapshots
 
@@ -279,24 +373,24 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
               int maxDist = 1,\
               long burninSamples  = 1000, \
               double threshold    = 0.05, \
-              long repeats = 10, \
               long nBins = 100, \
               int threads = -1):
     """
     run MC for large network, encode system states into strings
     """
     cdef:
+        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
         long nNodes = model._nNodes
         long nNodesG = nodesG.shape[0]
-        long[:,:,::1] states = np.zeros((repeats, nSteps, nNodes), int)
-        double[:,::1] mags = np.zeros((repeats, nSteps))
+        long[:,:,::1] states = np.zeros((nThreads, nSteps, nNodes), int)
+        double[:,::1] mags = np.zeros((nThreads, nSteps))
 
         long node
         long[::1] nodesIdx = np.zeros(nNodesG, 'int')
 
-        long[:,:,:,:,::1] avgSnapshotsPos = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,:,:,::1] avgSnapshotsNeg = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,:,:,::1] avgSnapshotsSwitch = np.zeros((repeats, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsPos = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsNeg = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshotsSwitch = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodesG)
 
@@ -310,7 +404,6 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
         string state
         PyObject *modelptr
         vector[PyObjectHolder] models_
-        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
 
 
     for idx in range(model.agentStates.shape[0]):
@@ -328,36 +421,41 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
     for rep in range(repeats):
         tmp = copy.deepcopy(model)
         tmp.seed += rep
-        tmp.resetAllToAgentState(-1, rep)
+        tmp.resetAllToAgentState(-1, rep) # initialize at random
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
-    for rep in prange(repeats, nogil = True, schedule = 'static', num_threads = nThreads):
+    # burnin samples
+    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
+        (<Model>modelptr).simulateNSteps(burninSamples)
+
+
+    for rep in prange(nSteps, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
-        (<Model>modelptr).simulateNSteps(burninSamples)
-
-        states[rep] = (<Model>modelptr)._simulate(nSteps)
+        states[tid] = (<Model>modelptr)._simulate(nSteps)
 
         for step in range(nSteps):
-            m = mean(states[rep][step], nNodes, abs=0)
+            m = mean(states[tid][step], nNodes, abs=0)
             mAbs = m if m > 0 else -m
-            mags[rep][step] = m
+            mags[tid][step] = m
 
             for n in range(nNodesG):
-                nodeSpin = idxer[states[rep][step][nodesIdx[n]]]
+                nodeSpin = idxer[states[tid][step][nodesIdx[n]]]
                 for d in range(maxDist):
-                    avg = encodeStateToAvg(states[rep][step], neighboursIdx[n][d+1], bins)
+                    avg = encodeStateToAvg(states[tid][step], neighboursIdx[n][d+1], bins)
                     if mAbs > threshold:
                         if m > 0:
-                            avgSnapshotsPos[rep][n][d][nodeSpin][avg] +=1
+                            avgSnapshotsPos[tid][n][d][nodeSpin][avg] +=1
                             Z[0] += 1
                         else:
-                            avgSnapshotsNeg[rep][n][d][nodeSpin][avg] +=1
+                            avgSnapshotsNeg[tid][n][d][nodeSpin][avg] +=1
                             Z[1] += 1
                     else:
-                        avgSnapshotsSwitch[rep][n][d][nodeSpin][avg] +=1
+                        avgSnapshotsSwitch[tid][n][d][nodeSpin][avg] +=1
                         Z[2] += 1
 
     return avgSnapshotsPos.base, avgSnapshotsNeg.base, avgSnapshotsSwitch.base, Z.base, mags.base
@@ -506,7 +604,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 @cython.initializedcheck(False)
 cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
-              long repeats=int(1e2), long nSamples = int(1e3), \
+              long nSamples = int(1e3), \
               long burninSamples = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
               int initStateIdx = -1, int getFullSnapshots = 0):
@@ -518,8 +616,10 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
                              determine pairwise MI and correlation
     """
     cdef:
-        long[:,:,:,::1] avgSnapshots = np.zeros((repeats, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,::1] avgSystemSnapshots = np.zeros((repeats, model.agentStates.shape[0], nBins), int)
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+
+        long[:,:,:,::1] avgSnapshots = np.zeros((nThreads, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,::1] avgSystemSnapshots = np.zeros((nThreads, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
 
         int idx
@@ -529,13 +629,12 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
         PyObject *modelptr
         vector[PyObjectHolder] models_
         int tid, nodeSpin, s, avg, avgSystem
-        int nThreads = mp.cpu_count() if threads == -1 else threads
         double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
         vector[long] allNodes = list(model.mapping.values())
         unordered_map[long, vector[long]] allNeighboursIdx
-        long[:,:,::1] fullSnapshots
+        long[:,::1] fullSnapshots
 
-    if getFullSnapshots: fullSnapshots = np.zeros((repeats, nSamples, model._nNodes), int)
+    if getFullSnapshots: fullSnapshots = np.zeros((nSamples, model._nNodes), int)
 
     for idx in range(model.agentStates.shape[0]):
         idxer[model.agentStates[idx]] = idx
@@ -546,43 +645,42 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
 
     for rep in range(nThreads):
         tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.resetAllToAgentState(initStateIdx, rep)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
-    i = repeats # somehow it doesn't compile when I directly use repeats
 
-    pbar = tqdm(total = i * nSamples)
-    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+    # burnin samples
+    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        with gil:
-            (<Model>modelptr).seed += rep # enforce different seeds
-            #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
-            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
-            #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
-
         (<Model>modelptr).simulateNSteps(burninSamples)
 
-        for sample in range(nSamples):
-            (<Model>modelptr).simulateNSteps(distSamples)
+    pbar = tqdm(total = nSamples)
+    for rep in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
 
-            nodeSpin = idxer[(<Model> modelptr)._states[nodeIdx]]
+        (<Model>modelptr).simulateNSteps(distSamples)
 
-            for d in range(maxDist):
-                #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
-                #snapshots[d][nodeSpin][state] += 1
-                avg = (<Model> modelptr).encodeStateToAvg(allNeighboursIdx[d+1], bins)
-                #avgSnapshots[d][nodeSpin][avg] +=1
-                avgSnapshots[rep][d][nodeSpin][avg] += 1
-                #with gil: print(rep, avgSnapshots[d])
+        nodeSpin = idxer[(<Model> modelptr)._states[nodeIdx]]
 
-            avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
-            avgSystemSnapshots[rep][nodeSpin][avgSystem] += 1
+        for d in range(maxDist):
+            #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
+            #snapshots[d][nodeSpin][state] += 1
+            avg = (<Model> modelptr).encodeStateToAvg(allNeighboursIdx[d+1], bins)
+            #avgSnapshots[d][nodeSpin][avg] +=1
+            avgSnapshots[tid][d][nodeSpin][avg] += 1
+            #with gil: print(rep, avgSnapshots[d])
 
-            if getFullSnapshots:
-                # TODO: use string encoding?
-                fullSnapshots[rep][sample] = (<Model>modelptr)._states
+        avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
+        avgSystemSnapshots[tid][nodeSpin][avgSystem] += 1
 
-            with gil: pbar.update(1)
+        if getFullSnapshots:
+            # TODO: use string encoding?
+            fullSnapshots[rep] = (<Model>modelptr)._states
+
+        with gil: pbar.update(1)
 
     if getFullSnapshots:
         return avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
@@ -597,7 +695,7 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
 @cython.initializedcheck(False)
 cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
               unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
-              long repeats=10, long nSamples = int(1e3), \
+              long nSamples = int(1e3), \
               long burninSamples = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
               int initStateIdx = -1, int getFullSnapshots = 0):
@@ -610,11 +708,13 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
                              determine pairwise MI and correlation
     """
     cdef:
+        int nThreads = mp.cpu_count() if threads == -1 else threads
+
         long node, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.zeros(nNodes, 'int')
 
-        long[:,:,:,:,::1] avgSnapshots = np.zeros((repeats, nNodes, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,:,::1] avgSystemSnapshots = np.zeros((repeats, nNodes, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] avgSnapshots = np.zeros((nThreads, nNodes, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,::1] avgSystemSnapshots = np.zeros((nThreads, nNodes, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
         vector[long] allNodes = list(model.mapping.values())
@@ -625,12 +725,12 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         PyObject *modelptr
         vector[PyObjectHolder] models_
         int tid, nodeSpin, s, avg, avgSystem
-        int nThreads = mp.cpu_count() if threads == -1 else threads
+
 
         double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
-        long[:,:,::1] fullSnapshots
+        long[:,::1] fullSnapshots
 
-    if getFullSnapshots: fullSnapshots = np.zeros((repeats, nSamples, model._nNodes), int)
+    if getFullSnapshots: fullSnapshots = np.zeros((nSamples, model._nNodes), int)
 
     for idx in range(model.agentStates.shape[0]):
         idxer[model.agentStates[idx]] = idx
@@ -644,39 +744,40 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 
     for rep in range(nThreads):
         tmp = copy.deepcopy(model)
+        tmp.seed += rep
+        tmp.resetAllToAgentState(initStateIdx, rep)
+        print(tmp.states.base)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
-    i = repeats
-    pbar = tqdm(total = i * nSamples)
-    for rep in prange(i, nogil = True, schedule = 'static', num_threads = nThreads):
+
+    # burnin samples
+    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        with gil:
-            (<Model>modelptr).seed += rep # enforce different seeds
-            #print(f'{tid} seed: {(<Model> models_[tid].ptr).seed}')
-            (<Model>modelptr).resetAllToAgentState(initStateIdx, rep)
-            #print(f'{tid} initial state: {(<Model> models_[tid].ptr)._states.base}')
-
         (<Model>modelptr).simulateNSteps(burninSamples)
 
-        for sample in range(nSamples):
-            (<Model>modelptr).simulateNSteps(distSamples)
-            avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
+    pbar = tqdm(total = nSamples)
+    for rep in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+        tid = threadid()
+        modelptr = models_[tid].ptr
 
-            for n in range(nNodes):
-                nodeSpin = idxer[(<Model> modelptr)._states[nodesIdx[n]]]
-                for d in range(maxDist):
-                    avg = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
-                    #avgSnapshots[n][d][nodeSpin][avg] +=1
-                    avgSnapshots[rep][n][d][nodeSpin][avg] +=1
+        (<Model>modelptr).simulateNSteps(distSamples)
+        avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
 
-                avgSystemSnapshots[rep][n][nodeSpin][avgSystem] += 1
+        for n in range(nNodes):
+            nodeSpin = idxer[(<Model> modelptr)._states[nodesIdx[n]]]
+            for d in range(maxDist):
+                avg = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
+                #avgSnapshots[n][d][nodeSpin][avg] +=1
+                avgSnapshots[tid][n][d][nodeSpin][avg] +=1
 
-            if getFullSnapshots:
-                # TODO: use string encoding?
-                fullSnapshots[rep][sample] = (<Model>modelptr)._states
+            avgSystemSnapshots[tid][n][nodeSpin][avgSystem] += 1
 
-            with gil: pbar.update(1)
+        if getFullSnapshots:
+            # TODO: use string encoding?
+            fullSnapshots[rep] = (<Model>modelptr)._states
+
+        with gil: pbar.update(1)
 
     if getFullSnapshots:
         return avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
@@ -736,11 +837,12 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
 
     for trial in range(nTrials):
         # set states without gil
-        if initStateIdx < 0:
-            #with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
+        if initStateIdx == -2:
             with gil:
                 i = np.mod(trial, model.agentStates.shape[0])
                 initialState = np.ones(model._nNodes, int) * model.agentStates[i]
+        elif initStateIdx == -1:
+            with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
         else:
             with gil: initialState = np.ones(model._nNodes, int) * model.agentStates[initStateIdx]
 
@@ -769,60 +871,6 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
     return probCondArr
 
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-cdef unordered_map[long, unordered_map[string, double]] _monteCarloFixedNeighboursStateDistr(Model model, string snapshot, long nodeIdx, long dist, \
-               unordered_map[long, vector[long]] allNeighboursIdx, long nTrials, long burninSamples = int(1e3), \
-               long nSamples = int(1e3), long distSamples = int(1e2), int initStateIdx = -1) nogil:
-
-
-    cdef:
-       long n, d, idx, rep, sample, minDist, length = allNeighboursIdx[dist].size()
-       unordered_map[int, int] idxer
-       long[::1] decodedStates, initialState
-       int i
-       string state
-       unordered_map[long, unordered_map[string, double]] snapshots
-
-    with gil: minDist = np.min(list(dict(allNeighboursIdx).keys()))
-
-    for idx in range(model.agentStates.shape[0]):
-        idxer[model.agentStates[idx]] = idx
-
-    with gil: decodedStates = np.frombuffer(snapshot).astype(int)
-
-
-    for trial in range(nTrials):
-        # set states without gil
-        if initStateIdx < 0:
-            with gil:
-                i = np.mod(trial, model.agentStates.shape[0])
-                initialState = np.ones(model._nNodes, int) * model.agentStates[i]
-        else:
-            with gil: initialState = np.ones(model._nNodes, int) * model.agentStates[initStateIdx]
-
-        for idx in range(length):
-            n = allNeighboursIdx[dist][idx]
-            initialState[n] = decodedStates[idx]
-
-
-        with gil: model.setStates(initialState)
-        with gil: model.seed += 1
-        model.simulateNSteps(burninSamples) # go to equilibrium
-
-        for sample in range(nSamples):
-            model.simulateNSteps(distSamples)
-
-            for d in range(minDist, dist):
-                with gil: state = model.encodeStateToString(allNeighboursIdx[d])
-                snapshots[d][state] += 1
-
-    return snapshots
-
-
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -848,10 +896,13 @@ cdef long[:,::1] _monteCarloFixedNeighboursStates(Model model, string snapshot, 
 
     for trial in range(nTrials):
 
-        if initStateIdx < 0:
+        if initStateIdx == -2:
+            #with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
             with gil:
                 i = np.mod(trial, model.agentStates.shape[0])
                 initialState = np.ones(model._nNodes, int) * model.agentStates[i]
+        elif initStateIdx == -1:
+            with gil: initialState = np.random.choice(model.agentStates, size = model._nNodes)
         else:
             with gil: initialState = np.ones(model._nNodes, int) * model.agentStates[initStateIdx]
 
@@ -968,27 +1019,6 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
 
         return snapshotsDict, states.base
 
-    elif out == 'stateDistr':
-
-        stateDistr = vector[unordered_map[long, unordered_map[string, double]]] (keys.size())
-
-        minDist = np.min(list(dict(allNeighboursG).keys()))
-        print(f'min dist = {minDist}')
-        for d in range(minDist, dist):
-            allNeighboursIdx[d+1] = [model.mapping[n] for n in allNeighboursG[d+1]]
-
-        pbar = tqdm(total = keys.size())
-        for idx in prange(keys.size(), nogil = True, schedule = 'dynamic', num_threads = nThreads):
-            tid = threadid()
-            modelptr = models_[tid].ptr
-
-            stateDistr[idx] = _monteCarloFixedNeighboursStateDistr((<Model>modelptr), \
-                        keys[idx], nodeIdx, dist, allNeighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
-
-            with gil: pbar.update(1)
-
-        return snapshotsDict, stateDistr
-
 
 
 
@@ -1103,7 +1133,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             (<Model>modelptr).reset()
             (<Model>modelptr).seed += t
             (<Model>modelptr).t = temps[t]
-            (<Model>modelptr).resetAllToAgentState(1, 0)
+            (<Model>modelptr).resetAllToAgentState(1)
 
         # simulate until equilibrium reached
         (<Model>modelptr).simulateNSteps(burninSamples)

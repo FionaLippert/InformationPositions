@@ -25,7 +25,7 @@ parser.add_argument('node', type=int, help='central node ID')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
 parser.add_argument('--bins', type=int, default=100, help='number of bins for average magnetization of neighbours')
-parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
+#parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
 parser.add_argument('--initState', type=int, default=-1, help='')
 parser.add_argument('--magSide', type=str, default='', help='')
@@ -92,7 +92,6 @@ if __name__ == '__main__':
 
     snapshotSettingsJoint = dict( \
         nSamples    = args.numSamples, \
-        repeats     = args.repeats, \
         burninSamples = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist, \
@@ -117,10 +116,7 @@ if __name__ == '__main__':
         #np.save(os.path.join(targetDirectory, f'MI_pairwise_node_{node}_{now}.npy'), MI)
         #np.save(os.path.join(targetDirectory, f'corr_pairwise_node_{node}_{now}.npy'), corr)
 
-
-        Z = args.numSamples*args.repeats
-
-        MI_avg, MI_system, HX = infoTheory.processJointSnapshots_oneNode(avgSnapshots, Z, maxDist)
+        MI_avg, MI_system, HX = infoTheory.processJointSnapshots_oneNode(avgSnapshots, args.numSamples, maxDist)
         now = time.time()
 
         IO.savePickle(targetDirectory, f'MI_meanField_node_{node}_{now}', MI_avg)

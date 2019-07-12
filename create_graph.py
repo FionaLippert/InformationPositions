@@ -90,20 +90,21 @@ def create_erdos_renyi_graph(N, avg_deg=2., path=None, version=''):
                 f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
     return graph
 
-def create_erdos_renyi_graph_exactN(N_target, N_start, avg_deg, max_trials=1e5, path=None, version=''):
+def create_erdos_renyi_graph_exactN(N_target, N_start, avg_deg, max_trials=int(1e5), path=None, version=''):
 
     p = avg_deg/N_start
+    print(p)
 
-    for trial in range(max_trials)
+    for trial in range(max_trials):
         G = nx.erdos_renyi_graph(N_start, p=p)
         connected_nodes = max(nx.connected_components(G), key=len)
         G = G.subgraph(connected_nodes)
-        if len(G) == N: break
+        if len(G) == N_target: break
 
     k = np.mean([d for n,d in nx.degree(G)])
     print(f'avg degree = {k}')
-    if path is not None: nx.write_gpickle(graph,
-                f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
+    if path is not None: nx.write_gpickle(G,
+                f'{path}/ER_k={avg_deg}_N={N_target}{version}.gpickle', 2)
 
 def create_watts_strogatz(N, k, beta, path=None, version=''):
     graph = nx.watts_strogatz_graph(N, k, beta)
@@ -156,12 +157,15 @@ def create_path_graph(L, path=None):
 
 if __name__ == '__main__':
 
-    targetDirectory = f'{os.getcwd()}/networkData'
+    targetDirectory = f'{os.getcwd()}/networkData/small_graphs/increasing_size'
     os.makedirs(targetDirectory, exist_ok=True)
 
     #create_path_graph(100, targetDirectory)
 
     #nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
+
+    for N_target in [2, 5, 10, 20, 30, 40, 50]:
+        create_erdos_renyi_graph_exactN(N_target, 2*N_target, 2.0, path=targetDirectory)
 
 
     """

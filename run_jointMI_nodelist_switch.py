@@ -26,7 +26,7 @@ parser.add_argument('--neighboursDir', type=str, default='', help='path to direc
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
 parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
-parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
+#parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSteps', type=int, default=1000, help='number of system updates')
 parser.add_argument('--threshold', type=float, default=0.1, help='threshold to determine mag switching')
 
@@ -107,7 +107,6 @@ if __name__ == '__main__':
 
     snapshotSettingsJoint = dict( \
         nSteps    = args.numSteps, \
-        repeats     = args.repeats, \
         burninSamples = burninSteps, \
         maxDist     = maxDist, \
         nBins       = args.bins, \

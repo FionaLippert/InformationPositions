@@ -76,7 +76,7 @@ cdef class Model:
     #cdef void _incrSeed(self, long value) nogil
 
     cpdef void reset(self)
-    cpdef void resetAllToAgentState(self, int initStateIdx, int i)
+    cpdef void resetAllToAgentState(self, int initStateIdx, int i=*)
 
     cpdef tuple neighboursAtDist(self, long node_idx, int maxDist)
     cpdef unordered_map[long, unordered_map[long, vector[long]]] neighboursAtDistAllNodes(self, long[::1] nodesG, int maxDist)

@@ -14,7 +14,7 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 from scipy import stats
 
-nthreads = mp.cpu_count() - 1
+nthreads = mp.cpu_count()
 #nthreads = 1
 
 parser = argparse.ArgumentParser(description='run MC chain and compute MI based on the joint PDF of the central node and its neighbours')
@@ -25,11 +25,11 @@ parser.add_argument('--nodes', type=str, default='all', help='path to numpy arra
 parser.add_argument('--neighboursDir', type=str, default='', help='path to directory containing pickled neighbours dictionary')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
-parser.add_argument('--bins', type=int, default=10, help='number of bins for average magnetization of neighbours')
-parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
-parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
+parser.add_argument('--bins', type=int, default=100, help='number of bins for average magnetization of neighbours')
+#parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
+parser.add_argument('--numSamples', type=int, default=100000, help='number of system samples')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
-parser.add_argument('--initState', type=int, default=-1, help='initial system state (given as index to model.agentStates)')
+parser.add_argument('--initState', type=int, default=1, help='initial system state (given as index to model.agentStates). If -1, repeated simulations start from different agent states')
 parser.add_argument('--pairwise', action="store_true", help='compute pairwise correlation and MI')
 
 
@@ -113,7 +113,6 @@ if __name__ == '__main__':
 
     snapshotSettings = dict( \
         nSamples    = args.numSamples, \
-        repeats     = args.repeats, \
         burninSamples = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist, \
@@ -133,9 +132,7 @@ if __name__ == '__main__':
         #print(fullSnapshots.shape)
         now = time.time()
 
-        Z = args.numSamples * args.repeats
-
-        MI_avg, MI_system, HX = infoTheory.processJointSnapshots_allNodes(avgSnapshots, Z, nodes, maxDist, avgSystemSnapshots)
+        MI_avg, MI_system, HX = infoTheory.processJointSnapshots_allNodes(avgSnapshots, args.numSamples, nodes, maxDist, avgSystemSnapshots)
 
         #IO.savePickle(targetDirectory, f'MI_meanField_nodes_{now}', MI_avg)
         #IO.savePickle(targetDirectory, f'HX_meanField_nodes_{now}', HX)
@@ -155,7 +152,7 @@ if __name__ == '__main__':
 
         if args.pairwise:
             #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), fullSnapshots)
-            MI, corr = infoTheory.pairwiseMI_allNodes(model, nodes, fullSnapshots.reshape((args.repeats*args.numSamples, -1)))
+            MI, corr = infoTheory.pairwiseMI_allNodes(model, nodes, fullSnapshots)
             #np.save(os.path.join(targetDirectory, f'MI_pairwise_nodes_{now}.npy'), MI)
             #np.save(os.path.join(targetDirectory, f'corr_pairwise_nodes_{now}.npy'), corr)
             #MIs_pairwise = np.array([np.nanmean(MI[i,:,:], axis=1) for i in range(MI.shape[0])])

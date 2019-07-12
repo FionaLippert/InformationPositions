@@ -261,14 +261,14 @@ cdef class Model: # see pxd
         self.states = np.random.choice(\
             self.agentStates, size = self._nNodes)
 
-    cpdef void resetAllToAgentState(self, int stateIdx, int i):
-        if stateIdx == -1:
+    cpdef void resetAllToAgentState(self, int stateIdx, int i=0):
+        if stateIdx == -2:
             # uniformly random
             #self.states = np.random.choice(\
             #    self.agentStates, size = self._nNodes)
             i = np.mod(i, self.agentStates.shape[0])
             self.states = np.ones(self._nNodes, int) * self.agentStates[i]
-        elif stateIdx == -2:
+        elif stateIdx == -1:
             # uniformly random
             self.states = np.random.choice(\
                 self.agentStates, size = self._nNodes)

@@ -14,7 +14,7 @@ from tqdm import tqdm
 from timeit import default_timer as timer
 from scipy import stats
 
-nthreads = mp.cpu_count() - 1
+nthreads = mp.cpu_count()
 #nthreads = 1
 
 parser = argparse.ArgumentParser(description='run MC chain and compute MI based on the joint PDF of the central node and its neighbours')
@@ -24,7 +24,6 @@ parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('node', type=int, help='central node ID')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
-parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
 parser.add_argument('--initState', type=int, default=-1, help='initial system state')
@@ -84,7 +83,6 @@ if __name__ == '__main__':
 
     snapshotSettingsJoint = dict( \
         nSamples    = args.numSamples, \
-        repeats     = args.repeats, \
         burninSamples = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist

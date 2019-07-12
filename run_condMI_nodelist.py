@@ -29,7 +29,7 @@ parser.add_argument('--runs', type=int, default=1, help='number of repetitive ru
 parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
 parser.add_argument('--minCorrTime', type=int, default=1, help='min distance between two samples in the MC')
 parser.add_argument('--snapshots', type=int, default=100, help='number of neighbourhood snapshots')
-parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
+parser.add_argument('--trials', type=int, default=10, help='number of repeated MC simulations used to estimate the conditional PDF')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
 parser.add_argument('--initState', type=int, default=-1, help='initial system state')
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     #    pickle.dump(allNeighbours_G, f)
 
     minDist = args.minDist
-    nTrials = args.repeats
+    nTrials = args.trials
     nSamples = args.numSamples
 
 

@@ -30,6 +30,13 @@ def loadPickle(path, fileName):
     with open(os.path.join(path, fileName), 'rb') as f:
         return pickle.load(f)
 
+def loadAllPickle(path, filePrefix):
+    allFiles = []
+    for file in glob.iglob(f'{os.path.join(path, filePrefix)}*'):
+        with open(file, 'rb') as f:
+            allFiles.append(pickle.load(f))
+    return allFiles
+
 def savePickle(path, fileName, objects):
     #TODO: warning; apparantly pickle <=3 cannot handle files
     # larger than 4 gb.
@@ -95,7 +102,8 @@ class SimulationResult:
         return loadPickle(dir, filename)
 
     def loadNewestFromPickle(dir, type):
-        paths = newest(dir, type)
+        paths = newest(dir, f'{type}_simulation_results_')
+        print(paths)
         dir, filename = os.path.split(paths[0])
         return loadPickle(dir, filename)
 
@@ -110,6 +118,9 @@ class TcResult:
         self.T_high = T_high
         self.T_low = T_low
         self.graph = graph
+
+    def set_T_low(self, T_low):
+        self.T_low = T_low
 
     def saveToPickle(self, path):
         savePickle(path, f'{self.graph}_Tc_results', self)
