@@ -77,6 +77,7 @@ if __name__ == '__main__':
     )
     #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
+    print(modelSettings['magSide'])
 
     try:
         mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
@@ -107,7 +108,11 @@ if __name__ == '__main__':
         print(f'determining neighbours')
         neighboursG = model.neighboursAtDistAllNodes(nodes, maxDist)
         #print(neighboursG)
-        IO.savePickle(targetDirectory, 'neighboursG', neighboursG)
+        if len(args.neighboursDir) > 0:
+            os.makedirs(args.neighboursDir, exist_ok=True)
+            IO.savePickle(args.neighboursDir, 'neighboursG', neighboursG)
+        else:
+            IO.savePickle(targetDirectory, 'neighboursG', neighboursG)
 
 
 

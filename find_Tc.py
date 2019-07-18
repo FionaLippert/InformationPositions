@@ -24,7 +24,7 @@ parser.add_argument('graph', type=str, help='path to graph or ensemble of graphs
 parser.add_argument('--minT', type=float, default=0.1, help='minimum temperature')
 parser.add_argument('--maxT', type=float, default=5.0, help='maximum temperature')
 parser.add_argument('--numT', type=int, default=1000, help='number of different temperature values')
-parser.add_argument('--magFrac', type=float, default=0.3, help='fraction by which magnetization at T_c should be increased to reach the symmetriy breaking regime')
+#parser.add_argument('--magFrac', type=float, default=0.3, help='fraction by which magnetization at T_c should be increased to reach the symmetriy breaking regime')
 
 
 # remove values that deviate more than one std from the median
@@ -121,6 +121,8 @@ if __name__ == '__main__':
         symmetry_breaking_idx = np.where(np.abs(ndimage.filters.gaussian_filter1d(np.abs(mags), 10) - ndimage.filters.gaussian_filter1d(np.abs(abs_mags), 10)) > 0.01)[0][0]
         lowT = temps[np.where(sig(temps, *a) < (1 + sig(temps[symmetry_breaking_idx], *a)) * 0.5)[0][0]]
 
+        highT = temps[np.where(sig(temps, *a) < sig(temps[symmetry_breaking_idx], *a) * 0.5)[0][0]]
+
         mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
         print(f' 70% mag: T = {mag70}')
 
@@ -137,14 +139,14 @@ if __name__ == '__main__':
         IO.savePickle(targetDirectory, f'{filename}_results', tmp)
         """
 
-        result = IO.TcResult(temps, mags, abs_mags, sus, binder, T_c, T_susHalf, lowT, filename)
+        result = IO.TcResult(temps, mags, abs_mags, sus, binder, T_c, highT, lowT, filename)
         result.saveToPickle(targetDirectory)
 
         results2 = IO.TcResult.loadFromPickle(targetDirectory, f'{filename}_Tc_results')
         print(results2.T_c)
 
         with open(os.path.join(targetDirectory, f'{filename}_Tc.txt'), 'w') as f:
-            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {T_susHalf:.2f} \n')
+            f.write(f'{lowT:.2f} \n {T_c:.2f} \n {highT:.2f} \n')
 
 
 
