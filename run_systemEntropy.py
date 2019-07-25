@@ -18,11 +18,11 @@ from scipy import stats
 
 def compute_entropies(snapshots, nSamples):
     sum = np.sum([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
-    print(sum)
+    #print(sum)
     condEntropies = [infoTheory.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
-    print(condEntropies)
+    #print(condEntropies)
     condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(nSamples) for i, s in enumerate(snapshots.values())])
-    print(f'H2(S|s_i) = {condH}')
+    #print(f'H2(S|s_i) = {condH}')
 
     allSnapshots = {}
     for _, s in snapshots.items():
@@ -32,7 +32,7 @@ def compute_entropies(snapshots, nSamples):
             else:
                 allSnapshots[k] = v
     systemH = infoTheory.entropyEstimateH2(np.fromiter(allSnapshots.values(), dtype=int))
-    print(f'H2(S) = {systemH}')
+    #print(f'H2(S) = {systemH}')
 
     return condH, systemH
 
@@ -47,6 +47,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--nodes', type=str, default='', help='path to numpy array containg nodes to be fixed')
 parser.add_argument('--single', action="store_true", help='fix nodes individually')
+parser.add_argument('--k', type=int, default=-1, help='set size')
 parser.add_argument('--excludeNodes', action="store_true", help='exclude fixed nodes from system entropy')
 #parser.add_argument('--centralNode', type=int, default=-1, help='node of interest, reference point for max dist')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
@@ -137,7 +138,7 @@ if __name__ == '__main__':
 
             fixedNodes = [[node] for node in nodelist]
 
-            split_idx = np.arange(10, len(nodelist), 10)
+            split_idx = np.arange(100, len(nodelist), 100)
             split_fixedNodes = np.split(fixedNodes, split_idx)
             split_systemNodes = np.split(systemNodes, split_idx)
 
@@ -163,6 +164,7 @@ if __name__ == '__main__':
                         print(f'--------------- node {node} ---------------')
                         allCondH[node][trial], allSystemH[node][trial] = compute_entropies(snapshots[i], args.snapshots)
                         allMI[node][trial] = allSystemH[node][trial] - allCondH[node][trial]
+                        print(f'MI = {allMI[node][trial]}')
 
                 for node in f.flatten():
                     mi = np.median(allMI[node])
@@ -180,13 +182,80 @@ if __name__ == '__main__':
                         snapshotSettings    = systemSnapshotSettings, \
                         corrTimeSettings    = corrTimeSettings, \
                         mixingResults       = mixingResults, \
-                        mi                  = medianMI, \
-                        miTrials            = allMI, \
+                        #mi                  = medianMI, \
+                        mi                  = allMI, \
                         hx                  = allSystemH, \
                         single              = args.single, \
                         computeTime         = timer()-start )
             result.saveToPickle(targetDirectory)
 
+
+        elif args.k > 0:
+
+            allNodes = np.array(list(graph))
+            nodelist = np.load(args.nodes).astype(int)
+            sets = list(itertools.combinations(nodelist, args.k))
+            print(sets)
+
+            if args.excludeNodes:
+                systemNodes = [list(allNodes[~np.isin(allNodes, s)].astype(int)) for s in sets]
+            else:
+                systemNodes = [list(allNodes) for s in sets]
+
+
+            fixedNodes = [list(s) for s in sets]
+
+            split_idx = np.arange(100, len(sets), 100)
+            split_fixedNodes = np.split(fixedNodes, split_idx)
+            split_systemNodes = np.split(systemNodes, split_idx)
+
+            allMI      = {}
+            allCondH   = {}
+            allSystemH = {}
+
+            for f, s in zip(split_fixedNodes, split_systemNodes):
+
+                for set in f:
+                    if set.size == 1:
+                        set = set[0]
+                    else:
+                        set = tuple(set)
+                    allCondH[set] = np.zeros(args.trials)
+                    allSystemH[set] = np.zeros(args.trials)
+                    allMI[set] = np.zeros(args.trials)
+
+                for trial in range(args.trials):
+
+                    snapshots = simulation.getSystemSnapshotsSets(model, list(s), list(f), \
+                                  **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
+
+                    for i, set in enumerate(f):
+                        if set.size == 1:
+                            set = set[0]
+                            print(f'--------------- node {set} ---------------')
+                        else:
+                            set = tuple(set)
+                            print(f'--------------- set {set} ---------------')
+                        allCondH[set][trial], allSystemH[set][trial] = compute_entropies(snapshots[i], args.snapshots)
+                        allMI[set][trial] = allSystemH[set][trial] - allCondH[set][trial]
+                        print(f'MI = {allMI[set][trial]}')
+
+
+            #IO.savePickle(targetDirectory, f'condSystemEntropy_results_individual nodes_{now}', allCondH)
+            #IO.savePickle(targetDirectory, f'systemEntropy_results_individual nodes_{now}', allSystemH)
+
+            result = IO.SimulationResult('system', \
+                        networkSettings     = networkSettings, \
+                        modelSettings       = modelSettings, \
+                        snapshotSettings    = systemSnapshotSettings, \
+                        corrTimeSettings    = corrTimeSettings, \
+                        mixingResults       = mixingResults, \
+                        #mi                  = medianMI, \
+                        mi                  = allMI, \
+                        hx                  = allSystemH, \
+                        k                   = args.k, \
+                        computeTime         = timer()-start )
+            result.saveToPickle(targetDirectory)
 
 
         elif args.nodes == '':
@@ -209,8 +278,8 @@ if __name__ == '__main__':
                         snapshotSettings    = systemSnapshotSettings, \
                         corrTimeSettings    = corrTimeSettings, \
                         mixingResults       = mixingResults, \
-                        hx                  = entropy, \
-                        hxTrials            = allEntropies, \
+                        #hx                  = entropy, \
+                        hx                  = allEntropies, \
                         single              = args.single, \
                         computeTime         = timer()-start )
             result.saveToPickle(targetDirectory)
@@ -257,8 +326,8 @@ if __name__ == '__main__':
 
             mi = np.median(MI)
             idx = np.where(MI == mi)
-            condH = condH[idx]
-            systemH = systemH[idx]
+            #condH = condH[idx]
+            #systemH = systemH[idx]
 
             print(f'MI = {mi}')
 
@@ -270,8 +339,8 @@ if __name__ == '__main__':
                         mixingResults       = mixingResults, \
                         fixedNodes          = fixedNodes, \
                         systemNodes         = systemNodes, \
-                        mi                  = mi, \
-                        miTrials           = MI, \
+                        #mi                  = mi, \
+                        mi                  = MI, \
                         hx                  = systemH, \
                         single              = args.single, \
                         computeTime         = timer()-start )

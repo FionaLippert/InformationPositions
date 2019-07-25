@@ -87,7 +87,7 @@ def create_erdos_renyi_graph(N, avg_deg=2., path=None, version=''):
     graph = graph.subgraph(connected_nodes)
     #N = len(graph)
     if path is not None: nx.write_gpickle(graph,
-                f'{path}/ER_k={avg_deg}_N={N}{version}.gpickle', 2)
+                f'{path}/ER_k={avg_deg:.2f}_N={N}{version}.gpickle', 2)
     return graph
 
 def create_erdos_renyi_graph_exactN(N_target, N_start, avg_deg, max_trials=int(1e5), path=None, version=''):
@@ -104,14 +104,16 @@ def create_erdos_renyi_graph_exactN(N_target, N_start, avg_deg, max_trials=int(1
     k = np.mean([d for n,d in nx.degree(G)])
     print(f'avg degree = {k}')
     if path is not None: nx.write_gpickle(G,
-                f'{path}/ER_k={avg_deg}_N={N_target}{version}.gpickle', 2)
+                f'{path}/ER_k={avg_deg:.2f}_N={N_target}{version}.gpickle', 2)
 
 def create_watts_strogatz(N, k, beta, path=None, version=''):
     graph = nx.watts_strogatz_graph(N, k, beta)
     connected_nodes = max(nx.connected_components(graph), key=len)
     graph = graph.subgraph(connected_nodes)
+    clustering = nx.average_clustering(graph)
+    print(clustering)
     if path is not None: nx.write_gpickle(graph,
-                f'{path}/WS_k={k}_N={N}{version}.gpickle', 2)
+                f'{path}/WS_k={k}_beta={beta}_N={N}{version}.gpickle', 2)
     return graph
 
 def create_powerlaw_graph(N, gamma=1.6, path=None, version=''):
@@ -157,16 +159,22 @@ def create_path_graph(L, path=None):
 
 if __name__ == '__main__':
 
-    targetDirectory = f'{os.getcwd()}/networkData/small_graphs/increasing_size'
+    N_target = 50
+    targetDirectory = f'{os.getcwd()}/networkData/small_graphs/N={N_target}_p=0.05'
     os.makedirs(targetDirectory, exist_ok=True)
+
+    k = 0.05*1.2*N_target
+    for i in range(10):
+        create_erdos_renyi_graph_exactN(N_target, int(1.2*N_target), k, path=targetDirectory, version=f'_v{i}')
 
     #create_path_graph(100, targetDirectory)
 
     #nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
 
+    """
     for N_target in [2, 5, 10, 20, 30, 40, 50]:
         create_erdos_renyi_graph_exactN(N_target, 2*N_target, 2.0, path=targetDirectory)
-
+    """
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/trees'
@@ -197,12 +205,14 @@ if __name__ == '__main__':
     create_regular_graph(10000, 5, targetDirectory)
     """
 
-    """
-    targetDirectory = f'{os.getcwd()}/networkData/WS'
+
+    beta = 0.2
+    k = 4
+    targetDirectory = f'{os.getcwd()}/networkData/WS/WS_k={k}_beta={beta}_N=1000'
     os.makedirs(targetDirectory, exist_ok=True)
     for i in range(10):
-        create_watts_strogatz(1000, 6, 0.1, targetDirectory, f'_v{i}')
-    """
+        create_watts_strogatz(1000, k, beta, targetDirectory, f'_v{i}')
+
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'

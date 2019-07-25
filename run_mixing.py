@@ -56,7 +56,7 @@ if __name__ == '__main__':
         updateType      = 'async' ,\
         magSide         = ''
     )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
+    #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     #print(model.mapping)

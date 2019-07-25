@@ -124,7 +124,7 @@ if __name__ == '__main__':
         highT = temps[np.where(sig(temps, *a) < sig(temps[symmetry_breaking_idx], *a) * 0.5)[0][0]]
 
         mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
-        print(f' 70% mag: T = {mag70}')
+        print(f'T_low = {lowT}, T_high = {highT}')
 
         """
         tmp = dict( \

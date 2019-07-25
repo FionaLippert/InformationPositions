@@ -71,7 +71,11 @@ if __name__ == '__main__':
             #sample_nodes = np.random.choice(nodes, size=10, replace=False)
             for node in samples:
                 f.write(f'{node}\n')
-        
+
+        if args.n > 10:
+            for i in range(int(args.n/10)):
+                np.save(path + f'_sample_nodes_weighted_{args.n}_{i}.npy', samples[10*i:min(args.n, 10*(i+1))])
+
 
 
 

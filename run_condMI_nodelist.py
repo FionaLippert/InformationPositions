@@ -122,12 +122,15 @@ if __name__ == '__main__':
         nodes = list(nodes)
     )
 
+    print(f'magSide = {args.magSide}')
+
     # setup Ising model with nNodes spin flip attempts per simulation step
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
+    print(modelSettings['magSide'])
     #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
