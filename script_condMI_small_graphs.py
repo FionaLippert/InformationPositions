@@ -29,7 +29,7 @@ for k in k_list:
            if cnt == 2:
                subprocess.call(['python3', 'run_condMI_nodelist.py', \
                         str(T), \
-                        f'output_final/{gtype}/{graph}/vectorMI/T={T}', \
+                        f'output_final/{gtype}/{graph}/vector/T={T}', \
                         f'networkData/{gtype}/{graph}.gpickle', \
                         '--nodes', f'networkData/{gtype}/{graph}_nodes.npy', \
                         '--maxCorrTime', '100', \

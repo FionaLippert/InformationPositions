@@ -159,12 +159,12 @@ def create_path_graph(L, path=None):
 
 if __name__ == '__main__':
 
-    N_target = 50
-    targetDirectory = f'{os.getcwd()}/networkData/small_graphs/N={N_target}_p=0.05'
-    os.makedirs(targetDirectory, exist_ok=True)
-
+    N_target = 20
     k = 0.05*1.2*N_target
+
     for i in range(10):
+        targetDirectory = f'{os.getcwd()}/networkData/small_graphs/N={N_target}_p=0.05/ER_k={k:.2f}_N={N_target}_v{i}'
+        os.makedirs(targetDirectory, exist_ok=True)
         create_erdos_renyi_graph_exactN(N_target, int(1.2*N_target), k, path=targetDirectory, version=f'_v{i}')
 
     #create_path_graph(100, targetDirectory)

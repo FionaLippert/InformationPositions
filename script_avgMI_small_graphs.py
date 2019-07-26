@@ -28,7 +28,7 @@ for i in range(10):
 
            subprocess.call(['python3', 'run_jointMI_nodelist.py', \
                     str(T), \
-                    f'output_final/{gpath}/magMI/T={T}', \
+                    f'output_final/{gpath}/avg/T={T}', \
                     graph, \
                     '--neighboursDir', f'networkData/{gpath}', \
                     '--magSide', magSide ])

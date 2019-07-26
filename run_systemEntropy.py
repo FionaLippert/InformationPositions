@@ -160,6 +160,8 @@ if __name__ == '__main__':
                     snapshots = simulation.getSystemSnapshotsSets(model, list(s), list(f), \
                                   **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
+                    IO.savePickle(targetDirectory, 'backup_snapshots', snapshots)
+
                     for i, node in enumerate(f.flatten()):
                         print(f'--------------- node {node} ---------------')
                         allCondH[node][trial], allSystemH[node][trial] = compute_entropies(snapshots[i], args.snapshots)
