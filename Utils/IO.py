@@ -89,7 +89,7 @@ def readSettings(targetDirectory, dataType = '.pickle'):
 class SimulationResult:
 
     def __init__(self, type, **kwargs):
-        assert type in { 'vector', 'avg', 'pairwise', 'system'}
+        assert type in { 'vector', 'avg', 'pairwise', 'system', 'greedy'}
         self.type = type
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -106,6 +106,10 @@ class SimulationResult:
         print(paths)
         dir, filename = os.path.split(paths[0])
         return loadPickle(dir, filename)
+
+    def loadAllFromPickle(dir, type):
+        ext = f'{type}_simulation_results_'
+        return loadAllPickle(dir, ext)
 
 class TcResult:
     def __init__(self, temps, mags, abs_mags, sus, binder, T_c, T_high, T_low, graph):

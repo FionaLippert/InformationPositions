@@ -10,17 +10,17 @@ from Utils import IO
 
 #gtype='small_graphs/N=50'
 
-N=20
+N=70
 k=N*0.05*1.2
 gtype=f'small_graphs/N={N}_p=0.05'
 
 
-k_list = [1.96, 2.28, 2.80, 2.88, 2.16, 2.72, 3.16, 3.24, 3.52, 3.64]
+#k_list = [1.96, 2.28, 2.80, 2.88, 2.16, 2.72, 3.16, 3.24, 3.52, 3.64]
 #k_list = [2.72, 3.16, 3.24, 3.52, 3.64]
 #k_list = [3.52]
 
 #for k in k_list:
-for i in range(10):
+for i in range(1,5):
     #graph=f'ER_k={k:.2f}_N=50'
     graph=f'ER_k={k:.2f}_N={N}_v{i}'
 
@@ -38,7 +38,7 @@ for i in range(10):
                magSide = 'fair'
 
            print(magSide)
-           if cnt > -1:
+           if cnt > 0:
                subprocess.call(['python3', 'run_systemEntropy.py', \
                     str(T), \
                     f'output_systemEntropy/{gtype}/{graph}/T={T}', \
@@ -59,11 +59,12 @@ top = int(N * 0.25)
 
 k = 3
 
-for v in range(10):
+for v in range(7,10):
     graph = f'ER_k=3.00_N=50_v{v}'
-    Tc_results = IO.TcResult.loadFromPickle(f'DataTc_new/{gtype}', f'{graph}_Tc_results')
+    Tc_results = IO.TcResult.loadFromPickle(f'DataTc_new/{gtype}/{graph}', f'{graph}_Tc_results')
     Ts = [Tc_results.T_low, Tc_results.T_c, Tc_results.T_high]
-    for i in range(3):
+    start = 2 if v == 7 else 0
+    for i in range(start, 3):
         T = Ts[i]
         if i == 0:
             magSide = 'pos'
@@ -104,7 +105,7 @@ for v in range(10):
         subprocess.call(['python3', 'run_systemEntropy.py', \
                  str(T), \
                  target_dir, \
-                 f'networkData/{gtype}/{graph}.gpickle', \
+                 f'networkData/{gtype}/{graph}/{graph}.gpickle', \
                  '--nodes', f'{target_dir}/nodes_top{top}.npy', \
                  '--snapshots', '100000', \
                  '--excludeNodes',

@@ -26,10 +26,10 @@ with open(Tc_path) as f:
        else:
            magSide = 'fair'
 
-
-       subprocess.call(['python3', 'run_jointMI_nodelist.py', \
-                str(T), \
-                f'output_final/{gpath}/avg/T={T}', \
-                graph, \
-                '--neighboursDir', f'networkData/{gpath}', \
-                '--magSide', magSide ])
+       if cnt > 0:
+           subprocess.call(['python3', 'run_jointMI_nodelist.py', \
+                    str(T), \
+                    f'output_final/{gpath}/avg/T={T}', \
+                    graph, \
+                    '--neighboursDir', f'networkData/{gpath}', \
+                    '--magSide', magSide ])

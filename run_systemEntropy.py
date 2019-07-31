@@ -47,6 +47,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--nodes', type=str, default='', help='path to numpy array containg nodes to be fixed')
 parser.add_argument('--single', action="store_true", help='fix nodes individually')
+parser.add_argument('--preselectedNodes', action="store_true", help='nodes should always be in the k-set, create sets containing these nodes plus one new node from the graph')
 parser.add_argument('--k', type=int, default=-1, help='set size')
 parser.add_argument('--excludeNodes', action="store_true", help='exclude fixed nodes from system entropy')
 #parser.add_argument('--centralNode', type=int, default=-1, help='node of interest, reference point for max dist')
@@ -160,7 +161,7 @@ if __name__ == '__main__':
                     snapshots = simulation.getSystemSnapshotsSets(model, list(s), list(f), \
                                   **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
-                    IO.savePickle(targetDirectory, 'backup_snapshots', snapshots)
+                    #IO.savePickle(targetDirectory, 'backup_snapshots', snapshots)
 
                     for i, node in enumerate(f.flatten()):
                         print(f'--------------- node {node} ---------------')
@@ -196,8 +197,11 @@ if __name__ == '__main__':
 
             allNodes = np.array(list(graph))
             nodelist = np.load(args.nodes).astype(int)
-            sets = list(itertools.combinations(nodelist, args.k))
-            print(sets)
+            if args.preselectedNodes:
+                sets = [ list(nodelist).append(n) for n in allNodes if n not in nodelist ]
+            else:
+                sets = list(itertools.combinations(nodelist, args.k))
+            print(f'sets: {sets}')
 
             if args.excludeNodes:
                 systemNodes = [list(allNodes[~np.isin(allNodes, s)].astype(int)) for s in sets]
@@ -217,6 +221,8 @@ if __name__ == '__main__':
 
             for f, s in zip(split_fixedNodes, split_systemNodes):
 
+                #print(f)
+
                 for set in f:
                     if set.size == 1:
                         set = set[0]
@@ -226,10 +232,16 @@ if __name__ == '__main__':
                     allSystemH[set] = np.zeros(args.trials)
                     allMI[set] = np.zeros(args.trials)
 
+                print(f'start {args.trials} trials')
+
                 for trial in range(args.trials):
 
                     snapshots = simulation.getSystemSnapshotsSets(model, list(s), list(f), \
                                   **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
+
+                    print('start computing entropies')
+
+                    print(f'all sets: {f}')
 
                     for i, set in enumerate(f):
                         if set.size == 1:

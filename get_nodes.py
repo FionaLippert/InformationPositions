@@ -48,6 +48,7 @@ if __name__ == '__main__':
     """
 
     ensemble = [g for g in glob.iglob(f'networkData/{args.graph}*.gpickle')]
+    print(ensemble)
 
     for filepath in ensemble: #filepath in glob.iglob(args.graph):
         print(filepath)

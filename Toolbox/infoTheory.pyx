@@ -414,6 +414,38 @@ cpdef tuple processJointSnapshots_oneNode(np.ndarray avgSnapshots, np.ndarray av
 
 
 @cython.boundscheck(False)
+@cython.nonecheck(False)
+@cython.cdivision(True)
+@cython.initializedcheck(False)
+@cython.overflowcheck(False)
+cpdef tuple compute_entropies(dict snapshots, long nSamples):
+    cdef:
+        double sum, systemH, condH
+        dict s, allSnapshots
+        long i, v
+        list condEntropies
+
+    sum = np.sum([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
+    #print(sum)
+    condEntropies = [entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
+    #print(condEntropies)
+    condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(nSamples) for i, s in enumerate(snapshots.values())])
+    #print(f'H2(S|s_i) = {condH}')
+
+    allSnapshots = {}
+    for _, s in snapshots.items():
+        for k, v in s.items():
+            if k in allSnapshots.keys():
+                allSnapshots[k] += v
+            else:
+                allSnapshots[k] = v
+    systemH = entropyEstimateH2(np.fromiter(allSnapshots.values(), dtype=int))
+    #print(f'H2(S) = {systemH}')
+
+    return condH, systemH
+
+
+@cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
