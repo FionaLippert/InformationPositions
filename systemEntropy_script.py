@@ -10,9 +10,11 @@ from Utils import IO
 
 #gtype='small_graphs/N=50'
 
-N=70
+N=30
 k=N*0.05*1.2
 gtype=f'small_graphs/N={N}_p=0.05'
+
+#gtype='crime'
 
 
 #k_list = [1.96, 2.28, 2.80, 2.88, 2.16, 2.72, 3.16, 3.24, 3.52, 3.64]
@@ -20,9 +22,10 @@ gtype=f'small_graphs/N={N}_p=0.05'
 #k_list = [3.52]
 
 #for k in k_list:
-for i in range(1,5):
+for i in range(1):
     #graph=f'ER_k={k:.2f}_N=50'
-    graph=f'ER_k={k:.2f}_N={N}_v{i}'
+    #graph=f'ER_k={k:.2f}_N={N}_v{i}'
+    graph='unweighted_criminal_after_2012_filtered_weights'
 
     G = nx.read_gpickle(f'networkData/{gtype}/{graph}/{graph}.gpickle')
     np.save(f'networkData/{gtype}/{graph}/{graph}_nodes.npy', list(G))
@@ -38,10 +41,10 @@ for i in range(1,5):
                magSide = 'fair'
 
            print(magSide)
-           if cnt > 0:
+           if cnt > -1:
                subprocess.call(['python3', 'run_systemEntropy.py', \
                     str(T), \
-                    f'output_systemEntropy/{gtype}/{graph}/T={T}', \
+                    f'output_systemEntropy/{gtype}/{graph}/T={T}/test', \
                     f'networkData/{gtype}/{graph}/{graph}.gpickle', \
                     '--nodes', f'networkData/{gtype}/{graph}/{graph}_nodes.npy', \
                     '--k', '1', \

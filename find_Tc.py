@@ -107,7 +107,7 @@ if __name__ == '__main__':
         a, b = optimize.curve_fit(sig, temps, abs_mags)
         mag_Tc = sig(T_c, *a)
         print(f'mag at Tc: {T_c} \t {mag_Tc} \t {mags[np.where(temps > T_c)[0][0]]}')
-        highT = temps[np.where(sig(temps, *a) < 0.75 * mag_Tc)[0][0]]
+        #highT = temps[np.where(sig(temps, *a) < 0.75 * mag_Tc)[0][0]]
 
         """
         lowT = temps[np.where(sig(temps, *a) < (1 + args.magFrac) * mag_Tc)[0][0]]
@@ -121,10 +121,14 @@ if __name__ == '__main__':
         symmetry_breaking_idx = np.where(np.abs(ndimage.filters.gaussian_filter1d(np.abs(mags), 10) - ndimage.filters.gaussian_filter1d(np.abs(abs_mags), 10)) > 0.01)[0][0]
         lowT = temps[np.where(sig(temps, *a) < (1 + sig(temps[symmetry_breaking_idx], *a)) * 0.5)[0][0]]
 
-        highT = temps[np.where(sig(temps, *a) < sig(temps[symmetry_breaking_idx], *a) * 0.5)[0][0]]
+        try:
+            highT = temps[np.where(sig(temps, *a) < sig(temps[symmetry_breaking_idx], *a) * 0.5)[0][0]]
+        except:
+            highT = T_c
 
-        mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
-        print(f'T_low = {lowT}, T_high = {highT}')
+        #mag70 = temps[np.where(sig(temps, *a) < 0.7)[0][0]]
+        #print(f'T_low = {lowT}, T_high = {highT}')
+
 
         """
         tmp = dict( \

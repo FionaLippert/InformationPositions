@@ -40,13 +40,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    node = np.array([528])
+    np.save('networkData/2D_grid/2D_grid_L=32_node528.npy', node)
+
     """
     G = nx.read_gpickle('networkData/ER/ER_k=2.0_N=1000_v0.gpickle')
     g = G.copy()
     g.remove_node(333)
     nx.write_gpickle(g, f'networkData/ER/ER_k=2.0_N=1000_v0_without_333.gpickle', 2)
     """
-
+    """
     ensemble = [g for g in glob.iglob(f'networkData/{args.graph}*.gpickle')]
     print(ensemble)
 
@@ -77,7 +80,7 @@ if __name__ == '__main__':
             for i in range(int(args.n/10)):
                 np.save(path + f'_sample_nodes_weighted_{args.n}_{i}.npy', samples[10*i:min(args.n, 10*(i+1))])
 
-
+    """
 
 
     """

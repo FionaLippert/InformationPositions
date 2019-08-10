@@ -42,6 +42,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--excludeNodes', action="store_true", help='exclude fixed nodes from system entropy')
 parser.add_argument('--onlyRandom', action="store_true", help='do not run greedy algorithm, only rankom k-sets')
+parser.add_argument('--heuristic', type=str, default='', help='construct greedy sets based on IV heuristic and MI-radius')
 parser.add_argument('--trials', type=int, default=1, help='number of trials. The median of all MI estimates is saved')
 parser.add_argument('--snapshots', type=int, default=10000, help='number of system snapshots')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
@@ -132,6 +133,40 @@ if __name__ == '__main__':
             mi_random[tuple(s)] = systemRand - condRand
             h_random[tuple(s)] = condRand
 
+    elif len(args.heuristic) > 0:
+
+        MI_avg = IO.SimulationResult.loadNewestFromPickle(args.heuristic, 'avg').mi
+        IV = { n : np.nansum(mi) for n, mi in MI_avg.items() }
+
+        def get_dmax(mi, p):
+            idx = np.where(mi < mi[0]*p)[0]
+            if idx.size > 0:
+                return idx[0] + 1
+            else:
+                return mi.size
+
+        def overlap_node_set(G, node, node_set, mi, ratio=False, p=0.5):
+            d_max = {n : get_dmax(mi[n], p) for n in node_set}
+
+            all_overlaps = {}
+
+            set1 = list(nx.ego_graph(G, node, get_dmax(mi[node], p)))
+
+            for n in node_set:
+                set2 = list(nx.ego_graph(G, n, d_max[n]))
+                if ratio:
+                    #all_overlaps[(n1, n2)] = len(set(set1).intersection(set2)) / min(len(set1), len(set2))
+                    all_overlaps[(node, n)] = len(set(set1).intersection(set2)) / len(set(set1).union(set2))
+                else:
+                    all_overlaps[(node, n)] = len(set(set1).intersection(set2))
+            return all_overlaps
+
+
+        ranking = sorted(IV.items(), key=lambda kv: kv[1], reverse=True)
+        ranked_nodes, iv_values = zip(*ranking)
+
+        #TODO greedily select next node that minimizes overlap and maximizes IV
+
     else:
 
         for k in range(1, args.k_max + 1):
@@ -150,7 +185,7 @@ if __name__ == '__main__':
             condH   = np.zeros(len(remaining_nodes))
             systemH = np.zeros(len(remaining_nodes))
 
-
+            #print(f'T = {model.temperature}, magSide = {model.magSide}')
             snapshots = simulation.getSystemSnapshotsSets(model, systemNodes, sets, \
                           **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
