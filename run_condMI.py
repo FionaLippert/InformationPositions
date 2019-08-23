@@ -33,7 +33,7 @@ parser.add_argument('--snapshots', type=int, default=100, help='number of neighb
 parser.add_argument('--trials', type=int, default=10, help='number of repeated MC simulations used to estimate the conditional PDF')
 parser.add_argument('--numSamples', type=int, default=1000, help='number of samples per MC run with fixed neighbour states')
 parser.add_argument('--magSide', type=str, default='', help='fix magnetization to one side (pos/neg)')
-parser.add_argument('--initState', type=int, default=-1, help='initial system state')
+parser.add_argument('--initState', type=int, default=1, help='initial system state')
 parser.add_argument('--getStates', action="store_true", help='get system states instead of MI')
 parser.add_argument('--getStateDistr', action="store_true", help='get distributions of neighbour vectors instead of MI')
 parser.add_argument('--uniformPDF', action="store_true", help='assume uniform distribution over neighbourhood snapshots')
