@@ -24,6 +24,7 @@ parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('--nodes', type=str, default='all', help='path to nodes for which MI should be computed')
 parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node. If -1, use diameter, if -2 use distance where max neighbours are reached')
+parser.add_argument('--threshold', type=float, default=0, help='when MI drops below threshold, stop simulating for larger distances')
 parser.add_argument('--minDist', type=int, default=1, help='min distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
@@ -44,10 +45,14 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
     all_HXgiveny    = []
     all_keys        = []
 
+    stop = False
+
     subgraph_nodes = [node]
     for d in range(minDist, maxDist+1):
+        print(stop)
         # get subgraph and outer neighbourhood at distance d
-        if len(neighbours_G[d]) > 0:
+        if len(neighbours_G[d]) > 0 and stop == False:
+
             #subgraph_nodes.extend(neighbours_G[d])
             #subgraph = graph.subgraph(subgraph_nodes)
             #print(subgraph.edges())
@@ -81,6 +86,11 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
             HXs.append(HX)
             all_keys.append(keys)
             all_HXgiveny.append(HXgiveny)
+
+            if MI < args.threshold:
+                stop = True
+            else:
+                print('continue')
 
         else:
             MIs.append(np.nan)
@@ -155,6 +165,7 @@ if __name__ == '__main__':
     snapshotSettings = dict( \
         nSamples    = args.snapshots, \
         burninSamples = burninSteps, \
+        #burninSamples = 20000, \
         maxDist     = maxDist
     )
     #IO.saveSettings(targetDirectory, snapshotSettings, 'snapshots')
@@ -188,6 +199,8 @@ if __name__ == '__main__':
                                 nodes, **snapshotSettings, \
                                 threads=threads, initStateIdx=args.initState)
 
+        print(sum(snapshots[0][0].values()))
+
         #with open(f'{targetDirectory}/snapshots_nodes_{now}.pickle', 'wb') as f:
         #    pickle.dump(snapshots, f)
 
@@ -201,6 +214,7 @@ if __name__ == '__main__':
                                 allNeighbours_G[i], snapshots[i], nTrials, \
                                 nSamples, modelSettingsCond, corrTimeSettings)
             print(f'MI = {MI}')
+            #print(f'MI corrected = {np.mean(HX)- np.array(H_XgivenY)}')
             all_MIs[node]   = np.array(MI)
             all_HX[node]    = np.array(HX)
 
@@ -219,7 +233,8 @@ if __name__ == '__main__':
                     mixingResults       = mixingResults, \
                     mi                  = all_MIs, \
                     hx                  = all_HX, \
-                    computeTime         = timer()-start )
+                    computeTime         = timer()-start, \
+                    threshold           = args.threshold)
         result.saveToPickle(targetDirectory)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')

@@ -26,7 +26,7 @@ parser.add_argument('--maxDist', type=int, default=-1, help='max distance to cen
 parser.add_argument('--runs', type=int, default=1, help='number of repetititve runs')
 parser.add_argument('--bins', type=int, default=100, help='number of bins for average magnetization of neighbours')
 #parser.add_argument('--repeats', type=int, default=10, help='number of parallel MC runs used to estimate MI')
-parser.add_argument('--numSamples', type=int, default=1000, help='number of system samples')
+parser.add_argument('--numSamples', type=int, default=100000, help='number of system samples')
 parser.add_argument('--initState', type=int, default=-1, help='')
 parser.add_argument('--magSide', type=str, default='', help='')
 
@@ -88,6 +88,7 @@ if __name__ == '__main__':
         burninSteps = mixingResults['burninSteps']
         distSamples = mixingResults['distSamples']
 
+
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
     snapshotSettingsJoint = dict( \
@@ -106,7 +107,7 @@ if __name__ == '__main__':
         #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         now = time.time()
         #avgSnapshots, avgSystemSnapshots, snapshots = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState, getFullSnapshots=1)
-        avgSnapshots, Z = simulation.getJointSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState)
+        avgSnapshots, Z = simulation.getJointSnapshotsPerDistNodes(model, [node], allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState)
 
         #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
         #with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
@@ -118,6 +119,9 @@ if __name__ == '__main__':
 
         MI_avg, MI_system, HX = infoTheory.processJointSnapshots_oneNode(avgSnapshots, args.numSamples, maxDist)
         now = time.time()
+
+        print(MI_avg)
+        print(HX)
 
         IO.savePickle(targetDirectory, f'MI_meanField_node_{node}_{now}', MI_avg)
         IO.savePickle(targetDirectory, f'HX_meanField_node_{node}_{now}', HX)

@@ -205,8 +205,11 @@ cpdef tuple computeMI_jointPDF(np.ndarray jointDistr, long Z):
 
     P_XY = jointDistr.flatten()/Z
     P_X = np.sum(jointDistr, axis=1)/Z # sum over all bins
+    #print(P_X)
     P_Y = np.sum(jointDistr, axis=0)/Z # sum over all spin states
     H_X = stats.entropy(P_X, base=2)
+    print(H_X)
+    print(stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2))
     MI = stats.entropy(P_X, base=2) + stats.entropy(P_Y, base=2) - stats.entropy(P_XY, base=2)
     return MI, H_X
 

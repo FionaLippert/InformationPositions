@@ -24,7 +24,7 @@ parser.add_argument('T', type=float, help='temperature')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('graph', type=str, help='path to pickled graph')
 parser.add_argument('node', type=int, help='central node ID')
-parser.add_argument('maxDist', type=int, help='max distance to central node. If -1, use diameter, if -2 use distance where max neighbours are reached')
+parser.add_argument('--maxDist', type=int, default=-1, help='max distance to central node. If -1, use diameter, if -2 use distance where max neighbours are reached')
 parser.add_argument('--minDist', type=int, default=1, help='min distance to central node')
 parser.add_argument('--runs', type=int, default=1, help='number of repetitive runs')
 parser.add_argument('--maxCorrTime', type=int, default=-1, help='max distance between two samples in the MC')
@@ -47,78 +47,52 @@ def computeMI_cond(model, node, minDist, maxDist, neighbours_G, snapshots, nTria
     HXs             = []
     all_HXgiveny    = []
     all_keys        = []
-    all_states      = {}
-    all_stateDistr  = {}
-    all_mappings    = {}
 
     subgraph_nodes = [node]
-    for d in range(1, maxDist+1):
+    for d in range(minDist, maxDist+1):
         # get subgraph and outer neighbourhood at distance d
-        if d in neighbours_G.keys():
-            subgraph_nodes.extend(neighbours_G[d])
+        if len(neighbours_G[d]) > 0:
+            #subgraph_nodes.extend(neighbours_G[d])
+            #subgraph = graph.subgraph(subgraph_nodes)
+            #print(subgraph.edges())
             subgraph = nx.ego_graph(model.graph, node, d)
-            print(subgraph_nodes)
+
+            print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph)}, num states = {len(snapshots[d-1])} -----------------------')
+
+            model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
+
+            # determine correlation time for subgraph Ising model
+            if args.maxCorrTime == args.minCorrTime:
+                distSamples_subgraph = args.maxCorrTime
+                mixingTime_subgraph = corrTimeSettings['burninSteps']
+            else:
+                mixingTime_subgraph, meanMag, distSamples_subgraph, _ = simulation.determineCorrTime(model_subgraph, nodeG=node, **corrTimeSettings)
+                if args.maxCorrTime > 0: distSamples_subgraph = min(distSamples_subgraph, args.maxCorrTime)
+                distSamples_subgraph = max(distSamples_subgraph, args.minCorrTime)
+            print(f'correlation time = {distSamples_subgraph}')
+            print(f'mixing time      = {mixingTime_subgraph}')
 
 
-            if d >= minDist:
-                print(f'------------------- distance d={d}, num neighbours = {len(neighbours_G[d])}, subgraph size = {len(subgraph_nodes)}, num states = {len(snapshots[d-1])} -----------------------')
-                #print(subgraph_nodes)
-                model_subgraph = fastIsing.Ising(subgraph, **modelSettings)
-                all_mappings[d] = model_subgraph.mapping
-                #print(model_subgraph.mapping)
+            threads = nthreads if len(subgraph) > 20 else 1
 
-                #print(f'neighbours G: {neighbours_G[d]}')
-                #print(f'states to fix: {[np.frombuffer(s).astype(int) for s in snapshots[d-1]]}')
+            _, _, MI, HX, HXgiveny, keys, probs = simulation.neighbourhoodMI(model_subgraph, node, \
+                            d, neighbours_G, snapshots[d-1], nTrials=nTrials, \
+                            burninSamples=mixingTime_subgraph, nSamples=nSamples, \
+                            distSamples=distSamples_subgraph, threads=threads, \
+                            initStateIdx=args.initState, uniformPDF=args.uniformPDF, out='MI')
 
+            MIs.append(MI)
+            HXs.append(HX)
+            all_keys.append(keys)
+            all_HXgiveny.append(HXgiveny)
 
-                # determine correlation time for subgraph Ising model
-                if args.maxCorrTime == args.minCorrTime:
-                    distSamples_subgraph = args.maxCorrTime
-                    mixingTime_subgraph = corrTimeSettings['burninSteps']
-                else:
-                    mixingTime_subgraph, meanMag, distSamples_subgraph, _ = simulation.determineCorrTime(model_subgraph, nodeG=node, **corrTimeSettings)
-                    if args.maxCorrTime > 0: distSamples_subgraph = min(distSamples_subgraph, args.maxCorrTime)
-                    distSamples_subgraph = max(distSamples_subgraph, args.minCorrTime)
-                print(f'correlation time = {distSamples_subgraph}')
-                print(f'mixing time      = {mixingTime_subgraph}')
+        else:
+            MIs.append(np.nan)
+            HXs.append(np.nan)
+            all_keys.append(np.nan)
+            all_HXgiveny.append(np.nan)
 
-                #mixingTime_subgraph = 500
-
-                threads = nthreads #if len(subgraph_nodes) > 20 else 1
-
-                if args.getStates:
-                    _, states = simulation.neighbourhoodMI(model_subgraph, node, d, neighbours_G, snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
-                          threads=threads, initStateIdx=args.initState, out='states')
-                    all_states[d] = states
-
-                elif args.getStateDistr:
-                    _, stateDistr = simulation.neighbourhoodMI(model_subgraph, node, d, neighbours_G, snapshots[d-1], \
-                          nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
-                          threads=threads, initStateIdx=args.initState, out='stateDistr')
-                    print(stateDistr)
-                    all_stateDistr[d] = stateDistr
-
-                else:
-                    _, _, MI, HX, HXgiveny, keys, probs = simulation.neighbourhoodMI(model_subgraph, node, d, neighbours_G, snapshots[d-1], \
-                              nTrials=nTrials, burninSamples=mixingTime_subgraph, nSamples=nSamples, distSamples=distSamples_subgraph, \
-                              threads=threads, initStateIdx=args.initState, uniformPDF=args.uniformPDF, out='MI')
-
-                    MIs.append(MI)
-                    HXs.append(HX)
-                    all_keys.append(keys)
-                    all_HXgiveny.append(HXgiveny)
-                    #print(MIs)
-                    #for i in range(len(snapshots[d-1])):
-                    #    print(np.frombuffer(keys[i]).astype(int), HXgiveny[i], probs[i])
-
-
-    if args.getStates:
-        return all_states, all_mappings
-    elif args.getStateDistr:
-        return all_stateDistr, all_mappings
-    else:
-        return MIs, HXs, all_HXgiveny, all_keys
+    return MIs, HXs, all_HXgiveny, all_keys
 
 
 
@@ -136,18 +110,18 @@ if __name__ == '__main__':
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
     node = args.node
-    deg = graph.degree[node]
 
     if args.maxDist > 0:
         maxDist = args.maxDist
     else:
         maxDist = nx.diameter(graph)
 
+    print(maxDist)
+
     networkSettings = dict( \
         path = args.graph, \
         nNodes = N, \
         node = node, \
-        degree = deg
     )
 
     # setup Ising model with nNodes spin flip attempts per simulation step
@@ -204,6 +178,9 @@ if __name__ == '__main__':
     nTrials = args.trials
     nSamples = args.numSamples
 
+    print(f'start with {args.runs} runs')
+    print(args.snapshots)
+
 
     for i in range(args.runs):
         now = time.time()
@@ -224,9 +201,9 @@ if __name__ == '__main__':
         else:
             threads = nthreads if len(model.graph) > 20 else 1
             snapshots, _ , HX_eq  = simulation.getSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettings, threads=threads, initStateIdx=args.initState)
-            with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
-                pickle.dump(snapshots, f)
-            print(stats.entropy(HX_eq, base=2))
+            #with open(f'{targetDirectory}/snapshots_{now}.pickle', 'wb') as f:
+            #    pickle.dump(snapshots, f)
+            #print(stats.entropy(HX_eq, base=2))
 
             #np.save(f'{targetDirectory}/system_states_{now}.npy', system_states)
 
@@ -245,12 +222,25 @@ if __name__ == '__main__':
                 pickle.dump(mappings, f)
         else:
             MI, HX, H_XgivenY, keys = computeMI_cond(model, node, minDist, maxDist, allNeighbours_G, snapshots, nTrials, nSamples, modelSettingsCond, corrTimeSettings)
-            np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
-            np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
+            #np.save(f'{targetDirectory}/MI_cond_{now}.npy', np.array(MI))
+            #np.save(f'{targetDirectory}/HX_{now}.npy', np.array(HX))
 
             #for d in range(minDist, maxDist+1):
             #    np.save(os.path.join(targetDirectory, f'HXgivenY_d={d}_{now}.npy'), H_XgivenY[d-minDist])
             #    np.save(os.path.join(targetDirectory, f'states_d={d}_{now}.npy'), keys[d-minDist])
+
+            MI = {node : MI}
+            HX = {node : HX}
+            result = IO.SimulationResult('vector', \
+                        networkSettings     = networkSettings, \
+                        modelSettings       = modelSettings, \
+                        snapshotSettings    = snapshotSettings, \
+                        corrTimeSettings    = corrTimeSettings, \
+                        mixingResults       = mixingResults, \
+                        mi                  = MI, \
+                        hx                  = HX, \
+                        computeTime         = timer()-start )
+            result.saveToPickle(targetDirectory)
 
     print(f'time elapsed: {timer()-start : .2f} seconds')
 

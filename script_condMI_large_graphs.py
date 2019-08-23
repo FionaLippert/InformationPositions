@@ -23,14 +23,18 @@ with open(Tc_path) as f:
        else:
            magSide = 'fair'
 
-       for i in range(10):
-           nodes = f'networkData/{gtype}/{gname}/{gname}_v{version}_sample_nodes_weighted_100_{i}.npy'
-           print(f'nodes part {i}')
+       nodes = f'networkData/{gtype}/{gname}/{gname}_v{version}_sample_nodes_weighted_10.npy'
+       #print(f'nodes part {i}/10')
+       if cnt == 1:
            subprocess.call(['python3', 'run_condMI_nodelist.py', \
                     str(T), \
-                    f'output_final/{gtype}/{gname}/{gname}_v{version}/vectorMI/T={T}', \
+                    f'output_final/{gtype}/{gname}/{gname}_v{version}/vector_runs=10/T={T}', \
                     gpath, \
+                    #'20', \
                     '--nodes', nodes, \
+                    #'--maxDist', '3', \
+                    '--threshold', '0.001', \
                     '--maxCorrTime', '100', \
                     '--minCorrTime', '100', \
+                    '--runs', '10', \
                     '--magSide', magSide])
