@@ -148,10 +148,16 @@ def create_2D_grid(L, path=None, version=''):
                 f'{path}/2D_grid_L={L}{version}.gpickle', 2)
     return graph
 
-def create_path_graph(L, path=None):
-    graph = nx.path_graph(L)
+def create_path_graph(L, path=None, directed=False):
+    if directed:
+        G = nx.DiGraph()
+        ext = '_directed'
+    else:
+        G = nx.Graph()
+        ext = ''
+    graph = nx.path_graph(L, create_using=G)
     if path is not None: nx.write_gpickle(graph,
-                f'{path}/path_graph_L={L}.gpickle', 2)
+                f'{path}/path_graph_L={L}{ext}.gpickle', 2)
     return graph
 
 
@@ -159,6 +165,7 @@ def create_path_graph(L, path=None):
 
 if __name__ == '__main__':
 
+    """
     N_target = 70
     k = 0.05*1.2*N_target
 
@@ -167,8 +174,11 @@ if __name__ == '__main__':
         os.makedirs(targetDirectory, exist_ok=True)
         #create_erdos_renyi_graph_exactN(N_target, int(1.2*N_target), k, path=targetDirectory, version=f'_v{i}')
         create_erdos_renyi_graph_exactN(N_target, N_target, k, path=targetDirectory, version=f'_v{i}')
+    """
 
     #create_path_graph(100, targetDirectory)
+    targetDirectory = f'{os.getcwd()}/networkData'
+    create_path_graph(100, path=None, directed=True)
 
     #nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
 
