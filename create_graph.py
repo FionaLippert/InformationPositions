@@ -178,7 +178,7 @@ if __name__ == '__main__':
 
     #create_path_graph(100, targetDirectory)
     targetDirectory = f'{os.getcwd()}/networkData'
-    create_path_graph(100, path=None, directed=True)
+    create_path_graph(100, targetDirectory, directed=True)
 
     #nx.write_gpickle(nx.krackhardt_kite_graph(), f'{targetDirectory}/small_graphs/kitegraph.gpickle', 2)
 
@@ -216,14 +216,14 @@ if __name__ == '__main__':
     create_regular_graph(10000, 5, targetDirectory)
     """
 
-
+    """
     beta = 0.2
     k = 4
     targetDirectory = f'{os.getcwd()}/networkData/WS/WS_k={k}_beta={beta}_N=1000'
     os.makedirs(targetDirectory, exist_ok=True)
     for i in range(10):
         create_watts_strogatz(1000, k, beta, targetDirectory, f'_v{i}')
-
+    """
 
     """
     targetDirectory = f'{os.getcwd()}/networkData/ER'
