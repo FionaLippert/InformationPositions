@@ -11,20 +11,17 @@ import time
 import numpy as np
 cimport numpy as np
 cimport cython
-import time
 from cython.parallel cimport parallel, prange, threadid
 import multiprocessing as mp
 import copy
 from cpython.ref cimport PyObject
-
 from scipy.stats import linregress
 from scipy.signal import correlate
 import scipy
 from scipy import stats, special
 import itertools
-
-# progressbar
-from tqdm import tqdm   #progress bar
+from tqdm import tqdm
+import warnings
 
 # cython
 from libcpp.vector cimport vector
@@ -1214,7 +1211,7 @@ cpdef tuple determineMixingTime(Model model,\
             mags = _magTimeSeries(model, 0, burninSteps, abs=1)
             allMags = np.hstack((allMags, mags.base))
             if counter >= nStepsRegress :
-                # do linear regression
+                # linear regression
                 slope, intercept, r_value, p_value, std_err = linregress(x, allMags[-nStepsRegress:])
                 if 1 - p_value < threshold: # p-value of test for slope=0
                     break
@@ -1261,8 +1258,7 @@ cpdef tuple determineCorrTime(Model model, \
         long idx
         np.ndarray tmp, mags, autocorr, initialConfigs = np.linspace(0.5, 1, nInitialConfigs)
         double prob, t
-        long mixingTimeMax = 0
-        double corrTimeMax = 0 # double because it might be infinity
+        long corrTime, mixingTimeMax = 0, corrTimeMax = 0
         dict allMagSeries = {}
 
 
@@ -1281,7 +1277,12 @@ cpdef tuple determineCorrTime(Model model, \
         meanMag += intercept
         if mixingTime > mixingTimeMax: mixingTimeMax = mixingTime
         tmp = np.where(np.abs(autocorr) < thresholdCorr)[0]
-        corrTime = tmp[0] if tmp.size > 0 else np.inf
+        if tmp.size > 0:
+            corrTime = tmp[0]
+        else:
+            corrTime = nStepsCorr # set to maximum
+            warnings.warn(f'autocorrelation did not drop below threshold thr={thresholdCorr}', Warning)
+        #corrTime = tmp[0] if tmp.size > 0 else np.inf
         if corrTime > corrTimeMax: corrTimeMax = corrTime
 
     meanMag /= nInitialConfigs
@@ -1383,78 +1384,3 @@ cdef double[::1] simulateGetStdMag(Model model, long nSamples = int(1e2), int ab
     out[1] = std
 
     return out
-
-
-
-cpdef np.ndarray f(Worker x):
-    # print('id', id(x))
-    return x.parallWrap()
-
-
-@cython.auto_pickle(True)
-cdef class Worker:
-    """
-    This class was used to wrap the c classes for use with the multiprocessing toolbox.
-    However, the performance decreased a lot. I think this may be a combination of the nogil
-    sections. Regardless the 'single' threaded stuff above is plenty fast for me.
-    Future me should look into dealing with the gil  and wrapping everything in  c arrays
-    """
-    cdef int deltas
-    cdef int idx
-    cdef int repeats
-    cdef np.ndarray startState
-    cdef Model model
-    # cdef dict __dict__
-    def __init__(self, *args, **kwargs):
-        # for k, v in kwargs.items():
-        #     setattr(self, k, v)
-
-        self.deltas     = kwargs['deltas']
-        self.model      = kwargs['model']
-        self.repeats    = kwargs['repeats']
-        self.startState = kwargs['startState']
-        self.idx        = kwargs['idx']
-
-    cdef np.ndarray parallWrap(self):
-        cdef long[::1] startState = self.startState
-        # start unpacking
-        cdef int deltas           = self.deltas
-        cdef int repeats          = self.repeats
-        # cdef long[::1] startState = startState
-        cdef Model model          = self.model
-        # pre-declaration
-        cdef double[::1] out = np.zeros((deltas + 1) * model._nNodes * model._nStates)
-        cdef double Z              = <double> repeats
-        cdef double[:] copyNudge   = model._nudges.copy()
-        cdef bint reset            = True
-        # loop stuff
-        cdef long[:, ::1] r
-        cdef int k, delta, node, statei, counter, half = deltas // 2
-        # pbar = tqdm(total = repeats)
-        for k in range(repeats):
-            for node in range(model._nNodes):
-                model._states[node] = startState[node]
-                model._nudges[node] = copyNudge[node]
-            # reset simulation
-            reset   = True
-            counter = 0
-            r       = model.sampleNodes(repeats * (deltas + 1))
-            for delta in range(deltas + 1):
-                # bin data
-                for node in range(model._nNodes):
-                    for statei in range(model._nStates):
-                        if model._states[node] == model.agentStates[statei]:
-                            out[counter] += 1 / Z
-                        counter += 1
-                # update
-                model._updateState(r[counter])
-
-                # turn-off
-                if reset:
-                    if model._nudgeType == 'pulse' or \
-                    model._nudgeType    == 'constant' and delta >= half:
-                        model._nudges[:] = 0
-                        reset            = False
-            # pbar.update(1)
-        # pbar.close()
-        return out.base.reshape((deltas + 1, model._nNodes, model._nStates))
