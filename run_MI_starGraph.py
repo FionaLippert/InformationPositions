@@ -6,19 +6,21 @@
 from Models import fastIsing
 from Toolbox import infoTheory, simulation
 from Utils import IO
-import networkx as nx, itertools, scipy, time, \
-                os, pickle, sys, argparse, multiprocessing as mp
-import itertools
+
+import itertools, scipy, time, subprocess, \
+    os, pickle, sys, argparse
+import multiprocessing as mp
 import numpy as np
+import networkx as nx
 from tqdm import tqdm
 from timeit import default_timer as timer
 from scipy import stats
 
-nthreads = mp.cpu_count() - 1
-#nthreads = 1
+# use as many concurrent threads as there are cores availble
+nthreads = mp.cpu_count()
 
 
-parser = argparse.ArgumentParser(description='run MC chain and compute MI based on conditional PDF of the central node with neighbour states fixed')
+parser = argparse.ArgumentParser(description='run MCMC simulation and estimate MI based on conditional PDF of the central node with neighbourhood states fixed')
 parser.add_argument('dir', type=str, help='target directory')
 parser.add_argument('z', type=int, help='degree of star graph')
 parser.add_argument('--minT', type=float, default=0)
@@ -81,8 +83,7 @@ if __name__ == '__main__':
     targetDirectory = os.path.join(args.dir, f'z={args.z}')
     os.makedirs(targetDirectory, exist_ok=True)
 
-    # load network
-    #graph = nx.read_gpickle(f'networkData/undirected_star_z={args.z}.gpickle')
+    # generate star graph
     graph = nx.Graph()
     graph.add_star(range(args.z+1))
     if args.depth > 1:
@@ -144,8 +145,8 @@ if __name__ == '__main__':
             snapshotSettingsJoint = dict( \
                 nSamples    = args.numSamplesJoint, \
                 repeats     = args.repeats, \
-                burninSamples = args.burninSteps, \
-                distSamples   = args.distSamples, \
+                burninSteps = args.burninSteps, \
+                distSamples = args.distSamples, \
                 maxDist     = maxDist, \
                 nBins       = args.bins
             )
@@ -174,7 +175,5 @@ if __name__ == '__main__':
         with open(f'{targetDirectory}/MI_meanField_Ts_{now}.pickle', 'wb') as f:
             pickle.dump(MIs_avg, f)
 
-        #np.save(f'{targetDirectory}/MI_cond_{now}_{type}.npy', MIs)
-    #np.save(f'{targetDirectory}/temps_{now}.npy', temps)
 
-    print(f'time elapsed: {timer()-start : .2f} seconds')
+        print(f'time elapsed: {timer()-start : .2f} seconds')

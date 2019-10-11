@@ -107,10 +107,10 @@ cdef int encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef dict getSnapShots(Model model, int nSamples, int steps = 1,\
-                   int burninSamples = int(1e3), int nThreads = -1):
+                   int burninSteps = int(1e3), int nThreads = -1):
     """
     Determines the state distribution of the :model: in parallel. The model is reset
-    to random state and simulated for :step: + :burninSamples: steps after which
+    to random state and simulated for :step: + :burninSteps: steps after which
     a single sample is drawn and added to the output :snapshots:
 
     Input:
@@ -143,7 +143,7 @@ cpdef dict getSnapShots(Model model, int nSamples, int steps = 1,\
         tmp.reset()
         # TODO: remove this
         try:
-            tmp.burnin(burninSamples)
+            tmp.burnin(burninSteps)
         except:
             pass
         tmp.seed += sample # enforce different seeds
@@ -192,7 +192,7 @@ cpdef dict getSnapShots(Model model, int nSamples, int steps = 1,\
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] nodes, \
-              long nSnapshots = int(1e3), long burninSamples = int(1e3), \
+              long nSnapshots = int(1e3), long burninSteps = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
     simulate the system in equilibrium, and extract snapshots of the given nodes
@@ -221,7 +221,7 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] no
     for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
     pbar = tqdm(total = nSnapshots)
     for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
@@ -235,7 +235,7 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] no
 
         #with gil: (<Model>modelptr).resetAllToAgentState(initStateIdx)
 
-        #(<Model>modelptr).simulateNSteps(burninSamples)
+        #(<Model>modelptr).simulateNSteps(burninSteps)
 
         #for sample in range(nSnapshots):
         (<Model>modelptr).simulateNSteps(distSamples)
@@ -254,7 +254,7 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] no
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnapshotsSets(Model model, vector[vector[long]] systemNodesG, vector[vector[long]] condNodesG, \
-              long nSnapshots = int(1e3), long burninSamples = int(1e3), \
+              long nSnapshots = int(1e3), long burninSteps = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
     simulate the system in equilibrium, for all sets of nodes in 'systemNodesG'
@@ -286,7 +286,7 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
     for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
     pbar = tqdm(total = nSnapshots)
     for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
@@ -312,7 +312,7 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshotsCond(Model model, long[::1] systemNodesG, long[::1] condNodesG, \
-              long nSnapshots = int(1e3), long burninSamples = int(1e3), \
+              long nSnapshots = int(1e3), long burninSteps = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
     simulate the system in equilibrium, extract the distribution of the joint
@@ -341,7 +341,7 @@ cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshotsCon
     for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
     pbar = tqdm(total = nSnapshots)
     for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
@@ -368,7 +368,7 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
               unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
               long nSteps      = 1000, \
               int maxDist = 1,\
-              long burninSamples  = 1000, \
+              long burninSteps  = 1000, \
               double threshold    = 0.05, \
               long nBins = 100, \
               int threads = -1):
@@ -426,7 +426,7 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
     for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
 
     for rep in prange(nSteps, nogil = True, schedule = 'static', num_threads = nThreads):
@@ -467,7 +467,7 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
 @cython.initializedcheck(False)
 cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
-              long nSnapshots = 100, long burninSamples = int(1e3), \
+              long nSnapshots = 100, long burninSteps = int(1e3), \
               int maxDist = 1, int threads = -1, int initStateIdx = -1):
     """
     simulate the system in equilibrium, take snapshots of the neighbourhood at
@@ -514,7 +514,7 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
         # it will continue running and sampling from the MC chain of the
         # same model, without resetting
 
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
         nodeSpin = (<Model>modelptr)._states[nodeIdx]
         spinProbs[idxer[nodeSpin]] += part
@@ -537,7 +537,7 @@ cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
 @cython.initializedcheck(False)
 cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
               long nSamples = int(1e3), \
-              long burninSamples = int(1e3), int maxDist = 1, int threads = -1, \
+              long burninSteps = int(1e3), int maxDist = 1, int threads = -1, \
               int initStateIdx = -1):
     """
     simulate the system in equilibrium, take snapshots of the neighbourhood at
@@ -580,7 +580,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         tid = threadid()
         modelptr = models_[tid].ptr
 
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
         for n in range(nNodes):
             nodeSpin = (<Model> modelptr)._states[nodesIdx[n]]
@@ -602,7 +602,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
               unordered_map[long, vector[long]] allNeighboursG, \
               long nSamples = int(1e3), \
-              long burninSamples = int(1e3), long distSamples=100, \
+              long burninSteps = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
               int initStateIdx = -1, int getFullSnapshots = 0):
     """
@@ -651,7 +651,7 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
     for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
     pbar = tqdm(total = nSamples)
     for rep in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
@@ -693,7 +693,7 @@ cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
 cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
               unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
               long nSamples = int(1e3), \
-              long burninSamples = int(1e3), long distSamples=100, \
+              long burninSteps = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
               int initStateIdx = -1, int getFullSnapshots = 0):
     """
@@ -751,7 +751,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
     for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
     pbar = tqdm(total = nSamples)
     for rep in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
@@ -785,13 +785,13 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 
 
 cpdef np.ndarray monteCarloFixedNeighbours(Model model, string snapshot, long nodeIdx, \
-               vector[long] neighboursIdx, long nTrials, long burninSamples, \
+               vector[long] neighboursIdx, long nTrials, long burninSteps, \
                long nSamples = 10, long distSamples = 10):
       """
       python wrapper
       """
       return _monteCarloFixedNeighbours(model, snapshot, nodeIdx, \
-                     neighboursIdx, nTrials, burninSamples, \
+                     neighboursIdx, nTrials, burninSteps, \
                      nSamples, distSamples).base
 
 
@@ -802,7 +802,7 @@ cpdef np.ndarray monteCarloFixedNeighbours(Model model, string snapshot, long no
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long nodeG, \
-               vector[long] neighboursG, long nTrials, long burninSamples = int(1e3), \
+               vector[long] neighboursG, long nTrials, long burninSteps = int(1e3), \
                long nSamples = int(1e3), long distSamples = int(1e2), int initStateIdx = -1) nogil:
     """
     Fix the given neighbours to the states in the snapshot, then simulate the system in equilibrium
@@ -854,7 +854,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
         #with gil: print({model.rmapping[idx]: initialState[idx] for idx in range(model._nNodes)})
         with gil: model.seed += 1
         #model._loadStatesFromString(decodedStates, neighbours) # keeps all other node states as they are
-        model.simulateNSteps(burninSamples) # go to equilibrium
+        model.simulateNSteps(burninSteps) # go to equilibrium
 
         for sample in range(nSamples):
             model.simulateNSteps(distSamples)
@@ -875,7 +875,7 @@ cdef double[::1] _monteCarloFixedNeighbours(Model model, string snapshot, long n
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 cdef long[:,::1] _monteCarloFixedNeighboursStates(Model model, string snapshot, long nodeIdx, \
-               vector[long] neighboursIdx, long nTrials, long burninSamples = int(1e3), \
+               vector[long] neighboursIdx, long nTrials, long burninSteps = int(1e3), \
                long nSamples = int(1e3), long distSamples = int(1e2), int initStateIdx = -1, int saveDistrAtDist = -1) nogil:
 
 
@@ -911,7 +911,7 @@ cdef long[:,::1] _monteCarloFixedNeighboursStates(Model model, string snapshot, 
         with gil: model.setStates(initialState)
         with gil: model.seed += 1
 
-        model.simulateNSteps(burninSamples) # go to equilibrium
+        model.simulateNSteps(burninSteps) # go to equilibrium
 
         for sample in range(nSamples):
             model.simulateNSteps(distSamples)
@@ -930,7 +930,7 @@ cdef long[:,::1] _monteCarloFixedNeighboursStates(Model model, string snapshot, 
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
 cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[long, vector[long]] allNeighboursG, unordered_map[string, double] snapshots, \
-              long nTrials, long burninSamples, long nSamples, long distSamples, int threads = -1, int initStateIdx = -1, \
+              long nTrials, long burninSteps, long nSamples, long distSamples, int threads = -1, int initStateIdx = -1, \
               int uniformPDF = 0, str out = 'MI', int progbar = 0):
 
     assert out in ['MI', 'states', 'stateDistr']
@@ -982,7 +982,7 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
             modelptr = models_[tid].ptr
 
             container[idx] = _monteCarloFixedNeighbours((<Model>modelptr), \
-                          keys[idx], nodeG, allNeighboursG[dist], nTrials, burninSamples, nSamples, distSamples, initStateIdx)
+                          keys[idx], nodeG, allNeighboursG[dist], nTrials, burninSteps, nSamples, distSamples, initStateIdx)
 
             HXgiveny = entropyFromProbs(container[idx])
             HXgivenY -= probsStates[idx] * HXgiveny
@@ -1010,7 +1010,7 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
             modelptr = models_[tid].ptr
 
             states[idx] = _monteCarloFixedNeighboursStates((<Model>modelptr), \
-                        keys[idx], nodeIdx, neighboursIdx, nTrials, burninSamples, nSamples, distSamples, initStateIdx)
+                        keys[idx], nodeIdx, neighboursIdx, nTrials, burninSteps, nSamples, distSamples, initStateIdx)
 
             with gil: pbar.update(1)
 
@@ -1024,19 +1024,19 @@ cpdef tuple neighbourhoodMI(Model model, long nodeG, long dist, unordered_map[lo
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef np.ndarray magTimeSeries(Model model, long burninSamples, \
+cpdef np.ndarray magTimeSeries(Model model, long burninSteps, \
                                 long nSamples, int abs=0):
     """
     python wrapper
     """
-    return _magTimeSeries(model, burninSamples, nSamples, abs).base
+    return _magTimeSeries(model, burninSteps, nSamples, abs).base
 
 @cython.boundscheck(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
+cdef double[::1] _magTimeSeries(Model model, long burninSteps, \
                                 long nSamples, int abs=0):
     """
     simulate the system in equilibrium,
@@ -1046,7 +1046,7 @@ cdef double[::1] _magTimeSeries(Model model, long burninSamples, \
         double[::1] mags = np.zeros(nSamples)
         long sample
 
-    model.simulateNSteps(burninSamples)
+    model.simulateNSteps(burninSteps)
 
     for sample in range(nSamples):
         mags[sample] = mean(model.simulateNSteps(1), model._nNodes, abs)
@@ -1089,14 +1089,14 @@ cdef double mean(long[::1] arr, long len, int abs=0) nogil:
 cpdef np.ndarray magnetizationParallel(Model model,\
                           np.ndarray temps  = np.logspace(-3, 2, 20),\
                       long n             = int(1e3),\
-                      long burninSamples = 100, int threads = -1):
+                      long burninSteps = 100, int threads = -1):
     """
     Computes the magnetization as a function of temperatures
     Input:
           :model: the model to use for simulations
           :temps: a range of temperatures
           :n:     number of samples to simulate for
-          :burninSamples: number of samples to throw away before sampling
+          :burninSteps: number of samples to throw away before sampling
     Returns:
           :temps: the temperature range as input
           :mag:  the magnetization for t in temps
@@ -1110,7 +1110,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
         long idx, nNodes = model._nNodes, t, step, start
         int tid, nThreads = mp.cpu_count() if threads == -1 else threads
         long nTemps = temps.shape[0]
-        long totalSteps = n + burninSamples
+        long totalSteps = n + burninSteps
         double m
         vector[double] mag_sum
         double[::1] temps_cview = temps
@@ -1133,7 +1133,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
             (<Model>modelptr).resetAllToAgentState(1)
 
         # simulate until equilibrium reached
-        (<Model>modelptr).simulateNSteps(burninSamples)
+        (<Model>modelptr).simulateNSteps(burninSteps)
 
         mag_sum = simulateGetMeanMag((<Model>modelptr), n)
 

@@ -36,38 +36,28 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    args = parser.parse_args()
     T = args.T
     targetDirectory = args.dir
+    os.makedirs(targetDirectory, exist_ok=True)
 
     # load network
-    maxDist = args.maxDist
     graph = nx.read_gpickle(args.graph)
     N = len(graph)
-
-    if args.maxDist > 0:
-        maxDist = args.maxDist
-    else:
-        maxDist = nx.diameter(graph)
-
-    node = args.node
-    deg = graph.degree[node]
-
+    maxDist = args.maxDist if args.maxDist > 0 else nx.diameter(graph)
     networkSettings = dict( \
         path = args.graph, \
-        nNodes = N, \
-        node = node, \
-        degree = deg
+        size = N, \
+        node = node
     )
-    IO.saveSettings(targetDirectory, networkSettings, 'network')
 
 
-    # setup Ising model with nNodes spin flip attempts per simulation step
+    # setup Ising model with N=networkSize spin flip attempts per simulation step
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
-    IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     try:
@@ -83,24 +73,19 @@ if __name__ == '__main__':
 
     snapshotSettingsJoint = dict( \
         nSamples    = args.numSamples, \
-        burninSamples = burninSteps, \
+        burninSteps = burninSteps, \
         distSamples   = distSamples, \
         maxDist     = maxDist
     )
-    IO.saveSettings(targetDirectory, snapshotSettingsJoint, 'jointSnapshots')
-
 
 
     for r in range(args.runs):
 
-        #avgSnapshots, Z = infcy.getJointSnapshotsPerDist2(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads)
         now = time.time()
         snapshots, Z = simulation.getJointSnapshotsPerDist(model, node, allNeighbours_G, **snapshotSettingsJoint, threads=nthreads, initStateIdx=args.initState)
-        #np.save(os.path.join(targetDirectory, f'full_snapshots_{now}.npy'), snapshots)
+
         with open(os.path.join(targetDirectory, f'node_mapping_{now}.pickle'), 'wb') as f:
             pickle.dump(model.mapping, f, protocol=pickle.HIGHEST_PROTOCOL)
-
-        print(model.mapping)
 
         MIs = []
         for d in range(maxDist):
@@ -115,14 +100,9 @@ if __name__ == '__main__':
                 print(np.frombuffer(s).astype(int), stats.entropy(jointPDF[:,i], base=2), P_Y[i])
             print(f'MI = {MI}')
 
-            #np.save(os.path.join(targetDirectory, f'jointPDF_d={d}_{now}.npy'), np.array(jointPDF/Z))
-            #np.save(os.path.join(targetDirectory, f'HXgivenY_d={d}_{now}.npy'), H_XgivenY)
-            #np.save(os.path.join(targetDirectory, f'states_d={d}_{now}.npy'), np.array(states))
 
         now = time.time()
-        np.save(os.path.join(targetDirectory, f'MI_joint_{now}.npy'), np.array(MIs))
+        np.save(os.path.join(targetDirectory, f'MI_jointPDF_{now}.npy'), np.array(MIs))
 
 
-    print(f'time elapsed: {timer()-start : .2f} seconds')
-
-    print(targetDirectory)
+        print(f'time elapsed: {timer()-start : .2f} seconds')
