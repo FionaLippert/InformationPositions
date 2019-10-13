@@ -112,15 +112,15 @@ class SimulationResult:
         return loadAllPickle(dir, ext)
 
 class TcResult:
-    def __init__(self, temps, mags, abs_mags, sus, binder, T_c, T_high, T_low, graph):
+    def __init__(self, temps, mags, abs_mags, sus, binder, T_c, T_d, T_o, graph):
         self.temps = temps
         self.mags = mags
         self.abs_mags = abs_mags
         self.sus = sus
         self.binder = binder
         self.T_c = T_c
-        self.T_high = T_high
-        self.T_low = T_low
+        self.T_d = T_d
+        self.T_o = T_o
         self.graph = graph
 
     def set_T_low(self, T_low):

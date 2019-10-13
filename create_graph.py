@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 # __author__ = 'Fiona Lippert'
 
-import networkx as nx, itertools, scipy,\
-        os, pickle, h5py, sys, multiprocessing as mp, json,\
-        datetime, sys
-import time
+import networkx as nx
+import itertools, os
 import numpy as np
 
 def create_undirected_tree(z, depth, path=None):

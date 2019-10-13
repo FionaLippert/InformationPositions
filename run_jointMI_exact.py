@@ -67,7 +67,13 @@ if __name__ == '__main__':
         distSamples = mixingResults['distSamples']
 
     except:
-        raise Exception('No mixing results found! Please run the mixing script first to determine the mixing and correlation time of the model.')
+        subprocess.call(['python3', 'run_mixing.py', f'{T}', f'{args.dir}', f'{args.graph}', \
+                        '--maxcorrtime', '10000', \
+                        '--maxmixing', '10000'])
+        mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
+        corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
+        burninSteps = mixingResults['burninSteps']
+        distSamples = mixingResults['distSamples']
     allNeighbours_G, allNeighbours_idx = model.neighboursAtDist(node, maxDist)
 
 
@@ -91,9 +97,6 @@ if __name__ == '__main__':
         for d in range(maxDist):
             MI, HX, jointPDF, states = infoTheory.computeMI_jointPDF_fromDict(snapshots[d], Z)
             MIs.append(MI)
-            print(HX)
-            print(jointPDF)
-            print(jointPDF/Z)
             P_Y = np.sum(jointPDF, axis=0)/Z
             H_XgivenY = [stats.entropy(jointPDF[:,i]/np.sum(jointPDF[:,i]), base=2) for i, s in enumerate(states)]
             for i, s in enumerate(states):

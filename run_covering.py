@@ -5,8 +5,9 @@
 from Models import fastIsing
 from Toolbox import infoTheory, simulation
 from Utils import IO
-import networkx as nx, itertools, scipy, time, subprocess, \
-                os, pickle, sys, argparse, multiprocessing as mp
+import networkx as nx,
+import itertools, scipy, subprocess, os, argparse,
+import multiprocessing as mp
 import itertools
 import numpy as np
 from tqdm import tqdm
@@ -16,11 +17,10 @@ from scipy import stats
 
 def compute_entropies(snapshots, nSamples):
     sum = np.sum([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
-    #print(sum)
-    condEntropies = [infoTheory.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]
-    #print(condEntropies)
-    condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(nSamples) for i, s in enumerate(snapshots.values())])
-    #print(f'H2(S|s_i) = {condH}')
+    condEntropies = [infoTheory.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) \
+                        for s in snapshots.values()]
+    condH = np.sum([condEntropies[i] * np.sum(np.fromiter(s.values(), dtype=int))/(nSamples) \
+                        for i, s in enumerate(snapshots.values())])
 
     allSnapshots = {}
     for _, s in snapshots.items():
@@ -30,7 +30,6 @@ def compute_entropies(snapshots, nSamples):
             else:
                 allSnapshots[k] = v
     systemH = infoTheory.entropyEstimateH2(np.fromiter(allSnapshots.values(), dtype=int))
-    #print(f'H2(S) = {systemH}')
 
     return condH, systemH
 
@@ -69,16 +68,15 @@ if __name__ == '__main__':
 
     networkSettings = dict( \
         path = args.graph, \
-        nNodes = N
+        size = N
     )
 
-    # setup Ising model with nNodes spin flip attempts per simulation step
+    # setup Ising model with N=networkSize spin flip attempts per simulation step
     modelSettings = dict( \
         temperature     = T, \
         updateType      = 'async' ,\
         magSide         = args.magSide if args.magSide in ['pos', 'neg'] else ''
     )
-    #IO.saveSettings(targetDirectory, modelSettings, 'model')
     model = fastIsing.Ising(graph, **modelSettings)
 
     try:
@@ -88,11 +86,9 @@ if __name__ == '__main__':
         distSamples = mixingResults['distSamples']
 
     except:
-        #raise Exception('No mixing results found! Please run the mixing script first to determine the mixing time of the model.')
         subprocess.call(['python3', 'run_mixing.py', f'{T}', f'{args.dir}', f'{args.graph}', \
                         '--maxcorrtime', '10000', \
-                        '--maxmixing', '10000', \
-                        '--corrthreshold', '0.5'])
+                        '--maxmixing', '10000'])
         mixingResults = IO.loadResults(targetDirectory, 'mixingResults')
         corrTimeSettings = IO.loadResults(targetDirectory, 'corrTimeSettings')
         burninSteps = mixingResults['burninSteps']
@@ -101,8 +97,8 @@ if __name__ == '__main__':
 
     systemSnapshotSettings = dict( \
         nSnapshots    = args.snapshots, \
-        burninSamples = int(burninSteps), \
-        distSamples     = int(distSamples)
+        burninSteps   = int(burninSteps), \
+        distSamples   = int(distSamples)
     )
     IO.saveSettings(targetDirectory, systemSnapshotSettings, 'systemSnapshots')
 
@@ -124,7 +120,6 @@ if __name__ == '__main__':
     if args.bruteForce:
 
         sets = [list(s) for s in itertools.combinations(nodes_array, args.k_max)]
-        print(sets)
         if args.excludeNodes:
             systemNodes = [list(nodes_array[~np.isin(nodes_array, s)].astype(int)) for s in sets]
         else:
@@ -172,7 +167,6 @@ if __name__ == '__main__':
                 return mi.size
 
         def get_dmax_thr(mi, mi_max, thr=0.1):
-            #idx = np.where(mi < mi[0]*p)[0]
             idx = np.where(mi/mi_max < thr)[0]
             if idx.size > 0:
                 return idx[0]
@@ -180,7 +174,6 @@ if __name__ == '__main__':
                 return mi.size
 
         def overlap_node_set(G, node, node_set, mi, ratio=True, p=0.5):
-            #d_max = {n : get_dmax_thr(mi[n], p) for n in node_set}
             mi_max = np.max([vals[0] for vals in mi.values()])
             d_max = {n : get_dmax_thr(mi[n], mi_max) for n in node_set}
 
@@ -188,9 +181,7 @@ if __name__ == '__main__':
             set2 = set()
             for n in node_set:
                 set2 = set2.union(list(nx.ego_graph(G, n, d_max[n])))
-            #overlap = len(set1.intersection(set2)) / len(set(set1).union(set2)) if ratio else len(set1.intersection(set2))
             overlap = len(set1.intersection(set2)) / len(set1)
-            #overlap = len(set1 - set2) / len(G)
             return overlap
 
         def covering_node_set(G, node_set, mi, ratio=True, thr=0.1):
@@ -207,21 +198,14 @@ if __name__ == '__main__':
         ranking = sorted(IV.items(), key=lambda kv: kv[1], reverse=True)
         ranked_nodes, iv_values = zip(*ranking)
 
-        #TODO greedily select next node that minimizes overlap and maximizes IV
 
         sets = {}
         systemNodes = []
-
-        #selected_nodes = [ranked_nodes[0]]
-        #remaining_nodes.remove(ranked_nodes[0])
 
         pool = ranked_nodes[:int(N/2)]
 
         mi_max = np.max([vals[0] for vals in MI_avg.values()])
         d_max = {n : get_dmax_thr(MI_avg[n], mi_max) for n in graph}
-        print(d_max.values())
-
-        print([d_max[n] for n in ranked_nodes[int(N/2):]])
 
         for k in range(args.k_min, args.k_max + 1):
 
@@ -251,8 +235,7 @@ if __name__ == '__main__':
 
             used_nodes = set(sets[k-1]) if k > 1 else set()
             for i, s in enumerate(set(remaining_nodes)-used_nodes):
-                #candidate_set = [s] + sets[k-1]
-                #overlap = np.mean([ overlap_node_set(graph, n, list(set(candidate_set)-set([n])), MI_avg) for n in candidate_set)
+
                 overlap = overlap_node_set(graph, s, used_nodes, MI_avg)
                 iv = IV[s]
                 score = iv/(overlap + 0.001)
@@ -265,66 +248,25 @@ if __name__ == '__main__':
                     sets[k] = list(used_nodes) + [s]
                     max_score = score
 
-            #print(i)
-
-
-
-
-            #for i, n in enumerate(remaining_nodes):
-            #    scores[i] = IV[n] #
-            #    scores[i] = - overlap_node_set(graph, n, selected_nodes, MI_avg)
-
-            #top_idx = np.argmax(scores)
-            #top_node = remaining_nodes[top_idx]
-
-            #print(top_node, IV[top_node], overlap_node_set(graph, top_node, selected_nodes, MI_avg))
-
-            #selected_nodes.append(top_node)
-            #remaining_nodes.remove(top_node)
-
-            #sets += selected_nodes
-            #if args.excludeNodes:
-            #    systemNodes += (remaining_nodes)
-            #else:
-            #    systemNodes += (list(graph))
-
-        #sets = [ selected_nodes[:k] for k in range(1, args.k_max + 1) ]
-
-        #sets_random = [ list(np.random.choice(nodes_array, k, replace=False)) for k in range(1, args.k_max + 1) ]
 
         sets = list(sets.values())
 
         if args.excludeNodes:
             systemNodes = [list(nodes_array[~np.isin(nodes_array, s)].astype(int)) for s in sets]
-            #systemNodes_random = [list(nodes_array[~np.isin(nodes_array, s)].astype(int)) for s in sets_random]
         else:
             systemNodes = [list(nodes_array) for s in sets]
-            #systemNodes_random = [list(nodes_array) for s in sets]
 
         snapshots = simulation.getSystemSnapshotsSets(model, systemNodes, sets, \
                       **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
         for i, s in enumerate(sets):
             print(f'--------------- node set {s} ---------------')
-            #print(systemNodes[i])
 
             condH, systemH = infoTheory.compute_entropies(snapshots[i], args.snapshots)
             mi_greedy[tuple(s)] = systemH - condH
             h_greedy[tuple(s)]  = condH
             print(f'MI = {systemH - condH}')
-        """
-        snapshots = simulation.getSystemSnapshotsSets(model, systemNodes_random, sets_random, \
-                      **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
-        for i, s in enumerate(sets_random):
-            print(f'--------------- node set {s} ---------------')
-            #print(systemNodes[i])
-
-            condH, systemH = infoTheory.compute_entropies(snapshots[i], args.snapshots)
-            #mi_greedy[tuple(s)] = systemH - condH
-            #h_greedy[tuple(s)]  = condH
-            print(f'MI = {systemH - condH}')
-        """
 
     else:
 
@@ -344,11 +286,9 @@ if __name__ == '__main__':
             condH   = np.zeros(len(remaining_nodes))
             systemH = np.zeros(len(remaining_nodes))
 
-            #print(f'T = {model.temperature}, magSide = {model.magSide}')
             snapshots = simulation.getSystemSnapshotsSets(model, systemNodes, sets, \
                           **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
 
-            #IO.savePickle(targetDirectory, f'backup_snapshots_k={k}', snapshots)
 
             for i, n in enumerate(remaining_nodes):
                 print(f'--------------- node set {selected_nodes + [n]} ---------------')

@@ -1159,7 +1159,6 @@ cpdef np.ndarray autocorrelation(np.ndarray timeSeries):
     cdef:
         int padding = 1
         np.ndarray autocorr
-        double corrTime
 
     # get next power of two for padding
     while padding < timeSeries.size:
@@ -1199,7 +1198,7 @@ cpdef tuple determineMixingTime(Model model,\
         long lag, h, counter, mixingTime, sample # tmp var and counter
         double beta        # slope value
         np.ndarray magSeries = np.zeros(nStepsCorr), autocorr, x = np.arange(nStepsRegress)# for regression
-        double slope, intercept, r_value, p_value, std_err, corrTime
+        double slope, intercept, r_value, p_value, std_err
 
     counter = 0
     allMags = np.array(mean(model.states, nNodes, abs=1))
@@ -1254,7 +1253,7 @@ cpdef tuple determineCorrTime(Model model, \
     cdef:
         long nNodes = model._nNodes
         long mixingTime
-        double corrTime, intercept, meanMag = 0
+        double intercept, meanMag = 0
         long idx
         np.ndarray tmp, mags, autocorr, initialConfigs = np.linspace(0.5, 1, nInitialConfigs)
         double prob, t
