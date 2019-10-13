@@ -1,5 +1,6 @@
 # cython: infer_types=True
 # distutils: language=c++
+# __author__ = 'Casper van Elteren and Fiona Lippert'
 
 import numpy as np
 cimport numpy as np
@@ -575,81 +576,17 @@ cdef class Model: # see pxd
         self._states = newStates
 
     cpdef void setStates(self, long[::1] newStates):
-        #self._setStates(newStates)
         self._newstates = newStates.copy()
         self._states = newStates.copy()
 
-    @states.setter # TODO: expand
+    @states.setter
     def states(self, value):
         if isinstance(value, int):
             self._newstates[:] = value
             self._states   [:] = value
-            #print('changed node state')
+
         elif isinstance(value, np.ndarray) or isinstance(value, list):
             assert len(value) == self.nNodes
-            value = np.asarray(value) # enforce
+            value = np.asarray(value)
             self._newstates = value
             self._states    = value
-            #print('changed all node states')
-    # TODOL move this back ^
-    # cdef long[::1] updateState(self, int[:] nodesToUpdate):
-    #     ""
-    #     Implement this method
-    #     """
-    #     assert False
-    # @cython.wraparound(False)
-    # @cython.boundscheck(False)
-    # @cython.nonecheck(False)
-    # cpdef simulate(self, int nSamples, int step):
-    #     # pre-define number of simulation steps
-    #     cdef int N   = nSamples * step + 1
-    #     cdef long[:, :] nodesToUpdate = self.sampleNodes(N)
-    #     # nodesToUpdate = np.array([self.sampleNodes[self.mode](self.nodeIDs) for i in range(nSamples * step + 1)])
-    #     # init storage vector
-    #     cdef simulationResults = np.zeros( (nSamples + 1, self.nNodes), dtype = self.statesDtype) # TODO: this should be a generator as well
-    #     cdef long[:] states               = self.states
-    #
-    #     simulationResults[0, :]   = states # always store current state
-    #
-    #     # loop declaration
-    #     cdef double nudge
-    #     cdef int sampleCounter = 1
-    #     cdef int stepCounter   = 1 # zero step is already done?
-    #
-    #     cdef dict mapping     = self.mapping
-    #     cdef double[:] nudges = self.nudges
-    #     cdef updateState      = self.updateState
-    #     cdef str nudgeType    = self.nudgeType
-    #     for sampleCounter in range(N):
-    #         if pulse: # run pulse; remove nudges after sim step
-    #             copyNudge = nudges.copy() # make deep copy  #TODO: think this will cause slowdowns for very large networks
-    #             for node, nudge in pulse.items():
-    #                 if isinstance(node, tuple):
-    #                     for i in node:
-    #                         nudges[mapping[i]] = nudge
-    #                 else:
-    #                     # inject overwhelming pulse for 1 delta
-    #                     if nudgeType == 'pulse':
-    #                         state = states[mapping[node]]
-    #                         nudges[mapping[node]] =  nudge
-    #                     # constant pulse add
-    #                     else:
-    #                         nudges[mapping[node]] = nudge
-    #
-    #         # self.updateState(next(nodesToUpdate))
-    #         updateState(nodesToUpdate[stepCounter])
-    #         # self.updateState(nodesToUpdate.__next__()) # update generator
-    #         # twice swap cuz otherway was annoying
-    #         if pulse:
-    #             nudges = copyNudge # reset the copy
-    #             if nudgeType == 'pulse':
-    #               pulse = {}
-    #             elif nudgeType == 'constant' and sampleCounter >= nSamples // 2:
-    #               pulse = {}
-    #         if stepCounter % step == 0: # if stepCounter starts at zero 1 step is already made
-    #             simulationResults[sampleCounter] = states
-    #             sampleCounter += 1 # update sample counter
-    #         stepCounter += 1  # update step counter
-    #     # out of while
-    #     else:
-    #         return simulationResults

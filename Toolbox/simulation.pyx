@@ -82,12 +82,22 @@ cdef extern from *:
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cdef int encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins) nogil:
-    """Maps states of given nodes to binned avg magnetization"""
+cdef long encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins) nogil:
+    """
+    Maps states of given nodes to their binned average magnetization
+
+    Input:
+      :states: vector of system states
+      :nodes: vector of node indices
+      :bins: vector of upper bin bounderies
+
+    Output:
+      :i: index of bin the average magnetization falls into
+    """
     cdef:
         long N = nodes.size(), nBins = bins.shape[0]
         double avg = 0
-        long i, n
+        long i
 
     for i in range(N):
         avg += states[nodes[i]]
@@ -96,10 +106,9 @@ cdef int encodeStateToAvg(long[::1] states, vector[long] nodes, double[::1] bins
 
     for i in range(nBins):
         if avg <= bins[i]:
-            avg = i
             break
 
-    return <int>avg
+    return i
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -195,8 +204,24 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] no
               long nSnapshots = int(1e3), long burninSteps = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
-    simulate the system in equilibrium, and extract snapshots of the given nodes
-    the number of parallel MC chains corresponds to the requested number of threads
+    Simulates the system in equilibrium, and extract snapshots of the given nodes.
+    The number of parallel MCMC simulations corresponds to the requested number of threads
+
+    Input:
+        :model: a model according to :Models.models:
+        :nodes: nodes of interest
+        :nSnapshots: number of snapshots to be extracted
+        :burninSteps: number of initial simulation steps to discard in order to reach equilibrium
+        :distSamples: number of simulation steps between two consecutive snapshots
+        :threads: number of threads to be used. Corresponds to the number of concurrent
+                  Monte Carlo chains from which snapshots are extracted
+        :initStateIdx: index to the state in :model.agentStates: to which all
+                       system components should be initialized. If -1, the model
+                      is initialized with a random system state.
+
+    Output:
+        :snapshots: mapping from system states (encoded as byte string) to
+                    observation frequencies
     """
     cdef:
         unordered_map[string, double] snapshots
@@ -228,18 +253,8 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] no
         tid = threadid()
         modelptr = models_[tid].ptr
 
-        #with gil: print(initialState[rep % numStates])
-        # with gil: (<Model>modelptr).setStates(initialState[rep % numStates, :])
-        #with gil: print(f'init state {initialState.base}')
-        #with gil: print(f'fixed states {fixedStates.base}: {[s for s in (<Model>modelptr)._states]}')
-
-        #with gil: (<Model>modelptr).resetAllToAgentState(initStateIdx)
-
-        #(<Model>modelptr).simulateNSteps(burninSteps)
-
-        #for sample in range(nSnapshots):
         (<Model>modelptr).simulateNSteps(distSamples)
-        #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
+
         with gil:
             state = (<Model> modelptr).encodeStateToString(nodesIdx)
             snapshots[state] += 1 # each index corresponds to one system state, the array contains the count of each state
@@ -253,20 +268,43 @@ cpdef unordered_map[string, double] getSystemSnapshots(Model model, long[::1] no
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnapshotsSets(Model model, vector[vector[long]] systemNodesG, vector[vector[long]] condNodesG, \
+cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnapshotsSets(Model model,
+              vector[vector[long]] systemNodesG, vector[vector[long]] condNodesG, \
               long nSnapshots = int(1e3), long burninSteps = int(1e3), \
               long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
     """
-    simulate the system in equilibrium, for all sets of nodes in 'systemNodesG'
-    extract the distribution of the joint states of these nodes, conditioned on
-    the states of the respective set of nodes in 'condNodesG'
+    Simulates the system in equilibrium. For all node sets in :systemNodesG:,
+    the joint distribution over these nodes, conditioned on the respective node set in :condNodesG:
+    is estimated from :nSnapshots: system states.
+    The number of parallel MCMC simulations corresponds to the requested number of threads
 
-    the number of parallel MC chains corresponds to the requested number of threads
+    Input:
+        :model: a model according to :Models.models:
+        :systemNodesG: vector of vectors containing IDs of nodes for which the
+                       conditional joint distribution should be estimated.
+                       The IDs are not internal model IDs but refer
+                       to the original graph object given as input to the :model:
+        :condNodesG: vector of vectors containing IDs of nodes to be conditioned on.
+                     The IDs are not internal model IDs but refer
+                     to the original graph object given as input to the :model:
+        :nSnapshots: number of snapshots to be extracted
+        :burninSteps: number of initial simulation steps to discard in order to reach equilibrium
+        :distSamples: number of simulation steps between two consecutive snapshots
+        :threads: number of threads to be used. Corresponds to the number of concurrent
+                  Monte Carlo chains from which snapshots are extracted
+        :initStateIdx: index to the state in :model.agentStates: to which all
+                       system components should be initialized. If -1, the model
+                      is initialized with a random system state.
+
+    Output:
+        :snapshots: mapping from system states (encoded as byte string) to
+                    observation frequencies
     """
     cdef:
         long n, i, rep, sample, set, numSets = condNodesG.size()
         vector[long] arr
-        vector[unordered_map[string, unordered_map[string, double]]]  snapshots = vector[unordered_map[string, unordered_map[string, double]]](numSets)
+        vector[unordered_map[string, unordered_map[string, double]]]  snapshots =
+                  vector[unordered_map[string, unordered_map[string, double]]](numSets)
         vector[vector[long]] condNodesIdx = [[model.mapping[n] for n in arr] for arr in condNodesG]
         vector[vector[long]] systemNodesIdx = [[model.mapping[n] for n in arr] for arr in systemNodesG]
         string systemState, condState
@@ -311,60 +349,7 @@ cpdef vector[unordered_map[string, unordered_map[string, double]]] getSystemSnap
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef unordered_map[string, unordered_map[string, double]] getSystemSnapshotsCond(Model model, long[::1] systemNodesG, long[::1] condNodesG, \
-              long nSnapshots = int(1e3), long burninSteps = int(1e3), \
-              long distSamples = int(1e3), int threads = -1, int initStateIdx = -1):
-    """
-    simulate the system in equilibrium, extract the distribution of the joint
-    states of all nodes in 'systemNodesG', conditioned on the states of the
-    nodes in 'condNodesG'
-    """
-    cdef:
-        unordered_map[string, unordered_map[string, double]]  snapshots
-        long i, rep, sample, numNodes = condNodesG.shape[0]
-        long[::1] initialState, condNodesIdx = np.array([model.mapping[condNodesG[i]] for i in range(numNodes)], int)
-        vector[long] systemNodesIdx = [model.mapping[n] for n in systemNodesG]
-        string systemState, condState
-        PyObject *modelptr
-        vector[PyObjectHolder] models_
-        int tid, nThreads = mp.cpu_count() if threads == -1 else threads
-
-
-    # initialize thread-safe models. nThread MC chains will be run in parallel.
-    for rep in range(nThreads):
-        tmp = copy.deepcopy(model)
-        tmp.seed += rep
-        tmp.resetAllToAgentState(initStateIdx, rep)
-        models_.push_back(PyObjectHolder(<PyObject *> tmp))
-
-    # burnin samples
-    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
-        tid = threadid()
-        modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSteps)
-
-    pbar = tqdm(total = nSnapshots)
-    for rep in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
-        tid = threadid()
-        modelptr = models_[tid].ptr
-
-        (<Model>modelptr).simulateNSteps(distSamples)
-        #with gil: print([(<Model>modelptr)._states[i] for i in fixedNodesIdx])
-        with gil:
-            condState = (<Model> modelptr).encodeStateToString(list(condNodesIdx))
-            systemState = (<Model> modelptr).encodeStateToString(systemNodesIdx)
-            snapshots[condState][systemState] += 1 # each index corresponds to one system state, the array contains the count of each state
-        with gil: pbar.update(1)
-
-    return snapshots
-
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
+cpdef tuple getmagFreqs_switch(Model model, long[::1] nodesG, \
               unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
               long nSteps      = 1000, \
               int maxDist = 1,\
@@ -373,7 +358,9 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
               long nBins = 100, \
               int threads = -1):
     """
-    run MC for large network, encode system states into strings
+    Simulates the system in equilibrium. Detects switches between positive and
+    negative system magnetization and stores frequencies of system states for
+    positive, negative and close to zero magnetization separately.
     """
     cdef:
         int tid, nThreads = mp.cpu_count() if threads == -1 else threads
@@ -385,9 +372,9 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
         long node
         long[::1] nodesIdx = np.zeros(nNodesG, 'int')
 
-        long[:,:,:,:,::1] avgSnapshotsPos = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,:,:,::1] avgSnapshotsNeg = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,:,:,::1] avgSnapshotsSwitch = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] magFreqsPos = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] magFreqsNeg = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] magFreqsSwitch = np.zeros((nThreads, nNodesG, maxDist, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodesG)
 
@@ -446,16 +433,16 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
                     avg = encodeStateToAvg(states[tid][step], neighboursIdx[n][d+1], bins)
                     if mAbs > threshold:
                         if m > 0:
-                            avgSnapshotsPos[tid][n][d][nodeSpin][avg] +=1
+                            magFreqsPos[tid][n][d][nodeSpin][avg] +=1
                             Z[0] += 1
                         else:
-                            avgSnapshotsNeg[tid][n][d][nodeSpin][avg] +=1
+                            magFreqsNeg[tid][n][d][nodeSpin][avg] +=1
                             Z[1] += 1
                     else:
-                        avgSnapshotsSwitch[tid][n][d][nodeSpin][avg] +=1
+                        magFreqsSwitch[tid][n][d][nodeSpin][avg] +=1
                         Z[2] += 1
 
-    return avgSnapshotsPos.base, avgSnapshotsNeg.base, avgSnapshotsSwitch.base, Z.base, mags.base
+    return magFreqsPos.base, magFreqsNeg.base, magFreqsSwitch.base, Z.base, mags.base
 
 
 
@@ -465,84 +452,35 @@ cpdef tuple getAvgSnapshots_switch(Model model, long[::1] nodesG, \
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef tuple getSnapshotsPerDist(Model model, long nodeG, \
-              unordered_map[long, vector[long]] allNeighboursG, \
-              long nSnapshots = 100, long burninSteps = int(1e3), \
-              int maxDist = 1, int threads = -1, int initStateIdx = -1):
-    """
-    simulate the system in equilibrium, take snapshots of the neighbourhood at
-    distances up to maxDist centered around the given node, and count the number
-    of occurrences per neighbourhood state
-    """
-    cdef:
-        vector[unordered_map[string, double]] snapshots = vector[unordered_map[string, double]](maxDist)
-        unordered_map[int, int] idxer
-        long nodeIdx, idx, d, rep, sample, n
-        #double partSpin = 1/(<double> nSamples)
-        double part = 1/(<double> nSnapshots)
-        string state
-        PyObject *modelptr
-        vector[PyObjectHolder] models_
-        int tid, nodeSpin
-        int nThreads = mp.cpu_count() if threads == -1 else threads
-        #long[:, ::1] spins = np.zeros((nSamples, model._nNodes), int)
-        double[::1] spinProbs = np.zeros(model.agentStates.shape[0])
-
-        unordered_map[long, vector[long]] allNeighboursIdx
-
-    nodeIdx = model.mapping[nodeG] # map to internal index
-
-    for d in range(maxDist):
-        allNeighboursIdx[d+1] = [model.mapping[n] for n in allNeighboursG[d+1]]
-
-    for idx in range(model.agentStates.shape[0]):
-        idxer[model.agentStates[idx]] = idx
-
-    # initialize thread-safe models. nThread MC chains will be run in parallel.
-    for rep in range(nThreads):
-        tmp = copy.deepcopy(model)
-        tmp.seed += rep
-        tmp.resetAllToAgentState(initStateIdx, rep)
-        models_.push_back(PyObjectHolder(<PyObject *> tmp))
-
-
-    for sample in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
-        tid = threadid()
-        modelptr = models_[tid].ptr
-
-        # when a thread has finished its first loop iteration,
-        # it will continue running and sampling from the MC chain of the
-        # same model, without resetting
-
-        (<Model>modelptr).simulateNSteps(burninSteps)
-
-        nodeSpin = (<Model>modelptr)._states[nodeIdx]
-        spinProbs[idxer[nodeSpin]] += part
-
-        #if sample < nSnapshots:
-        for d in range(maxDist):
-            with gil:
-                state = (<Model> modelptr).encodeStateToString(allNeighboursIdx[d+1])
-                snapshots[d][state] += part # each index corresponds to one system state, the array contains the probability of each state
-
-        #spins[sample] = (<Model>modelptr)._states
-
-
-    return snapshots, allNeighboursIdx, spinProbs.base
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
-              long nSamples = int(1e3), \
+cpdef tuple getSnapshotsPerDist(Model model, long[::1] nodesG, \
+              long nSnapshots = int(1e3), \
               long burninSteps = int(1e3), int maxDist = 1, int threads = -1, \
               int initStateIdx = -1):
     """
-    simulate the system in equilibrium, take snapshots of the neighbourhood at
-    distances up to maxDist centered around a node, and count the number
-    of occurrences per neighbourhood state. Do this for all given nodes.
+    Simulates the system in equilibrium. For each node in :nodesG:,
+    take snapshots of its neighbourhood shells up to distance :maxDist: and count
+    the number of observations per neighbourhood state.
+
+    Input:
+        :model: a model according to :Models.models:
+        :nodesG: vector of IDs of the node of interest. The IDs are not the internal
+                 model indices but refer to the original graph object given as
+                 input to the :model:
+        :nSnapshots: number of snapshots to be extracted
+        :burninSteps: number of initial simulation steps to discard in order to reach equilibrium
+        :maxDist: maximum distance for neighbourhood shells
+        :threads: number of threads with concurrent simulations to be used
+        :initStateIdx: index to the state in :model.agentStates: to which all
+                       system components should be initialized. If -1, the model
+                      is initialized with a random system state.
+
+    Output:
+        :snapshots: vector containing the mappings from neighbourhood shell states
+                    (encoded as byte string) to their probabilities, for each
+                    distance respectively
+        :neighboursG: vector containing the mappings from distance d to the respective neighbourhood
+                      shell, for each node in :nodesG: respectively. Neighbourhood shells are
+                      given as vectors of node IDs that refer to the original graph object.
     """
     cdef:
         long nNodes = nodesG.shape[0]
@@ -553,7 +491,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         vector[unordered_map[long, vector[long]]] neighboursG = vector[unordered_map[long, vector[long]]](nNodes)
 
         long d, i, b, sample, rep, n
-        double part = 1 / (<double> nSamples)
+        double part = 1 / (<double> nSnapshots)
         string state
         double past    = timer()
         PyObject *modelptr
@@ -576,7 +514,7 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
-    for sample in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
+    for sample in prange(nSnapshots, nogil = True, schedule = 'static', num_threads = nThreads):
         tid = threadid()
         modelptr = models_[tid].ptr
 
@@ -599,110 +537,42 @@ cpdef tuple getSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
-cpdef tuple getSnapshotsPerDist2(Model model, long nodeG, \
-              unordered_map[long, vector[long]] allNeighboursG, \
-              long nSamples = int(1e3), \
-              long burninSteps = int(1e3), long distSamples=100, \
-              int maxDist = 1, long nBins=10, int threads = -1, \
-              int initStateIdx = -1, int getFullSnapshots = 0):
-    """
-    simulate the system in equilibrium, take samples of the neighbourhood at
-    distances up to maxDist centered around the given node, and determine the
-    distribution over neighbourhood magnetization levels (binned).
-    If getFullSnapshots = 1: also take snapshots of the entire system to
-                             determine pairwise MI and correlation
-    """
-    cdef:
-        int nThreads = mp.cpu_count() if threads == -1 else threads
-
-        long[:,:,:,::1] avgSnapshots = np.zeros((nThreads, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,::1] avgSystemSnapshots = np.zeros((nThreads, model.agentStates.shape[0], nBins), int)
-        unordered_map[int, int] idxer
-
-        int idx
-        long nodeIdx, d, i, b, sample, rep, start
-        string state
-        double past    = timer()
-        PyObject *modelptr
-        vector[PyObjectHolder] models_
-        int tid, nodeSpin, s, avg, avgSystem
-        double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
-        vector[long] allNodes = list(model.mapping.values())
-        unordered_map[long, vector[long]] allNeighboursIdx
-        long[:,::1] fullSnapshots
-
-    if getFullSnapshots: fullSnapshots = np.zeros((nSamples, model._nNodes), int)
-
-    for idx in range(model.agentStates.shape[0]):
-        idxer[model.agentStates[idx]] = idx
-
-    nodeIdx = model.mapping[nodeG]
-    for d in range(maxDist):
-        allNeighboursIdx[d+1] = [model.mapping[n] for n in allNeighboursG[d+1]]
-
-    for rep in range(nThreads):
-        tmp = copy.deepcopy(model)
-        tmp.seed += rep
-        tmp.resetAllToAgentState(initStateIdx, rep)
-        models_.push_back(PyObjectHolder(<PyObject *> tmp))
-
-
-    # burnin samples
-    for rep in prange(nThreads, nogil = True, schedule = 'static', num_threads = nThreads):
-        tid = threadid()
-        modelptr = models_[tid].ptr
-        (<Model>modelptr).simulateNSteps(burninSteps)
-
-    pbar = tqdm(total = nSamples)
-    for rep in prange(nSamples, nogil = True, schedule = 'static', num_threads = nThreads):
-        tid = threadid()
-        modelptr = models_[tid].ptr
-
-        (<Model>modelptr).simulateNSteps(distSamples)
-
-        nodeSpin = idxer[(<Model> modelptr)._states[nodeIdx]]
-
-        for d in range(maxDist):
-            #with gil: state = (<Model> modelptr).encodeStateToString(allNeighbours_idx[d+1])
-            #snapshots[d][nodeSpin][state] += 1
-            avg = (<Model> modelptr).encodeStateToAvg(allNeighboursIdx[d+1], bins)
-            #avgSnapshots[d][nodeSpin][avg] +=1
-            avgSnapshots[tid][d][nodeSpin][avg] += 1
-            #with gil: print(rep, avgSnapshots[d])
-
-        avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
-        avgSystemSnapshots[tid][nodeSpin][avgSystem] += 1
-
-        if getFullSnapshots:
-            # TODO: use string encoding?
-            fullSnapshots[rep] = (<Model>modelptr)._states
-
-        with gil: pbar.update(1)
-
-    if getFullSnapshots:
-        return avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
-    else:
-        return avgSnapshots.base, avgSystemSnapshots.base
-
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.nonecheck(False)
-@cython.cdivision(True)
-@cython.initializedcheck(False)
-cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
+cpdef tuple getMagsPerDist(Model model, long[::1] nodesG, \
               unordered_map[long, unordered_map[long, vector[long]]] neighboursG, \
               long nSamples = int(1e3), \
               long burninSteps = int(1e3), long distSamples=100, \
               int maxDist = 1, long nBins=10, int threads = -1, \
               int initStateIdx = -1, int getFullSnapshots = 0):
+
     """
-    simulate the system in equilibrium, take samples of the neighbourhood at
-    distances up to maxDist centered around a node, and determine the
-    distribution over neighbourhood magnetization levels (binned).
-    Do this for all given nodes.
-    If getFullSnapshots = 1: also take snapshots of the entire system to
-                             determine pairwise MI and correlation
+    Simulates the system in equilibrium. For each node in :nodesG:,
+    draw samples of the binned magnetization of neighbourhood shells up to distance :maxDist: and count
+    the number of observations per neighbourhood state.
+
+    Input:
+        :model: a model according to :Models.models:
+        :nodesG: vector of IDs of the node of interest. The IDs are not the internal
+                 model indices but refer to the original graph object given as
+                 input to the :model:
+        :nSamples: number of samples to be drawn
+        :burninSteps: number of initial simulation steps to discard in order to reach equilibrium
+        :distSamples: number of simulation steps between two consecutive samples
+        :maxDist: maximum distance for neighbourhood shells
+        :nBins: number of bins
+        :threads: number of threads with concurrent simulations to be used
+        :initStateIdx: index to the state in :model.agentStates: to which all
+                       system components should be initialized. If -1, the model
+                       is initialized with a random system state.
+        :getFullSnapshots: if True, also take snapshots of the entire system to
+                           be able to determine pairwise MI and correlation
+
+    Output:
+        :magFreqs: array containing frequencies of the binned neighbourhood shell magnetization
+                   for all nodes and distances, conditioned on the state of the respective node of interest
+        :systemMagFreqs: array containing frequencies of the binned system magnetization, conditioned on the state of
+                         each of the nodes in :nodesG:
+        :fullSnapshots: array containing the states of all nodes of the :model:, for each of the :nSamples:
+                        Only returned if getFullSnapshots==True
     """
     cdef:
         int nThreads = mp.cpu_count() if threads == -1 else threads
@@ -710,8 +580,8 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         long node, nNodes = nodesG.shape[0]
         long[::1] nodesIdx = np.zeros(nNodes, 'int')
 
-        long[:,:,:,:,::1] avgSnapshots = np.zeros((nThreads, nNodes, maxDist, model.agentStates.shape[0], nBins), int)
-        long[:,:,:,::1] avgSystemSnapshots = np.zeros((nThreads, nNodes, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,:,::1] magFreqs = np.zeros((nThreads, nNodes, maxDist, model.agentStates.shape[0], nBins), int)
+        long[:,:,:,::1] systemMagFreqs = np.zeros((nThreads, nNodes, model.agentStates.shape[0], nBins), int)
         unordered_map[int, int] idxer
         vector[unordered_map[long, vector[long]]] neighboursIdx = vector[unordered_map[long, vector[long]]](nNodes)
         vector[long] allNodes = list(model.mapping.values())
@@ -721,7 +591,7 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         double past    = timer()
         PyObject *modelptr
         vector[PyObjectHolder] models_
-        int tid, nodeSpin, s, avg, avgSystem
+        int tid, nodeSpin, s, mag, systemMag
 
 
         double[::1] bins = np.linspace(np.min(model.agentStates), np.max(model.agentStates), nBins + 1)[1:] # values represent upper bounds for bins
@@ -743,7 +613,6 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         tmp = copy.deepcopy(model)
         tmp.seed += rep
         tmp.resetAllToAgentState(initStateIdx, rep)
-        print(tmp.states.base)
         models_.push_back(PyObjectHolder(<PyObject *> tmp))
 
 
@@ -759,16 +628,15 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         modelptr = models_[tid].ptr
 
         (<Model>modelptr).simulateNSteps(distSamples)
-        avgSystem = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
+        systemMag = (<Model> modelptr).encodeStateToAvg(allNodes, bins)
 
         for n in range(nNodes):
             nodeSpin = idxer[(<Model> modelptr)._states[nodesIdx[n]]]
             for d in range(maxDist):
-                avg = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
-                #avgSnapshots[n][d][nodeSpin][avg] +=1
-                avgSnapshots[tid][n][d][nodeSpin][avg] +=1
+                mag = (<Model> modelptr).encodeStateToAvg(neighboursIdx[n][d+1], bins)
+                magFreqs[tid][n][d][nodeSpin][mag] +=1
 
-            avgSystemSnapshots[tid][n][nodeSpin][avgSystem] += 1
+            systemMagFreqs[tid][n][nodeSpin][systemMag] += 1
 
         if getFullSnapshots:
             # TODO: use string encoding?
@@ -777,9 +645,9 @@ cpdef tuple getJointSnapshotsPerDistNodes(Model model, long[::1] nodesG, \
         with gil: pbar.update(1)
 
     if getFullSnapshots:
-        return avgSnapshots.base, avgSystemSnapshots.base, fullSnapshots.base
+        return magFreqs.base, systemMagFreqs.base, fullSnapshots.base
     else:
-        return avgSnapshots.base, avgSystemSnapshots.base
+        return magFreqs.base, systemMagFreqs.base
 
 
 
@@ -796,8 +664,8 @@ cpdef np.ndarray monteCarloFixedNeighbours(Model model, string snapshot, long no
 
 
 
-@cython.boundscheck(False) # compiler directive
-@cython.wraparound(False) # compiler directive
+@cython.boundscheck(False)
+@cython.wraparound(False)
 @cython.nonecheck(False)
 @cython.cdivision(True)
 @cython.initializedcheck(False)
@@ -1086,9 +954,8 @@ cdef double mean(long[::1] arr, long len, int abs=0) nogil:
 @cython.cdivision(True)
 @cython.initializedcheck(False)
 @cython.overflowcheck(False)
-cpdef np.ndarray magnetizationParallel(Model model,\
-                          np.ndarray temps  = np.logspace(-3, 2, 20),\
-                      long n             = int(1e3),\
+cpdef np.ndarray magnetizationParallel(Model model,
+                      np.ndarray temps, long n = int(1e3),
                       long burninSteps = 100, int threads = -1):
     """
     Computes the magnetization as a function of temperatures
@@ -1097,7 +964,7 @@ cpdef np.ndarray magnetizationParallel(Model model,\
           :temps: a range of temperatures
           :n:     number of samples to simulate for
           :burninSteps: number of samples to throw away before sampling
-    Returns:
+    Output:
           :temps: the temperature range as input
           :mag:  the magnetization for t in temps
           :sus:  the magnetic susceptibility

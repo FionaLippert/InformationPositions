@@ -290,8 +290,8 @@ if __name__ == '__main__':
             condH = np.zeros(args.trials)
             MI = np.zeros(args.trials)
             for trial in range(args.trials):
-                snapshots = simulation.getSystemSnapshotsCond(model, systemNodes, fixedNodes, \
-                              **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)
+                snapshots = simulation.getSystemSnapshotsCond(model, [systemNodes], [fixedNodes], \
+                              **systemSnapshotSettings, threads = nthreads, initStateIdx = args.initState)[0]
 
                 print([np.sum(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()])
                 condEntropies = [infoTheory.entropyEstimateH2(np.fromiter(s.values(), dtype=int)) for s in snapshots.values()]

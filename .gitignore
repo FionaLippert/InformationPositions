@@ -1,13 +1,11 @@
 build/
 __pycache__/*
-__pycache__/
-__pycache__*
-Data/*
 *.pickle
 *.cpp
 *.html
 output/*
-output*
+tempsData/*
+networkData/*
 Models/*.cpp
 Models/*.html
 Toolbox/*.cpp

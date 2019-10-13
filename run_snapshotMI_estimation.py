@@ -158,7 +158,7 @@ if __name__ == '__main__':
 
 
     snapshotSettings = dict( \
-        nSamples    = args.snapshots, \
+        nSnapshots  = args.snapshots, \
         burninSteps = burninSteps, \
         maxDist     = maxDist
     )
@@ -183,7 +183,7 @@ if __name__ == '__main__':
         all_HX  = {}
 
         threads = 10 # run 10 MC chains in parallel to collect snapshots
-        snapshots, allNeighbours_G = simulation.getSnapshotsPerDistNodes(model, \
+        snapshots, allNeighbours_G = simulation.getSnapshotsPerDist(model, \
                                 nodes, **snapshotSettings, \
                                 threads=threads, initStateIdx=args.initState)
 
