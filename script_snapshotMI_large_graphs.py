@@ -13,7 +13,7 @@ version = 0
 
 gpath=f'networkData/{gtype}/{gname}/{gname}_v{version}.gpickle'
 
-results = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_v{version}_Tc_results.pickle')
+results = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_v{version}_tempsResults.pickle')
 
 for i, T in enumerate([results.T_o, results.T_c, results.T_d]):
        print(f'run T={T:.2f}')

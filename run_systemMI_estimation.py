@@ -161,13 +161,12 @@ if __name__ == '__main__':
                     medianMI[node] = mi
 
 
-            result = IO.SimulationResult('system', \
+            result = IO.SimulationResult('systemMI', \
                         networkSettings     = networkSettings, \
                         modelSettings       = modelSettings, \
                         snapshotSettings    = systemSnapshotSettings, \
                         corrTimeSettings    = corrTimeSettings, \
                         mixingResults       = mixingResults, \
-                        #mi                  = medianMI, \
                         mi                  = allMI, \
                         hx                  = allSystemH, \
                         single              = args.single, \
@@ -235,7 +234,7 @@ if __name__ == '__main__':
                         print(f'MI = {allMI[set][trial]}')
 
 
-            result = IO.SimulationResult('system', \
+            result = IO.SimulationResult('systemMI', \
                         networkSettings     = networkSettings, \
                         modelSettings       = modelSettings, \
                         snapshotSettings    = systemSnapshotSettings, \
@@ -263,13 +262,12 @@ if __name__ == '__main__':
             entropy = np.median(allEntropies)
             print(f'system entropy = {entropy}')
 
-            result = IO.SimulationResult('system', \
+            result = IO.SimulationResult('systemMI', \
                         networkSettings     = networkSettings, \
                         modelSettings       = modelSettings, \
                         snapshotSettings    = systemSnapshotSettings, \
                         corrTimeSettings    = corrTimeSettings, \
                         mixingResults       = mixingResults, \
-                        #hx                  = entropy, \
                         hx                  = allEntropies, \
                         single              = args.single, \
                         computeTime         = timer()-start )
@@ -315,7 +313,7 @@ if __name__ == '__main__':
 
             print(f'MI = {mi}')
 
-            result = IO.SimulationResult('system', \
+            result = IO.SimulationResult('systemMI', \
                         networkSettings     = networkSettings, \
                         modelSettings       = modelSettings, \
                         snapshotSettings    = systemSnapshotSettings, \
@@ -323,7 +321,6 @@ if __name__ == '__main__':
                         mixingResults       = mixingResults, \
                         fixedNodes          = fixedNodes, \
                         systemNodes         = systemNodes, \
-                        #mi                  = mi, \
                         mi                  = MI, \
                         hx                  = systemH, \
                         single              = args.single, \

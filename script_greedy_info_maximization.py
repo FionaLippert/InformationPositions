@@ -20,22 +20,20 @@ vs = list(range(10))
 for v in vs:
     graph = f'ER_k={0.05*1.2*N:.2f}_N={N}_v{v}'
 
-    T_result = IO.TcResult.loadFromPickle(f'DataTc_new/{gtype}/{graph}', f'{graph}_Tc_results.pickle')
+    T_result = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{graph}', f'{graph}_tempsResults.pickle')
 
-    #Ts = [T_result.T_low, T_result.T_c, T_result.T_high]
+    #Ts = [T_result.T_o, T_result.T_c, T_result.T_d]
     #magSides = ['pos', 'fair', 'fair']
 
-    #Ts = [T_result.T_low, T_result.T_c]
-    #magSides = ['pos', 'fair']
 
-    Ts = [T_result.T_low]
+    Ts = [T_result.T_o]
     magSides = ['pos']
 
     """
     for j, T in enumerate(Ts):
 
         for k in range(1, 4):
-            subprocess.call(['python3', 'run_covering.py', \
+            subprocess.call(['python3', 'run_greedy_info_maximization.py', \
                  f'{T:.2f}', \
                  f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/brute_force/k={k}', \
                  f'networkData/{gtype}/{graph}/{graph}.gpickle', \
@@ -49,7 +47,7 @@ for v in vs:
 
     for j, T in enumerate(Ts):
         for i in range(10):
-            subprocess.call(['python3', 'run_covering.py', \
+            subprocess.call(['python3', 'run_greedy_info_maximization.py', \
                  f'{T:.2f}', \
                  #f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/brute_force', \
                  f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/10_trials_nodesExcluded', \
@@ -67,7 +65,7 @@ for v in vs:
 
         mi_dir = f'output_final/{gtype}/{graph}/magMI/T={T:.2f}'
 
-        subprocess.call(['python3', 'run_covering.py', \
+        subprocess.call(['python3', 'run_greedy_info_maximization.py', \
              f'{T:.2f}', \
              f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/heuristic_nodesExcluded_iv_greedy', \
              #f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/heuristic_nodesExcluded_newnodes_greedy', \

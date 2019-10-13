@@ -13,7 +13,7 @@ gtype=f'small_graphs/N={N}_p=0.05'
 for v in range(10):
     gname=f'ER_k={0.05*1.2*N:.2f}_N={N}_v{v}'
 
-    results = IO.TcResult.loadFromPickle(f'DataTc_new/{gtype}/{gname}', f'{gname}_Tc_results.pickle')
+    results = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_tempsResults.pickle')
 
     for i, T in enumerate([results.T_o, results.T_c, results.T_d]):
            print(f'run T={T:.2f}')

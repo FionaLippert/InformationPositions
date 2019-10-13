@@ -4,46 +4,54 @@
 @author: Fiona Lippert
 """
 
-from numpy import *
-from matplotlib.pyplot import *
-from dataclasses import dataclass
-import pickle, pandas, os, re, json, datetime, time, glob
-import networkx as nx
-from collections import defaultdict, OrderedDict
+import pickle, os, json, time, glob
 
-def get_timestamp(path):
-    no_ext = os.path.splitext(path)[0]
-    timestamp = no_ext.split('_')[-1]
-    return timestamp
 
-def newest(dir, filename):
+def loadPickle(path, filename):
     """
-    Returns sorted files by time (descending)
+    load a single .pickle file
+
+    Input:
+        :path: path to directory containing the .pickle file
+        :filename: name of .pickle file
+    Output:
+        :object: unpickled objects
     """
-    paths = [file for file in glob.iglob(f'{os.path.join(dir, filename)}*')]
-    return sorted(paths, key=get_timestamp, reverse=True)
+    if not filename.endswith('.pickle'):
+        filename += '.pickle'
+    with open(os.path.join(path, filename), 'rb') as f:
+        object = pickle.load(f)
+    return object
 
+def loadAllPickle(path, prefix):
+    """
+    load all .pickle files with filename starting with :prefix:
 
-def loadPickle(path, fileName):
-    if not fileName.endswith('.pickle'):
-        fileName += '.pickle'
-    with open(os.path.join(path, fileName), 'rb') as f:
-        return pickle.load(f)
-
-def loadAllPickle(path, filePrefix):
-    allFiles = []
-    for file in glob.iglob(f'{os.path.join(path, filePrefix)}*'):
+    Input:
+        :path: path to directory with .pickle files
+        :prefix: required prefix for .pickle file names
+    Output:
+        :objects: list of unpickled objects
+    """
+    objects = []
+    for file in glob.iglob(f'{os.path.join(path, prefix)}*'):
         with open(file, 'rb') as f:
-            allFiles.append(pickle.load(f))
-    return allFiles
+            objects.append(pickle.load(f))
+    return objects
 
-def savePickle(path, fileName, objects):
-    #TODO: warning; apparantly pickle <=3 cannot handle files
-    # larger than 4 gb.
+def savePickle(path, filename, objects):
+    """
+    save python objects as .pickle file
+
+    Input:
+        :path: path to target directory
+        :filename: name of .pickle file
+        :objects: python objects to be pickled
+    """
     if not fileName.endswith('.pickle'):
-        fileName += '.pickle'
-    print(f'Saving {fileName}')
-    with open(os.path.join(path, fileName), 'wb') as f:
+        filename += '.pickle'
+    print(f'Saving {filename}')
+    with open(os.path.join(path, filename), 'wb') as f:
         pickle.dump(objects, f, protocol = pickle.HIGHEST_PROTOCOL)
 
 def saveSettings(targetDirectory, settings, prefix=''):
@@ -59,50 +67,28 @@ def loadResults(targetDirectory, name):
     with open(os.path.join(targetDirectory, f'{name}.json')) as f:
         return json.load(f)
 
-def readSettings(targetDirectory, dataType = '.pickle'):
-    try:
-        with open(targetDirectory + '/settings.json') as f:
-            return json.load(f)
-
-    # TODO: uggly, also lacks all the entries
-    # attempt to load from a file
-    except FileNotFoundError:
-        # use re to extract settings
-        settings = {}
-        for file in os.listdir(targetDirectory):
-            if file.endswith(dataType) and 'mags' not in file:
-                file = file.split(dataType)[0].split('_')
-                for f in file:
-                    tmp = f.split('=')
-                    if len(tmp) > 1:
-                        key, value = tmp
-                        if key in 'nSamples k step deltas':
-                            if key == 'k':
-                                key = 'repeats'
-                            settings[key] = value
-            # assumption is that all the files have the same info
-            break
-        saveSettings(targetDirectory, settings)
-        return settings
-
 
 class SimulationResult:
 
+    """
+    General class for simulation results
+    """
+
     def __init__(self, type, **kwargs):
-        assert type in { 'vector', 'avg', 'pairwise', 'system', 'greedy'}
+        assert type in { 'snapshotMI', 'magMI', 'pairwiseMI', 'systemMI', 'greedy'}
         self.type = type
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     def saveToPickle(self, dir):
         now = time.time()
-        savePickle(dir, f'{self.type}_simulation_results_{now}', self)
+        savePickle(dir, f'{self.type}_simulationResults_{now}', self)
 
     def loadFromPickle(dir, filename):
         return loadPickle(dir, filename)
 
     def loadNewestFromPickle(dir, type):
-        paths = newest(dir, f'{type}_simulation_results_')
+        paths = newest(dir, f'{type}_simulationResults_')
         print(paths)
         dir, filename = os.path.split(paths[0])
         return loadPickle(dir, filename)
@@ -111,7 +97,38 @@ class SimulationResult:
         ext = f'{type}_simulation_results_'
         return loadAllPickle(dir, ext)
 
-class TcResult:
+    def get_timestamp(filepath):
+        """
+        Extract timestamp from SimulationResult file name
+        """
+        no_ext = os.path.splitext(filepath)[0]
+        timestamp = no_ext.split('_')[-1]
+        return timestamp
+
+    def newest(dir, filename):
+        """
+        Returns sorted files by time (descending)
+        """
+        paths = [file for file in glob.iglob(f'{os.path.join(dir, filename)}*')]
+        return sorted(paths, key=get_timestamp, reverse=True)
+
+
+class TempsResult:
+    """
+    Class for results from temperature estimation
+
+    Attributes:
+        :temps: temperature range
+        :mags: average sytem magnetization per temperature
+        :abs_mags: average absolute system magnetization per temperature
+        :sus: susceptibility per temperature
+        :binder: Binder coefficient per temperature
+        :T_c: critical temperature
+        :T_d: selected temperature in the disordered phase
+        :T_o: selected temperature in the ordered phase
+        :graph: path to networkx graph
+    """
+
     def __init__(self, temps, mags, abs_mags, sus, binder, T_c, T_d, T_o, graph):
         self.temps = temps
         self.mags = mags
@@ -123,11 +140,8 @@ class TcResult:
         self.T_o = T_o
         self.graph = graph
 
-    def set_T_low(self, T_low):
-        self.T_low = T_low
-
     def saveToPickle(self, path):
-        savePickle(path, f'{self.graph}_Tc_results', self)
+        savePickle(path, f'{self.graph}_tempsResults', self)
 
     def loadFromPickle(path, filename):
         return loadPickle(path, filename)

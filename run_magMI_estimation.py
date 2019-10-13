@@ -131,7 +131,7 @@ if __name__ == '__main__':
         startC = timer()
         MI_avg, MI_system, HX = infoTheory.processJointSnapshots_allNodes(avgSnapshots, args.numSamples, nodes, maxDist, avgSystemSnapshots)
 
-        result = IO.SimulationResult('avg', \
+        result = IO.SimulationResult('magMI', \
                     networkSettings     = networkSettings, \
                     modelSettings       = modelSettings, \
                     snapshotSettings    = snapshotSettings, \
@@ -148,7 +148,7 @@ if __name__ == '__main__':
             startC = timer()
             MI, corr = infoTheory.pairwiseMI_allNodes(model, nodes, fullSnapshots)
 
-            result = IO.SimulationResult('pairwise', \
+            result = IO.SimulationResult('pairwiseMI', \
                         networkSettings     = networkSettings, \
                         modelSettings       = modelSettings, \
                         snapshotSettings    = snapshotSettings, \

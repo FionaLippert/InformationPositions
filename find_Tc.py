@@ -116,5 +116,5 @@ if __name__ == '__main__':
         print(f'T_c (critical)         = {Tc:.2f}')
         print(f'T_d (disordered phase) = {Td:.2f}')
 
-        result = IO.TcResult(temps, mags, abs_mags, sus, binder, Tc, Td, To, filename)
+        result = IO.TempsResult(temps, mags, abs_mags, sus, binder, Tc, Td, To, filename)
         result.saveToPickle(targetDirectory)

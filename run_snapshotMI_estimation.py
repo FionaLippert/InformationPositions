@@ -199,7 +199,7 @@ if __name__ == '__main__':
                                 nSamples, modelSettingsCond, corrTimeSettings)
             print(f'MI = {all_MI[node]}')
 
-        result = IO.SimulationResult('vector', \
+        result = IO.SimulationResult('snapshotMI', \
                     networkSettings     = networkSettings, \
                     modelSettings       = modelSettings, \
                     snapshotSettings    = snapshotSettings, \

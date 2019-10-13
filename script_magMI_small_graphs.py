@@ -14,7 +14,7 @@ for i in range(10):
 
     gpath   = f'{gtype}/{gname}_v{i}'
     graph=f'networkData/{gpath}/{gname}_v{i}.gpickle'
-    results = IO.TcResult.loadFromPickle(f'DataTc_new/{gtype}/{gname}', f'{gname}_Tc_results.pickle')
+    results = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_tempsResults.pickle')
 
     for i, T in enumerate([results.T_o, results.T_c, results.T_d]):
            print(f'run T={T:.2f}')
