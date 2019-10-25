@@ -13,18 +13,18 @@ gtype=f'small_graphs/N={N}_p=0.05'
 for v in range(10):
     gname=f'ER_k={0.05*1.2*N:.2f}_N={N}_v{v}'
 
-    results = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_tempsResults.pickle')
+    results = IO.TempsResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_tempsResults.pickle')
 
-    for i, T in enumerate([results.T_o, results.T_c, results.T_d]):
-           print(f'run T={T:.2f}')
+    for i, (T_val, T_str) in enumerate(zip([results.T_o, results.T_c, results.T_d], ['T_o', 'T_c', 'T_d'])):
+           print(f'run T={T_str}')
            if i == 0:
                magSide = 'pos'
            else:
                magSide = 'fair'
 
            subprocess.call(['python3', 'run_snapshotMI_estimation.py', \
-                    str(T), \
-                    f'output/{gtype}/{gname}/snapshotMI/T={T:.2f}', \
+                    str(T_val), \
+                    f'output_snapshotMI/{gtype}/{gname}/{T_str}', \
                     f'networkData/{gtype}/{gname}/{gname}.gpickle', \
                     '--nodes', f'networkData/{gtype}/{gname}/{gname}_nodes.npy', \
                     '--maxCorrTime', '100', \

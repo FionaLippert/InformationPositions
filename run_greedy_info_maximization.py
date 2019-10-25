@@ -5,8 +5,8 @@
 from Models import fastIsing
 from Toolbox import infoTheory, simulation
 from Utils import IO
-import networkx as nx,
-import itertools, scipy, subprocess, os, argparse,
+import networkx as nx
+import itertools, scipy, subprocess, os, argparse
 import multiprocessing as mp
 import itertools
 import numpy as np
@@ -152,7 +152,8 @@ if __name__ == '__main__':
 
     elif len(args.heuristic) > 0:
 
-        MI_avg = IO.SimulationResult.loadNewestFromPickle(args.heuristic, 'avg').mi
+        #MI_avg = IO.SimulationResult.loadNewestFromPickle(args.heuristic, 'avg').mi
+        MI_avg = IO.SimulationResult.loadNewestFromPickle(args.heuristic, 'magMI').mi
 
         # normalize IV
         max_IV = np.max([np.nansum(MI_avg[n]) for n in MI_avg.keys()])
@@ -209,8 +210,6 @@ if __name__ == '__main__':
 
         for k in range(args.k_min, args.k_max + 1):
 
-            print(k)
-
             max_score = -np.infty
             """
             top_set = []
@@ -238,10 +237,10 @@ if __name__ == '__main__':
 
                 overlap = overlap_node_set(graph, s, used_nodes, MI_avg)
                 iv = IV[s]
-                score = iv/(overlap + 0.001)
-                score = iv
+                #score = iv/(overlap + 0.001)
+                #score = iv
                 #score = iv * overlap
-                #score = iv - overlap
+                score = 0.5 * iv - overlap
 
                 #print(f'--------------- node set {s}, overlap = {overlap}, iv = {iv} ---------------')
                 if score > max_score:

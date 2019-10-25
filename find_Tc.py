@@ -30,10 +30,17 @@ parser.add_argument('--numT', type=int, default=1000,
             help='number of different temperature values')
 
 
-def find_Tc_gaussian(sus, temps, sigma=5):
-    sus_smoothed = ndimage.filters.gaussian_filter1d(sus, sigma)
-    Tc_idx = np.argmax(sus_smoothed)
-    Tc = temps[Tc_idx]
+def find_Tc_gaussian(sus, binder, temps, sigma=5):
+    left_bound = np.where(binder < binder[0]*0.8)[0][0]
+    if np.where(binder < binder[0]*0.2)[0].size > 0:
+        right_bound = np.where(binder < binder[0]*0.2)[0][0]
+        sus_smoothed = ndimage.filters.gaussian_filter1d(sus, sigma)
+        Tc_idx = np.argmax(sus_smoothed[left_bound:right_bound]) + left_bound
+        Tc = temps[Tc_idx]
+    else:
+        # not enough temperatures
+        Tc_idx = Tc = -1
+
     return Tc, Tc_idx
 
 # sigmoid function for magnetization fitting
@@ -81,36 +88,50 @@ if __name__ == '__main__':
                              )
         model = fastIsing.Ising(**modelSettings)
 
+        Tc = Tc_idx = -1
+        while Tc < 0:
+            mags, sus, binder, abs_mags = simulation.magnetizationParallel(model, \
+                                temps        = temps,        \
+                                n            = nSamples,     \
+                                burninSteps  = burninSteps)
 
-        mags, sus, binder, abs_mags = simulation.magnetizationParallel(model, \
-                            temps        = temps,        \
-                            n            = nSamples,     \
-                            burninSteps  = burninSteps)
+            Tc, Tc_idx = find_Tc_gaussian(sus, binder, temps)
+            if Tc < 0:
+                print(f'failed to estimate T_c. Another estimation will be performed, using a larger temperature range')
+                temps = np.linspace(args.minT, temps[-1] + args.maxT, args.numT)
 
-        Tc, Tc_idx = find_Tc_gaussian(sus, temps)
-        a, b = optimize.curve_fit(sig, temps, abs_mags)
-        mag_Tc = sig(Tc, *a)
+        #a, b = optimize.curve_fit(sig, temps, abs_mags)
+        #mag_Tc = sig(Tc, *a)
 
-        if np.all(sus < 1e-2):
-            warnings.warn(f'Susceptibility values are too small to detect phase \
-                            transition. Instead, T_c is estimated based on \
-                            the difference between absolute average magnetization \
-                            and average absolute magnetization.', Warning)
-            symmetry_breaking_idx = np.where( \
-                    np.abs(ndimage.filters.gaussian_filter1d(np.abs(mags), 10) \
-                    - ndimage.filters.gaussian_filter1d(np.abs(abs_mags), 10)) \
-                    > 0.01)[0][0]
-            mag_Tc = sig(temps[symmetry_breaking_idx], *a)
+        #if np.all(sus < 0.01):
+        #    warnings.warn(f'Susceptibility values are too small to detect phase \
+        #                    transition. Instead, T_c is estimated based on \
+        #                    the difference between absolute average magnetization \
+        #                    and average absolute magnetization.', Warning)
+        #    symmetry_breaking_idx = np.where( \
+        #            np.abs(ndimage.filters.gaussian_filter1d(np.abs(mags), 10) \
+        #            - ndimage.filters.gaussian_filter1d(np.abs(abs_mags), 10)) \
+        #            > 0.01)[0][0]
+        #    mag_Tc = sig(temps[symmetry_breaking_idx], *a)
 
         #To = temps[np.where(sig(temps, *a) < (1 + sig(temps[symmetry_breaking_idx], *a)) * 0.5)[0][0]]
-        To = temps[np.where(sig(temps, *a) < (1 + mag_Tc) * 0.5)[0][0]]
+        #To = temps[np.where(sig(temps, *a) < (1 + mag_Tc) * 0.5)[0][0]]
 
-        try:
-            Td = temps[np.where(sig(temps, *a) < mag_Tc * 0.5)[0][0]]
-        except:
-            warnings.warn(f'T_d could not be estimated from sigmoid fit. \
-                            Raw magnetization data is used instead', Warning)
-            Td = temps[np.where(abs_mags < mag_Tc * 0.5)[0][0]]
+        #abs_mags_smoothed = ndimage.filters.gaussian_filter1d(np.abs(mags), 5)
+        abs_mags_fit = np.poly1d(np.polyfit(temps, abs_mags, 10)) # polynomial with degree 10
+        mag_Tc = abs_mags_fit(Tc)
+
+        t_range = np.linspace(temps[0], temps[-1], 1e5)
+
+        To = t_range[np.where(abs_mags_fit(t_range) < (1 + mag_Tc) * 0.5)[0][0]]
+
+        #try:
+        #    Td = temps[np.where(sig(temps, *a) < mag_Tc * 0.5)[0][0]]
+        #except:
+        #    warnings.warn(f'T_d could not be estimated from sigmoid fit. \
+        #                    Raw magnetization data is used instead', Warning)
+
+        Td = t_range[np.where(abs_mags_fit(t_range) < mag_Tc * 0.5)[0][0]]
 
         print(f'T_o (ordered phase)    = {To:.2f}')
         print(f'T_c (critical)         = {Tc:.2f}')

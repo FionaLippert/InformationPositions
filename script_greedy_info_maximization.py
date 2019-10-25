@@ -12,21 +12,22 @@ def get_timestamp(path):
     timestamp = no_ext.split('_')[-1]
     return timestamp
 
-N=30
+N=50
 gtype = f'small_graphs/N={N}_p=0.05'
 #vs = [1] #list(range(6,10))
 vs = list(range(10))
 
 for v in vs:
-    graph = f'ER_k={0.05*1.2*N:.2f}_N={N}_v{v}'
+    gname = f'ER_k={0.05*1.2*N:.2f}_N={N}_v{v}'
 
-    T_result = IO.TcResult.loadFromPickle(f'tempsData/{gtype}/{graph}', f'{graph}_tempsResults.pickle')
+    T_result = IO.TempsResult.loadFromPickle(f'tempsData/{gtype}/{gname}', f'{gname}_tempsResults.pickle')
 
     #Ts = [T_result.T_o, T_result.T_c, T_result.T_d]
     #magSides = ['pos', 'fair', 'fair']
 
 
-    Ts = [T_result.T_o]
+    temps = [T_result.T_o]
+    temps_str = ['T_o']
     magSides = ['pos']
 
     """
@@ -61,16 +62,16 @@ for v in vs:
                  '--magSide', magSides[j]])
 
     """
-    for j, T in enumerate(Ts):
+    for j, (T_val, T_str) in enumerate(zip(temps, temps_str)):
 
-        mi_dir = f'output_final/{gtype}/{graph}/magMI/T={T:.2f}'
+        mi_dir = f'output_magMI/{gtype}/{gname}/{T_str}'
 
         subprocess.call(['python3', 'run_greedy_info_maximization.py', \
-             f'{T:.2f}', \
-             f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/heuristic_nodesExcluded_iv_greedy', \
+             str(T_val), \
+             f'output_heuristicInfoMax_halfIV/{gtype}/{gname}/{T_str}', \
              #f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/heuristic_nodesExcluded_newnodes_greedy', \
              #f'output_systemEntropyGreedy/{gtype}/{graph}/T={T:.2f}/heuristic_nodesExcluded_test', \
-             f'networkData/{gtype}/{graph}/{graph}.gpickle', \
+             f'networkData/{gtype}/{gname}/{gname}.gpickle', \
              '--k_max', str(int(N/2)), \
              #'--k_max', '8', \
              #'--k_min', '7', \

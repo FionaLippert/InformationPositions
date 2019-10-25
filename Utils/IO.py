@@ -48,15 +48,16 @@ def savePickle(path, filename, objects):
         :filename: name of .pickle file
         :objects: python objects to be pickled
     """
-    if not fileName.endswith('.pickle'):
+    if not filename.endswith('.pickle'):
         filename += '.pickle'
     print(f'Saving {filename}')
     with open(os.path.join(path, filename), 'wb') as f:
         pickle.dump(objects, f, protocol = pickle.HIGHEST_PROTOCOL)
 
 def saveSettings(targetDirectory, settings, prefix=''):
-    print('Saving settings')
-    with open(targetDirectory + f'/{prefix}Settings.json', 'w') as f:
+    filename = f'{prefix}Settings.json'
+    print(f'Saving {filename}')
+    with open(os.path.join(targetDirectory, f'{filename}'), 'w') as f:
         json.dump(settings, f)
 
 def saveResults(targetDirectory, result_dict, name):
@@ -66,6 +67,22 @@ def saveResults(targetDirectory, result_dict, name):
 def loadResults(targetDirectory, name):
     with open(os.path.join(targetDirectory, f'{name}.json')) as f:
         return json.load(f)
+
+
+def newest(dir, filename):
+    """
+    Returns sorted files by time (descending)
+    """
+    paths = [file for file in glob.iglob(f'{os.path.join(dir, filename)}*')]
+    return sorted(paths, key=get_timestamp, reverse=True)
+
+def get_timestamp(filepath):
+    """
+    Extract timestamp from SimulationResult file name
+    """
+    no_ext = os.path.splitext(filepath)[0]
+    timestamp = no_ext.split('_')[-1]
+    return timestamp
 
 
 class SimulationResult:
@@ -80,16 +97,20 @@ class SimulationResult:
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def saveToPickle(self, dir):
-        now = time.time()
+    def saveToPickle(self, dir, timestamp=None):
+        if not timestamp:
+            now = time.time()
+        else:
+            now = timestamp
         savePickle(dir, f'{self.type}_simulationResults_{now}', self)
+
 
     def loadFromPickle(dir, filename):
         return loadPickle(dir, filename)
 
+
     def loadNewestFromPickle(dir, type):
         paths = newest(dir, f'{type}_simulationResults_')
-        print(paths)
         dir, filename = os.path.split(paths[0])
         return loadPickle(dir, filename)
 
@@ -97,20 +118,7 @@ class SimulationResult:
         ext = f'{type}_simulation_results_'
         return loadAllPickle(dir, ext)
 
-    def get_timestamp(filepath):
-        """
-        Extract timestamp from SimulationResult file name
-        """
-        no_ext = os.path.splitext(filepath)[0]
-        timestamp = no_ext.split('_')[-1]
-        return timestamp
 
-    def newest(dir, filename):
-        """
-        Returns sorted files by time (descending)
-        """
-        paths = [file for file in glob.iglob(f'{os.path.join(dir, filename)}*')]
-        return sorted(paths, key=get_timestamp, reverse=True)
 
 
 class TempsResult:
